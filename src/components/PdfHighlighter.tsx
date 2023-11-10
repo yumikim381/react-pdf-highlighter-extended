@@ -207,7 +207,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     }
 
     return findOrCreateContainerLayer(
-      textLayer.textLayerDiv,
+      textLayer.div,
       "PdfHighlighter__highlight-layer"
     );
   }

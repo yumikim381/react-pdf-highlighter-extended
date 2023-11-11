@@ -1,5 +1,5 @@
 async function waitForHighlights() {
-  await page.waitForSelector(".Highlight .Highlight__part", {
+  await page.waitForSelector(".TextHighlight .TextHighlight__part", {
     visible: true,
   });
 }
@@ -25,7 +25,7 @@ it("should display highlights", async () => {
 
 it("should display hover tips over highlights", async () => {
   await waitForHighlights();
-  await page.hover(".Highlight .Highlight__part", {
+  await page.hover(".TextHighlight .TextHighlight__part", {
     visible: true,
   });
   await page.waitForSelector(".PdfHighlighter__tip-container", {

@@ -1,15 +1,19 @@
-import React, { Component } from "react";
+import React, { Component, ReactNode } from "react";
 
 import {
   PdfLoader,
   PdfHighlighter,
   Tip,
-  Highlight,
+  TextHighlight,
   Popup,
   AreaHighlight,
 } from "./react-pdf-highlighter";
 
-import type { IHighlight, NewHighlight } from "./react-pdf-highlighter";
+import type {
+  Comment,
+  IHighlight,
+  NewHighlight,
+} from "./react-pdf-highlighter";
 
 import { testHighlights as _testHighlights } from "./test-highlights";
 import { Spinner } from "./Spinner";
@@ -33,14 +37,10 @@ const resetHash = () => {
   document.location.hash = "";
 };
 
-const HighlightPopup = ({
-  comment,
-}: {
-  comment: { text: string; emoji: string };
-}) =>
+const HighlightPopup = ({ comment }: { comment: Comment }) =>
   comment.text ? (
     <div className="Highlight__popup">
-      {comment.emoji} {comment.text}
+      {comment.icon} {comment.text}
     </div>
   ) : null;
 
@@ -190,7 +190,7 @@ class App extends Component<{}, State> {
                   );
 
                   const component = isTextHighlight ? (
-                    <Highlight
+                    <TextHighlight
                       isScrolledTo={isScrolledTo}
                       position={highlight.position}
                       comment={highlight.comment}

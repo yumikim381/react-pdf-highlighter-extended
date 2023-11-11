@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export interface LTWH {
   left: number;
   top: number;
@@ -46,7 +48,7 @@ export interface HighlightContent {
 
 export interface Comment {
   text: string;
-  emoji: string;
+  icon?: ReactNode;
 }
 
 export interface HighlightComment {

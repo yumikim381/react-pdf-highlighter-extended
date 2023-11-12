@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef } from "react";
 import MouseMonitor from "./MouseMonitor";
 
 interface Props {
@@ -30,16 +30,17 @@ interface Props {
  * @param {Props} props - The component's properties.
  */
 const Popup = ({ onMouseOver, popupContent, onMouseOut, children }: Props) => {
-  const [mouseIn, setMouseIn] = useState(false); // Whether the mouse is over the child
+  const mouseIn = useRef<Boolean>(false); // Whether the mouse is over the child
 
   // Create a mouse monitor for the popup content
   const monitorContent = (
     <MouseMonitor
       onMoveAway={() => {
-        if (mouseIn) {
+        if (mouseIn.current) {
           // If the mouse is still on the parent's child
           return;
         }
+
         onMouseOut();
       }}
       paddingX={60}
@@ -52,11 +53,11 @@ const Popup = ({ onMouseOver, popupContent, onMouseOut, children }: Props) => {
   return (
     <div
       onMouseOver={() => {
-        setMouseIn(true);
+        mouseIn.current = true;
         onMouseOver(monitorContent);
       }}
       onMouseOut={() => {
-        setMouseIn(false);
+        mouseIn.current = false;
       }}
     >
       {children}

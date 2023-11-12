@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useEffect, useRef } from "react";
 
 interface Props {
   onMoveAway: () => void;
@@ -7,56 +7,35 @@ interface Props {
   children: JSX.Element;
 }
 
-class MouseMonitor extends Component<Props> {
-  container: HTMLDivElement | null = null;
-  unsubscribe = () => {};
+const MouseMonitor = ({ onMoveAway, paddingX, paddingY, children }: Props) => {
+  const container = useRef<HTMLDivElement | null>(null);
 
-  onMouseMove = (event: MouseEvent) => {
-    if (!this.container) {
-      return;
-    }
-
-    const { onMoveAway, paddingX, paddingY } = this.props;
+  const onMouseMove = (event: MouseEvent) => {
+    if (!container.current) return;
 
     const { clientX, clientY } = event;
-
-    // TODO: see if possible to optimize
-    const { left, top, width, height } = this.container.getBoundingClientRect();
+    const { left, top, width, height } =
+      container.current.getBoundingClientRect();
 
     const inBoundsX =
       clientX > left - paddingX && clientX < left + width + paddingX;
     const inBoundsY =
       clientY > top - paddingY && clientY < top + height + paddingY;
 
-    const isNear = inBoundsX && inBoundsY;
-
-    if (!isNear) {
+    if (!(inBoundsX && inBoundsY)) {
       onMoveAway();
     }
   };
 
-  attachRef = (ref: HTMLDivElement | null) => {
-    this.container = ref;
-    this.unsubscribe();
+  useEffect(() => {
+    document.addEventListener("mousemove", onMouseMove);
 
-    if (ref) {
-      const { ownerDocument: doc } = ref;
-      doc.addEventListener("mousemove", this.onMouseMove);
-      this.unsubscribe = () => {
-        doc.removeEventListener("mousemove", this.onMouseMove);
-      };
-    }
-  };
+    return () => {
+      document.removeEventListener("mousemove", onMouseMove);
+    };
+  });
 
-  render() {
-    // eslint-disable-next-line
-    const { onMoveAway, paddingX, paddingY, children, ...restProps } =
-      this.props;
-
-    return (
-      <div ref={this.attachRef}>{React.cloneElement(children, restProps)}</div>
-    );
-  }
-}
+  return <div ref={container}>{children}</div>;
+};
 
 export default MouseMonitor;

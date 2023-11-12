@@ -1,117 +1,119 @@
-import React, { Component } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist/legacy/build/pdf";
-import { type PDFDocumentProxy } from "pdfjs-dist";
+import type { PDFDocumentProxy, OnProgressParameters } from "pdfjs-dist";
 
 interface Props {
-  /** See `GlobalWorkerOptionsType`. */
-  workerSrc: string;
-
+  /**
+   * URL for the PDF document.
+   */
   url: string;
-  beforeLoad: JSX.Element;
-  errorMessage?: JSX.Element;
-  children: (pdfDocument: PDFDocumentProxy) => JSX.Element;
+
+  /**
+   * Callback function to render content before the PDF document is loaded.
+   * @param {OnProgressParameters} progress - PDF.js progress status.
+   */
+  beforeLoad?: (progress: OnProgressParameters) => ReactNode;
+
+  /**
+   * Error message to display if there is an error loading the PDF document.
+   */
+  errorMessage?: ReactNode;
+
+  /**
+   * Callback function to use/render the loaded PDF document.
+   * @param {PDFDocumentProxy} pdfDocument - The loaded PDF document.
+   */
+  children: (pdfDocument: PDFDocumentProxy) => ReactNode;
+
+  /**
+   * Callback function to handle errors when loading a PDF document.
+   * @param error - The error object.
+   */
   onError?: (error: Error) => void;
+
+  /** See `GlobalWorkerOptionsType`. */
+  workerSrc?: string;
   cMapUrl?: string;
   cMapPacked?: boolean;
 }
 
-interface State {
-  pdfDocument: PDFDocumentProxy | null;
-  error: Error | null;
-}
+const DEFAULT_BEFORE_LOAD = (progress: OnProgressParameters) => (
+  <div style={{ color: "black" }}>
+    Loading {Math.floor((progress.loaded / progress.total) * 100)}%
+  </div>
+);
+const DEFAULT_ERROR_MESSAGE = (
+  <div style={{ color: "black" }}>Oh no! An error has occurred.</div>
+);
+const DEFAULT_ON_ERROR = (error: Error) =>
+  console.log(`Error loading PDF document: ${error.message}!`);
+const DEFAULT_WORKER_SRC =
+  "https://unpkg.com/pdfjs-dist@3.8.162/build/pdf.worker.min.js";
 
-export class PdfLoader extends Component<Props, State> {
-  state: State = {
-    pdfDocument: null,
-    error: null,
-  };
+/**
+ * A component for loading a PDF document and passing it to a child.
+ *
+ * @param {Props} props - The component's properties.
+ */
+const PdfLoader = ({
+  url,
+  beforeLoad = DEFAULT_BEFORE_LOAD,
+  errorMessage = DEFAULT_ERROR_MESSAGE,
+  children,
+  onError = DEFAULT_ON_ERROR,
+  workerSrc = DEFAULT_WORKER_SRC,
+  cMapUrl,
+  cMapPacked,
+}: Props) => {
+  const [pdfDocument, setPdfDocument] = useState<PDFDocumentProxy | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [loadingProgress, setLoadingProgress] =
+    useState<OnProgressParameters | null>(null);
 
-  static defaultProps = {
-    workerSrc: "https://unpkg.com/pdfjs-dist@3.8.162/build/pdf.worker.min.js",
-  };
+  useEffect(() => {
+    GlobalWorkerOptions.workerSrc = workerSrc;
 
-  documentRef = React.createRef<HTMLElement>();
+    const pdfLoadingTask = getDocument({
+      url,
+      cMapUrl,
+      cMapPacked,
+    });
 
-  componentDidMount() {
-    this.load();
-  }
-
-  componentWillUnmount() {
-    const { pdfDocument: discardedDocument } = this.state;
-    if (discardedDocument) {
-      discardedDocument.destroy();
-    }
-  }
-
-  componentDidUpdate({ url }: Props) {
-    if (this.props.url !== url) {
-      this.load();
-    }
-  }
-
-  componentDidCatch(error: Error, info?: any) {
-    const { onError } = this.props;
-
-    if (onError) {
-      onError(error);
-    }
-
-    this.setState({ pdfDocument: null, error });
-  }
-
-  load() {
-    const { ownerDocument = document } = this.documentRef.current || {};
-    const { url, cMapUrl, cMapPacked, workerSrc } = this.props;
-    const { pdfDocument: discardedDocument } = this.state;
-    this.setState({ pdfDocument: null, error: null });
-
-    if (typeof workerSrc === "string") {
-      GlobalWorkerOptions.workerSrc = workerSrc;
-    }
-
-    Promise.resolve()
-      .then(() => discardedDocument && discardedDocument.destroy())
-      .then(() => {
-        if (!url) {
-          return;
-        }
-
-        return getDocument({
-          ...this.props,
-          ownerDocument,
-          cMapUrl,
-          cMapPacked,
-        }).promise.then((pdfDocument) => {
-          this.setState({ pdfDocument });
-        });
+    pdfLoadingTask.promise
+      .then((pdfDocument: PDFDocumentProxy) => {
+        setPdfDocument(pdfDocument);
       })
-      .catch((e) => this.componentDidCatch(e));
-  }
+      .catch((error: Error) => {
+        setError(error);
+        onError(error);
+      })
+      .finally(() => {
+        setLoadingProgress(null);
+      });
 
-  render() {
-    const { children, beforeLoad } = this.props;
-    const { pdfDocument, error } = this.state;
-    return (
-      <>
-        <span ref={this.documentRef} />
-        {error
-          ? this.renderError()
-          : !pdfDocument || !children
-          ? beforeLoad
-          : children(pdfDocument)}
-      </>
-    );
-  }
+    pdfLoadingTask.onProgress = (progress: OnProgressParameters) => {
+      setLoadingProgress(progress);
+    };
 
-  renderError() {
-    const { errorMessage } = this.props;
-    if (errorMessage) {
-      return React.cloneElement(errorMessage, { error: this.state.error });
-    }
+    return () => {
+      if (pdfDocument) {
+        pdfDocument.destroy();
+      }
+    };
+  }, [url]);
 
-    return null;
-  }
-}
+  return (
+    <div>
+      {error
+        ? errorMessage
+        : loadingProgress
+        ? beforeLoad(loadingProgress)
+        : pdfDocument
+        ? children(pdfDocument)
+        : null}
+    </div>
+  );
+};
 
 export default PdfLoader;

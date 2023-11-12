@@ -20,6 +20,7 @@ import { Spinner } from "./Spinner";
 import { Sidebar } from "./Sidebar";
 
 import "./style/App.css";
+import { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
 
 const testHighlights: Record<string, Array<IHighlight>> = _testHighlights;
 
@@ -46,6 +47,7 @@ const HighlightPopup = ({ comment }: { comment: Comment }) =>
 
 const PRIMARY_PDF_URL = "https://arxiv.org/pdf/1708.08021.pdf";
 const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480.pdf";
+const LARGE_PDF_URL = "https://arxiv.org/pdf/2210.04048.pdf";
 
 const searchParams = new URLSearchParams(document.location.search);
 
@@ -149,8 +151,8 @@ class App extends Component<{}, State> {
             position: "relative",
           }}
         >
-          <PdfLoader url={url} beforeLoad={<Spinner />}>
-            {(pdfDocument) => (
+          <PdfLoader url={url}>
+            {(pdfDocument: PDFDocumentProxy) => (
               <PdfHighlighter
                 pdfDocument={pdfDocument}
                 enableAreaSelection={(event) => event.altKey}

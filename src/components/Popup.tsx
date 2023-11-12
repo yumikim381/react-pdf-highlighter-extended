@@ -30,7 +30,7 @@ interface Props {
  * @param {Props} props - The component's properties.
  */
 const Popup = ({ onMouseOver, popupContent, onMouseOut, children }: Props) => {
-  const mouseIn = useRef<Boolean>(false); // Whether the mouse is over the child
+  const mouseIn = useRef(false); // Whether the mouse is over the child
 
   // Create a mouse monitor for the popup content
   const monitorContent = (

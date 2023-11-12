@@ -37,7 +37,6 @@ const Popup = ({ onMouseOver, popupContent, onMouseOut, children }: Props) => {
     <MouseMonitor
       onMoveAway={() => {
         if (mouseIn.current) {
-          // If the mouse is still on the parent's child
           return;
         }
 

@@ -31,7 +31,7 @@ interface Props {
  * @param {Props} props - The component's properties.
  */
 const AreaHighlight = ({ highlight, onChange, isScrolledTo, style }: Props) => {
-  const highlightClass = isScrolledTo ? "AreaHighlight --scrolledTo" : "";
+  const highlightClass = isScrolledTo ? "AreaHighlight--scrolledTo" : "";
 
   return (
     <div className={`AreaHighlight ${highlightClass}`}>

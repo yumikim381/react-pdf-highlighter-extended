@@ -48,7 +48,7 @@ const TextHighlight = ({
   isScrolledTo,
   style,
 }: Props) => {
-  const highlightClass = isScrolledTo ? "TextHighlight --scrolledTo" : "";
+  const highlightClass = isScrolledTo ? "TextHighlight--scrolledTo" : "";
   const { rects, boundingRect } = position;
 
   return (

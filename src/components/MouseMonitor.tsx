@@ -48,6 +48,7 @@ const MouseMonitor = ({ onMoveAway, paddingX, paddingY, children }: Props) => {
   };
 
   useEffect(() => {
+    // TODO: Throttle this
     document.addEventListener("mousemove", onMouseMove);
 
     return () => {

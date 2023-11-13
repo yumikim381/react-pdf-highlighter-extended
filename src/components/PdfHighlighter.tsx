@@ -16,7 +16,12 @@ import type {
   Scaled,
   ScaledPosition,
 } from "../types";
-import React, { PointerEventHandler, PureComponent, RefObject } from "react";
+import React, {
+  PointerEventHandler,
+  PureComponent,
+  RefObject,
+  useRef,
+} from "react";
 import {
   asElement,
   findOrCreateContainerLayer,
@@ -554,11 +559,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
 
     return (
       <div onPointerDown={this.onMouseDown}>
-        <div
-          ref={this.containerNodeRef}
-          className="PdfHighlighter"
-          onContextMenu={(e) => e.preventDefault()}
-        >
+        <div ref={this.containerNodeRef} className="PdfHighlighter">
           <div className="pdfViewer" />
           {this.renderTip()}
           {typeof enableAreaSelection === "function" ? (

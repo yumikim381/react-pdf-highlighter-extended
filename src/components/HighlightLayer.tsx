@@ -68,9 +68,11 @@ export function HighlightLayer<T_HT extends IHighlight>({
           viewportHighlight,
           index,
           (highlight, callback) => {
-            setState({
-              tip: { highlight, callback },
-            });
+            const newTip = {
+              highlight: highlight,
+              callback: callback,
+            };
+            setState(newTip);
 
             showTip(highlight, callback(highlight));
           },

@@ -92,6 +92,7 @@ class TipContainer extends Component<Props, State> {
           visibility: isStyleCalculationInProgress ? "hidden" : "visible",
           top,
           left,
+          border: "2px solid black",
         }}
         ref={(node) => {
           this.node = node;

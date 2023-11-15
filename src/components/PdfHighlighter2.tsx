@@ -93,13 +93,12 @@ const PdfHighlighter = <T_HT extends IHighlight>({
   onSelectionFinished,
   enableAreaSelection,
 }: Props<T_HT>) => {
-  const [ghostHighlight, setGhostHighlight] = useState<GhostHighlight | null>(
-    null
-  );
-  const [isCollapsed, setIsCollapsed] = useState(true);
-  const [range, setRange] = useState<Range | null>(null);
-  const [scrolledToHighlightId, setScrolledToHighlightId] = useState(EMPTY_ID);
-  const [areaSelectionInProgress, setAreaSelectionInProgress] = useState(false);
+  const highlightsRef = useRef(highlights);
+  const ghostHighlight = useRef<GhostHighlight | null>(null);
+  const isCollapsed = useRef(true);
+  const range = useRef<Range | null>(null);
+  const scrolledToHighlightId = useRef(EMPTY_ID);
+  const areaSelectionInProgress = useRef(false);
   const [tip, setTip] = useState<Tip<T_HT> | null>(null);
   const [tipPosition, setTipPosition] = useState<Position | null>(null);
   const [tipChildren, setTipChildren] = useState<React.JSX.Element | null>(
@@ -155,6 +154,11 @@ const PdfHighlighter = <T_HT extends IHighlight>({
     };
   }, []);
 
+  useEffect(() => {
+    highlightsRef.current = highlights;
+    renderHighlightLayers();
+  }, [highlights]);
+
   const findOrCreateHighlightLayer = (page: number) => {
     const { textLayer } = viewer.current!.getPageView(page - 1) || {};
     if (!textLayer) return null;
@@ -168,9 +172,10 @@ const PdfHighlighter = <T_HT extends IHighlight>({
   const groupHighlightsByPage = (
     highlights: Array<T_HT>
   ): Record<number, Array<T_HT>> => {
-    const allHighlights = [...highlights, ghostHighlight].filter(
-      Boolean
-    ) as Array<T_HT>; // TODO: Check if we need falsey validation
+    const allHighlights = [
+      ...highlightsRef.current,
+      ghostHighlight.current,
+    ].filter(Boolean) as Array<T_HT>; // TODO: Check if we need falsey validation
     const groupedHighlights: Record<number, Array<T_HT>> = {};
 
     allHighlights.forEach((highlight) => {
@@ -216,7 +221,12 @@ const PdfHighlighter = <T_HT extends IHighlight>({
     content: React.JSX.Element
   ) => {
     // Check if highlight is in progress
-    if (!isCollapsed || ghostHighlight || areaSelectionInProgress) return;
+    if (
+      !isCollapsed.current ||
+      ghostHighlight.current ||
+      areaSelectionInProgress.current
+    )
+      return;
     setTipPosition(highlight.position);
     setTipChildren(content);
   };
@@ -263,12 +273,13 @@ const PdfHighlighter = <T_HT extends IHighlight>({
   const hideTipAndSelection = () => {
     setTipPosition(null);
     setTipChildren(null);
-    setGhostHighlight(null);
+    ghostHighlight.current = null;
     setTip(null);
     renderHighlightLayers();
   };
 
   const onTextLayerRendered = () => {
+    console.log("onTextLayerRendered");
     renderHighlightLayers();
   };
 
@@ -295,7 +306,7 @@ const PdfHighlighter = <T_HT extends IHighlight>({
       ],
     });
 
-    setScrolledToHighlightId(highlight.id);
+    scrolledToHighlightId.current = highlight.id;
     renderHighlightLayers();
 
     // wait for scrolling to finish
@@ -315,29 +326,29 @@ const PdfHighlighter = <T_HT extends IHighlight>({
 
     if (!selection) return;
 
-    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+    const newRange = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
 
     if (selection.isCollapsed) {
-      setIsCollapsed(true);
+      isCollapsed.current = true;
       return;
     }
 
     if (
-      !range ||
+      !newRange ||
       !container ||
-      !container.contains(range.commonAncestorContainer) // Sanity check the selected text is in the container
+      !container.contains(newRange.commonAncestorContainer) // Sanity check the selected text is in the container
     ) {
       return;
     }
 
-    setIsCollapsed(false);
-    setRange(range);
+    isCollapsed.current = false;
+    range.current = newRange;
     debouncedAfterSelection();
   };
 
   const onScroll = () => {
     onScrollChange();
-    setScrolledToHighlightId(EMPTY_ID);
+    scrolledToHighlightId.current = EMPTY_ID;
     renderHighlightLayers();
   };
 
@@ -357,13 +368,19 @@ const PdfHighlighter = <T_HT extends IHighlight>({
   };
 
   const afterSelection = () => {
-    if (!range || isCollapsed) return;
+    if (!range.current || isCollapsed.current) {
+      return;
+    }
 
-    const pages = getPagesFromRange(range);
-    if (!pages || pages.length === 0) return;
+    const pages = getPagesFromRange(range.current);
+    if (!pages || pages.length === 0) {
+      return;
+    }
 
-    const rects = getClientRects(range, pages);
-    if (rects.length === 0) return;
+    const rects = getClientRects(range.current, pages);
+    if (rects.length === 0) {
+      return;
+    }
 
     const boundingRect = getBoundingRect(rects);
     const viewportPosition: Position = {
@@ -372,12 +389,16 @@ const PdfHighlighter = <T_HT extends IHighlight>({
       pageNumber: pages[0].number,
     };
 
-    const content = { text: range.toString() };
+    const content = { text: range.current.toString() };
     const scaledPosition = viewportPositionToScaled(viewportPosition);
+
     setTipPosition(viewportPosition);
     setTipChildren(
       onSelectionFinished(scaledPosition, content, hideTipAndSelection, () => {
-        setGhostHighlight({ ...ghostHighlight, position: scaledPosition });
+        ghostHighlight.current = {
+          ...ghostHighlight.current,
+          position: scaledPosition,
+        };
         renderHighlightLayers();
       })
     );
@@ -442,7 +463,7 @@ const PdfHighlighter = <T_HT extends IHighlight>({
     <MouseSelection
       onDragStart={() => toggleTextSelection(true)}
       onDragEnd={() => toggleTextSelection(false)}
-      onChange={setAreaSelectionInProgress}
+      onChange={(isVisible) => (areaSelectionInProgress.current = isVisible)}
       shouldStart={(event) =>
         enableAreaSelection!(event) &&
         isHTMLElement(event.target) &&
@@ -476,10 +497,10 @@ const PdfHighlighter = <T_HT extends IHighlight>({
             { image },
             hideTipAndSelection,
             () => {
-              setGhostHighlight({
+              ghostHighlight.current = {
                 position: scaledPosition,
                 content: { image },
-              });
+              };
               resetSelection();
               renderHighlightLayers();
             }
@@ -490,6 +511,7 @@ const PdfHighlighter = <T_HT extends IHighlight>({
   );
 
   const renderHighlightLayers = () => {
+    console.log("Render Highlight Layers called!");
     for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
       const highlightRoot = highlightRoots.current[pageNumber];
 
@@ -514,14 +536,14 @@ const PdfHighlighter = <T_HT extends IHighlight>({
   const renderHighlightLayer = (root: Root, pageNumber: number) => {
     root.render(
       <HighlightLayer
-        highlightsByPage={groupHighlightsByPage(highlights)}
+        highlightsByPage={groupHighlightsByPage(highlightsRef.current)}
         pageNumber={pageNumber.toString()}
-        scrolledToHighlightId={scrolledToHighlightId}
+        scrolledToHighlightId={scrolledToHighlightId.current}
         highlightTransform={highlightTransform}
         tip={tip}
         scaledPositionToViewport={scaledPositionToViewport.bind(this)}
         hideTipAndSelection={hideTipAndSelection.bind(this)}
-        viewer={viewer}
+        viewer={viewer.current}
         screenshot={screenshot.bind(this)}
         showTip={showTip.bind(this)}
         setState={setTip.bind(this)}

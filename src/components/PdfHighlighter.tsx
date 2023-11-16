@@ -26,17 +26,22 @@ import {
   getWindow,
   isHTMLElement,
 } from "../lib/pdfjs-dom";
-import { scaledToViewport, viewportToScaled } from "../lib/coordinates";
+import {
+  scaledToViewport,
+  viewportPositionToScaled,
+  viewportToScaled,
+} from "../lib/coordinates";
 import MouseSelection from "./MouseSelection";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import TipContainer from "./TipContainer";
 import { createRoot, Root } from "react-dom/client";
 import debounce from "lodash.debounce";
-import getAreaAsPng from "../lib/get-area-as-png";
 import getBoundingRect from "../lib/get-bounding-rect";
 import getClientRects from "../lib/get-client-rects";
 import { HighlightLayer } from "./HighlightLayer";
 import groupHighlightsByPage from "../lib/group-highlights-by-page";
+import TipRenderer from "./TipRenderer";
+import screenshot from "../lib/screenshot";
 
 export type T_ViewportHighlight<T_HT> = { position: Position } & T_HT;
 
@@ -57,7 +62,7 @@ interface Props<T_HT> {
   onScrollChange: () => void;
   scrollRef: (scrollTo: (highlight: T_HT) => void) => void;
   pdfDocument: PDFDocumentProxy;
-  pdfScaleValue: string;
+  pdfScaleValue?: string;
   onSelectionFinished: (
     position: ScaledPosition,
     content: { text?: string; image?: string },
@@ -185,45 +190,6 @@ const PdfHighlighter = <T_HT extends IHighlight>({
     setTipChildren(content);
   };
 
-  const scaledPositionToViewport = ({
-    pageNumber,
-    boundingRect,
-    rects,
-    usePdfCoordinates,
-  }: ScaledPosition): Position => {
-    const viewport = viewer.current!.getPageView(pageNumber - 1).viewport;
-    const scale = (obj: Scaled) =>
-      scaledToViewport(obj, viewport, usePdfCoordinates);
-
-    return {
-      boundingRect: scale(boundingRect),
-      rects: (rects || []).map(scale),
-      pageNumber,
-    };
-  };
-
-  const viewportPositionToScaled = ({
-    pageNumber,
-    boundingRect,
-    rects,
-  }: Position): ScaledPosition => {
-    const viewport = viewer.current!.getPageView(pageNumber - 1).viewport;
-    const scale = (obj: LTWHP) => viewportToScaled(obj, viewport);
-
-    return {
-      boundingRect: scale(boundingRect),
-      rects: (rects || []).map(scale),
-      pageNumber,
-    };
-  };
-
-  const screenshot = (position: LTWH, pageNumber: number) => {
-    return getAreaAsPng(
-      viewer.current!.getPageView(pageNumber - 1).canvas,
-      position
-    );
-  };
-
   const hideTipAndSelection = () => {
     setTipPosition(null);
     setTipChildren(null);
@@ -344,7 +310,10 @@ const PdfHighlighter = <T_HT extends IHighlight>({
     };
 
     const content = { text: range.current.toString() };
-    const scaledPosition = viewportPositionToScaled(viewportPosition);
+    const scaledPosition = viewportPositionToScaled(
+      viewportPosition,
+      viewer.current!
+    );
 
     setTipPosition(viewportPosition);
     setTipChildren(
@@ -375,44 +344,6 @@ const PdfHighlighter = <T_HT extends IHighlight>({
 
   const debouncedScaleValue = debounce(handleScaleValue, 500);
 
-  const renderTip = () => {
-    if (!tipPosition) return null;
-
-    const { boundingRect, pageNumber } = tipPosition;
-    const pageNode = viewer.current!.getPageView(
-      (boundingRect.pageNumber || pageNumber) - 1
-    ).div;
-    const pageBoundingClientRect = pageNode.getBoundingClientRect();
-
-    // pageBoundingClientRect isn't enumerable
-    const pageBoundingRect = {
-      bottom: pageBoundingClientRect.bottom,
-      height: pageBoundingClientRect.height,
-      left: pageBoundingClientRect.left,
-      right: pageBoundingClientRect.right,
-      top: pageBoundingClientRect.top,
-      width: pageBoundingClientRect.width,
-      x: pageBoundingClientRect.x,
-      y: pageBoundingClientRect.y,
-      pageNumber: boundingRect.pageNumber || pageNumber,
-    };
-
-    return (
-      <TipContainer
-        scrollTop={viewer.current!.container.scrollTop}
-        pageBoundingRect={pageBoundingRect}
-        style={{
-          left:
-            pageNode.offsetLeft + boundingRect.left + boundingRect.width / 2,
-          top: boundingRect.top + pageNode.offsetTop,
-          bottom: boundingRect.top + pageNode.offsetTop + boundingRect.height,
-        }}
-      >
-        {tipChildren}
-      </TipContainer>
-    );
-  };
-
   const areaSelection = (
     <MouseSelection
       onDragStart={() => toggleTextSelection(true)}
@@ -441,8 +372,15 @@ const PdfHighlighter = <T_HT extends IHighlight>({
           pageNumber: page.number,
         };
 
-        const scaledPosition = viewportPositionToScaled(viewportPosition);
-        const image = screenshot(pageBoundingRect, pageBoundingRect.pageNumber);
+        const scaledPosition = viewportPositionToScaled(
+          viewportPosition,
+          viewer.current!
+        );
+        const image = screenshot(
+          pageBoundingRect,
+          pageBoundingRect.pageNumber,
+          viewer.current!
+        );
 
         setTipPosition(viewportPosition);
         setTipChildren(
@@ -501,7 +439,6 @@ const PdfHighlighter = <T_HT extends IHighlight>({
         scrolledToHighlightId={scrolledToHighlightId.current}
         highlightTransform={highlightTransform}
         tip={tip}
-        scaledPositionToViewport={scaledPositionToViewport.bind(this)}
         hideTipAndSelection={hideTipAndSelection.bind(this)}
         viewer={viewer.current}
         screenshot={screenshot.bind(this)}
@@ -515,7 +452,11 @@ const PdfHighlighter = <T_HT extends IHighlight>({
     <div onPointerDown={onMouseDown}>
       <div ref={containerNodeRef} className="PdfHighlighter">
         <div className="pdfViewer" />
-        {renderTip()}
+        <TipRenderer
+          tipPosition={tipPosition}
+          tipChildren={tipChildren}
+          viewer={viewer.current!}
+        />
         {enableAreaSelection && areaSelection}
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { viewportToScaled } from "../lib/coordinates";
+import { scaledPositionToViewport, viewportToScaled } from "../lib/coordinates";
 import React from "react";
 import {
   IHighlight,
@@ -8,6 +8,7 @@ import {
   Scaled,
   ScaledPosition,
 } from "../types";
+import screenshot from "../lib/screenshot";
 
 interface HighlightLayerProps<T_HT> {
   highlightsByPage: { [pageNumber: string]: Array<T_HT> };
@@ -26,24 +27,20 @@ interface HighlightLayerProps<T_HT> {
     highlight: any;
     callback: (highlight: any) => JSX.Element;
   } | null;
-  scaledPositionToViewport: (scaledPosition: ScaledPosition) => Position;
   hideTipAndSelection: () => void;
   viewer: any;
-  screenshot: (position: LTWH, pageNumber: number) => string;
   showTip: (highlight: any, content: JSX.Element) => void;
   setState: (state: any) => void;
 }
 
 export function HighlightLayer<T_HT extends IHighlight>({
   highlightsByPage,
-  scaledPositionToViewport,
   pageNumber,
   scrolledToHighlightId,
   highlightTransform,
   tip,
   hideTipAndSelection,
   viewer,
-  screenshot,
   showTip,
   setState,
 }: HighlightLayerProps<T_HT>) {
@@ -54,7 +51,7 @@ export function HighlightLayer<T_HT extends IHighlight>({
         // @ts-ignore
         const viewportHighlight: any = {
           id,
-          position: scaledPositionToViewport(position),
+          position: scaledPositionToViewport(position, viewer),
           ...highlight,
         };
 
@@ -84,7 +81,8 @@ export function HighlightLayer<T_HT extends IHighlight>({
 
             return viewportToScaled(rect, viewport);
           },
-          (boundingRect) => screenshot(boundingRect, parseInt(pageNumber)),
+          (boundingRect) =>
+            screenshot(boundingRect, parseInt(pageNumber), viewer),
           isScrolledTo
         );
       })}

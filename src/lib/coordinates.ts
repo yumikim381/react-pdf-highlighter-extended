@@ -4,7 +4,14 @@
 // for clarity reasons I decided not to store actual (0, 1) coordinates, but
 // provide width and height, so user can compute ratio himself if needed
 
-import type { LTWHP, Scaled, Viewport } from "../types";
+import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
+import type {
+  LTWHP,
+  Position,
+  Scaled,
+  ScaledPosition,
+  Viewport,
+} from "../types";
 
 interface WIDTH_HEIGHT {
   width: number;
@@ -26,6 +33,20 @@ export const viewportToScaled = (
     height,
 
     pageNumber: rect.pageNumber,
+  };
+};
+
+export const viewportPositionToScaled = (
+  { pageNumber, boundingRect, rects }: Position,
+  viewer: PDFViewer
+): ScaledPosition => {
+  const viewport = viewer.getPageView(pageNumber - 1).viewport;
+  const scale = (obj: LTWHP) => viewportToScaled(obj, viewport);
+
+  return {
+    boundingRect: scale(boundingRect),
+    rects: (rects || []).map(scale),
+    pageNumber,
   };
 };
 
@@ -75,5 +96,20 @@ export const scaledToViewport = (
     width: x2 - x1,
     height: y2 - y1,
     pageNumber: scaled.pageNumber,
+  };
+};
+
+export const scaledPositionToViewport = (
+  { pageNumber, boundingRect, rects, usePdfCoordinates }: ScaledPosition,
+  viewer: PDFViewer
+): Position => {
+  const viewport = viewer.getPageView(pageNumber - 1).viewport;
+  const scale = (obj: Scaled) =>
+    scaledToViewport(obj, viewport, usePdfCoordinates);
+
+  return {
+    boundingRect: scale(boundingRect),
+    rects: (rects || []).map(scale),
+    pageNumber,
   };
 };

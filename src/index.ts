@@ -1,4 +1,4 @@
-import PdfHighlighter from "./components/PdfHighlighter2";
+import PdfHighlighter from "./components/PdfHighlighter";
 export { Tip } from "./components/Tip";
 import TextHighlight from "./components/TextHighlight";
 import Popup from "./components/Popup";

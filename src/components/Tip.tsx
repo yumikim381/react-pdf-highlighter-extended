@@ -1,98 +1,40 @@
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 
 import "../style/Tip.css";
-
-interface State {
-  compact: boolean;
-  text: string;
-  emoji: string;
-}
+import TipCard from "./TipCard";
 
 interface Props {
-  onConfirm: (comment: { text: string; emoji: string }) => void;
+  onConfirm: (data: any) => void;
   onOpen: () => void;
   onUpdate?: () => void;
 }
 
-export class Tip extends Component<Props, State> {
-  state: State = {
-    compact: true,
-    text: "",
-    emoji: "",
-  };
+const Tip = ({ onConfirm, onOpen, onUpdate }: Props) => {
+  const [compact, setCompact] = useState(true);
 
-  // for TipContainer
-  componentDidUpdate(nextProps: Props, nextState: State) {
-    const { onUpdate } = this.props;
+  useEffect(() => {
+    if (onUpdate) onUpdate();
+  }, [compact]);
 
-    if (onUpdate && this.state.compact !== nextState.compact) {
-      onUpdate();
-    }
-  }
+  const commentForm = <textarea placeholder="Your comment" autoFocus />;
 
-  render() {
-    const { onConfirm, onOpen } = this.props;
-    const { compact, text, emoji } = this.state;
-
-    return (
-      <div className="Tip">
-        {compact ? (
-          <div
-            className="Tip__compact"
-            onClick={() => {
-              onOpen();
-              this.setState({ compact: false });
-            }}
-          >
-            Add highlight
-          </div>
-        ) : (
-          <form
-            className="Tip__card"
-            onSubmit={(event) => {
-              event.preventDefault();
-              onConfirm({ text, emoji });
-            }}
-          >
-            <div>
-              <textarea
-                placeholder="Your comment"
-                autoFocus
-                value={text}
-                onChange={(event) =>
-                  this.setState({ text: event.target.value })
-                }
-                ref={(node) => {
-                  if (node) {
-                    node.focus();
-                  }
-                }}
-              />
-              <div>
-                {["💩", "😱", "😍", "🔥", "😳", "⚠️"].map((_emoji) => (
-                  <label key={_emoji}>
-                    <input
-                      checked={emoji === _emoji}
-                      type="radio"
-                      name="emoji"
-                      value={_emoji}
-                      onChange={(event) =>
-                        this.setState({ emoji: event.target.value })
-                      }
-                    />
-                    {_emoji}
-                  </label>
-                ))}
-              </div>
-            </div>
-            <div>
-              <input type="submit" value="Save" />
-            </div>
-          </form>
-        )}
-      </div>
-    );
-  }
-}
+  return (
+    <div className="Tip">
+      {compact ? (
+        <div
+          className="Tip__compact"
+          onClick={() => {
+            onOpen();
+            setCompact(false);
+          }}
+        >
+          Add highlight
+        </div>
+      ) : (
+        <TipCard form={commentForm} onConfirm={onConfirm} />
+      )}
+    </div>
+  );
+};
 
 export default Tip;

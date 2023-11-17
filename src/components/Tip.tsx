@@ -1,23 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { CSSProperties, ReactNode, useState } from "react";
 
 import "../style/Tip.css";
-import TipCard from "./TipCard";
 
 interface Props {
-  onConfirm: (data: any) => void;
   onOpen: () => void;
-  onUpdate?: () => void;
+  compactStyle?: CSSProperties;
+  children: ReactNode;
 }
 
-const Tip = ({ onConfirm, onOpen, onUpdate }: Props) => {
+const Tip = ({ onOpen, compactStyle, children }: Props) => {
   const [compact, setCompact] = useState(true);
-
-  useEffect(() => {
-    if (onUpdate) onUpdate();
-  }, [compact]);
-
-  const commentForm = <textarea placeholder="Your comment" autoFocus />;
-
   return (
     <div className="Tip">
       {compact ? (
@@ -27,11 +19,12 @@ const Tip = ({ onConfirm, onOpen, onUpdate }: Props) => {
             onOpen();
             setCompact(false);
           }}
+          style={compactStyle}
         >
           Add highlight
         </div>
       ) : (
-        <TipCard form={commentForm} onConfirm={onConfirm} />
+        children
       )}
     </div>
   );

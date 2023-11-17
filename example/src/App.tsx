@@ -169,14 +169,19 @@ class App extends Component<{}, State> {
                   hideTipAndSelection,
                   transformSelection
                 ) => (
-                  <Tip
-                    onOpen={transformSelection}
-                    onConfirm={(comment) => {
-                      this.addHighlight({ content, position, comment });
+                  <Tip onOpen={transformSelection}>
+                    <button
+                      onClick={() => {
+                        const comment = { text: "comment" };
+                        this.addHighlight({ content, position, comment });
 
-                      hideTipAndSelection();
-                    }}
-                  />
+                        hideTipAndSelection();
+                      }}
+                      style={{ padding: "20px" }}
+                    >
+                      This is a button!
+                    </button>
+                  </Tip>
                 )}
                 highlightTransform={(
                   highlight,

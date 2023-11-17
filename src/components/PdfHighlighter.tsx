@@ -42,6 +42,7 @@ import { HighlightLayer } from "./HighlightLayer";
 import groupHighlightsByPage from "../lib/group-highlights-by-page";
 import TipRenderer from "./TipRenderer";
 import screenshot from "../lib/screenshot";
+import MouseSelectionRender from "./MouseSelectionRenderer";
 
 export type T_ViewportHighlight<T_HT> = { position: Position } & T_HT;
 
@@ -128,7 +129,7 @@ const PdfHighlighter = <T_HT extends IHighlight>({
     const doc = containerNodeRef.current?.ownerDocument;
     if (!doc || !containerNodeRef.current) return;
 
-    eventBus.current.on("textlayerrendered", onTextLayerRendered);
+    eventBus.current.on("textlayerrendered", renderHighlightLayers);
     eventBus.current.on("pagesinit", onDocumentReady);
     doc.addEventListener("selectionchange", onSelectionChange);
     doc.addEventListener("keydown", handleKeyDown);
@@ -152,7 +153,7 @@ const PdfHighlighter = <T_HT extends IHighlight>({
 
     return () => {
       eventBus.current.off("pagesinit", onDocumentReady);
-      eventBus.current.off("textlayerrendered", onTextLayerRendered);
+      eventBus.current.off("textlayerrendered", renderHighlightLayers);
       doc.removeEventListener("selectionchange", onSelectionChange);
       doc.removeEventListener("keydown", handleKeyDown);
       doc.defaultView?.removeEventListener("resize", debouncedScaleValue);
@@ -195,11 +196,6 @@ const PdfHighlighter = <T_HT extends IHighlight>({
     setTipChildren(null);
     ghostHighlight.current = null;
     setTip(null);
-    renderHighlightLayers();
-  };
-
-  const onTextLayerRendered = () => {
-    console.log("onTextLayerRendered");
     renderHighlightLayers();
   };
 
@@ -329,13 +325,6 @@ const PdfHighlighter = <T_HT extends IHighlight>({
 
   const debouncedAfterSelection = debounce(afterSelection, 500);
 
-  const toggleTextSelection = (flag: boolean) => {
-    viewer.current!.viewer!.classList.toggle(
-      "PdfHighlighter--disable-selection",
-      flag
-    );
-  };
-
   const handleScaleValue = () => {
     if (viewer) {
       viewer.current!.currentScaleValue = pdfScaleValue; //"page-width";
@@ -344,66 +333,7 @@ const PdfHighlighter = <T_HT extends IHighlight>({
 
   const debouncedScaleValue = debounce(handleScaleValue, 500);
 
-  const areaSelection = (
-    <MouseSelection
-      onDragStart={() => toggleTextSelection(true)}
-      onDragEnd={() => toggleTextSelection(false)}
-      onChange={(isVisible) => (areaSelectionInProgress.current = isVisible)}
-      shouldStart={(event) =>
-        enableAreaSelection!(event) &&
-        isHTMLElement(event.target) &&
-        Boolean(asElement(event.target).closest(".page"))
-      }
-      onSelection={(startTarget, boundingRect, resetSelection) => {
-        const page = getPageFromElement(startTarget);
-
-        if (!page) return;
-
-        const pageBoundingRect = {
-          ...boundingRect,
-          top: boundingRect.top - page.node.offsetTop,
-          left: boundingRect.left - page.node.offsetLeft,
-          pageNumber: page.number,
-        };
-
-        const viewportPosition = {
-          boundingRect: pageBoundingRect,
-          rects: [],
-          pageNumber: page.number,
-        };
-
-        const scaledPosition = viewportPositionToScaled(
-          viewportPosition,
-          viewer.current!
-        );
-        const image = screenshot(
-          pageBoundingRect,
-          pageBoundingRect.pageNumber,
-          viewer.current!
-        );
-
-        setTipPosition(viewportPosition);
-        setTipChildren(
-          onSelectionFinished(
-            scaledPosition,
-            { image },
-            hideTipAndSelection,
-            () => {
-              ghostHighlight.current = {
-                position: scaledPosition,
-                content: { image },
-              };
-              resetSelection();
-              renderHighlightLayers();
-            }
-          )
-        );
-      }}
-    />
-  );
-
   const renderHighlightLayers = () => {
-    console.log("Render Highlight Layers called!");
     for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
       const highlightRoot = highlightRoots.current[pageNumber];
 
@@ -439,11 +369,11 @@ const PdfHighlighter = <T_HT extends IHighlight>({
         scrolledToHighlightId={scrolledToHighlightId.current}
         highlightTransform={highlightTransform}
         tip={tip}
-        hideTipAndSelection={hideTipAndSelection.bind(this)}
+        hideTipAndSelection={hideTipAndSelection}
         viewer={viewer.current}
-        screenshot={screenshot.bind(this)}
-        showTip={showTip.bind(this)}
-        setState={setTip.bind(this)}
+        screenshot={screenshot}
+        showTip={showTip}
+        setState={setTip}
       />
     );
   };
@@ -457,7 +387,36 @@ const PdfHighlighter = <T_HT extends IHighlight>({
           tipChildren={tipChildren}
           viewer={viewer.current!}
         />
-        {enableAreaSelection && areaSelection}
+        <MouseSelectionRender
+          viewer={viewer.current!}
+          onChange={(isVisible) =>
+            (areaSelectionInProgress.current = isVisible)
+          }
+          enableAreaSelection={enableAreaSelection}
+          afterSelection={(
+            viewportPosition,
+            scaledPosition,
+            image,
+            resetSelection
+          ) => {
+            setTipPosition(viewportPosition);
+            setTipChildren(
+              onSelectionFinished(
+                scaledPosition,
+                { image },
+                hideTipAndSelection,
+                () => {
+                  ghostHighlight.current = {
+                    position: scaledPosition,
+                    content: { image },
+                  };
+                  resetSelection();
+                  renderHighlightLayers();
+                }
+              )
+            );
+          }}
+        />
       </div>
     </div>
   );

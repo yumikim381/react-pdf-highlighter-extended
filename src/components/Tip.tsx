@@ -1,23 +1,29 @@
-import React, { CSSProperties, ReactNode, useState } from "react";
+import React, { CSSProperties, ReactNode, useEffect, useState } from "react";
 
 import "../style/Tip.css";
 
 interface Props {
   onOpen: () => void;
   compactStyle?: CSSProperties;
+  onUpdate?: () => void;
   children: ReactNode;
 }
 
-const Tip = ({ onOpen, compactStyle, children }: Props) => {
+const Tip = ({ onOpen, compactStyle, onUpdate, children }: Props) => {
   const [compact, setCompact] = useState(true);
+
+  useEffect(() => {
+    if (onUpdate) onUpdate();
+  }, [compact]);
+
   return (
     <div className="Tip">
       {compact ? (
         <div
           className="Tip__compact"
           onClick={() => {
-            onOpen();
             setCompact(false);
+            onOpen();
           }}
           style={compactStyle}
         >

@@ -111,8 +111,6 @@ const PdfHighlighter = <T_HT extends IHighlight>({
   const [tipChildren, setTipChildren] = useState<React.JSX.Element | null>(
     null
   );
-  const [, updateState] = React.useState({});
-  const forceUpdate = React.useCallback(() => updateState({}), []);
 
   const containerNodeRef = useRef<HTMLDivElement | null>(null);
   const highlightRoots = useRef<{ [page: number]: HighlightRoot }>({});
@@ -125,6 +123,7 @@ const PdfHighlighter = <T_HT extends IHighlight>({
   );
   const resizeObserver = useRef<ResizeObserver | null>(null);
   const viewer = useRef<PDFViewer | null>(null);
+  const [isViewerReady, setViewerReady] = useState(false);
 
   useEffect(() => {
     resizeObserver.current = new ResizeObserver(debouncedScaleValue);
@@ -152,7 +151,8 @@ const PdfHighlighter = <T_HT extends IHighlight>({
     linkService.current.setDocument(pdfDocument);
     linkService.current.setViewer(viewer);
     viewer.current.setDocument(pdfDocument);
-    forceUpdate();
+
+    setViewerReady(true);
 
     return () => {
       eventBus.current.off("pagesinit", onDocumentReady);
@@ -385,41 +385,45 @@ const PdfHighlighter = <T_HT extends IHighlight>({
     <div onPointerDown={onMouseDown}>
       <div ref={containerNodeRef} className="PdfHighlighter">
         <div className="pdfViewer" />
-        <TipRenderer
-          tipPosition={tipPosition}
-          tipChildren={tipChildren}
-          viewer={viewer.current!}
-        />
-        <MouseSelectionRender
-          viewer={viewer.current!}
-          onChange={(isVisible) =>
-            (areaSelectionInProgress.current = isVisible)
-          }
-          enableAreaSelection={enableAreaSelection}
-          afterSelection={(
-            viewportPosition,
-            scaledPosition,
-            image,
-            resetSelection
-          ) => {
-            setTipPosition(viewportPosition);
-            setTipChildren(
-              onSelectionFinished(
-                scaledPosition,
-                { image },
-                hideTipAndSelection,
-                () => {
-                  ghostHighlight.current = {
-                    position: scaledPosition,
-                    content: { image },
-                  };
-                  resetSelection();
-                  renderHighlightLayers();
-                }
-              )
-            );
-          }}
-        />
+        {isViewerReady && (
+          <TipRenderer
+            tipPosition={tipPosition}
+            tipChildren={tipChildren}
+            viewer={viewer.current!}
+          />
+        )}
+        {isViewerReady && (
+          <MouseSelectionRender
+            viewer={viewer.current!}
+            onChange={(isVisible) =>
+              (areaSelectionInProgress.current = isVisible)
+            }
+            enableAreaSelection={enableAreaSelection}
+            afterSelection={(
+              viewportPosition,
+              scaledPosition,
+              image,
+              resetSelection
+            ) => {
+              setTipPosition(viewportPosition);
+              setTipChildren(
+                onSelectionFinished(
+                  scaledPosition,
+                  { image },
+                  hideTipAndSelection,
+                  () => {
+                    ghostHighlight.current = {
+                      position: scaledPosition,
+                      content: { image },
+                    };
+                    resetSelection();
+                    renderHighlightLayers();
+                  }
+                )
+              );
+            }}
+          />
+        )}
       </div>
     </div>
   );

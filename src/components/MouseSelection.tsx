@@ -84,14 +84,12 @@ const MouseSelection = ({
     };
 
     const handleMouseMove = (event: MouseEvent) => {
-      console.log("mouse moved!", start, locked);
       if (!start || locked) return;
 
       setEnd(containerCoords(event.pageX, event.pageY));
     };
 
     const handleMouseDown = (event: MouseEvent) => {
-      console.log("Mouse down!");
       if (!shouldStart(event)) {
         reset();
         return;
@@ -111,7 +109,6 @@ const MouseSelection = ({
     };
 
     const handleMouseUp = (event: MouseEvent) => {
-      console.log("Mouse up!");
       // emulate listen once
       event.currentTarget?.removeEventListener(
         "mouseup",
@@ -141,7 +138,6 @@ const MouseSelection = ({
       onDragEnd();
     };
 
-    console.log("Listeners created!");
     container.addEventListener("mousemove", handleMouseMove);
     container.addEventListener("mousedown", handleMouseDown);
 
@@ -151,14 +147,11 @@ const MouseSelection = ({
     }
 
     return () => {
-      console.log("Listeners destroyed!");
       container.removeEventListener("mousemove", handleMouseMove);
       container.removeEventListener("mousedown", handleMouseDown);
       doc.body.removeEventListener("mouseup", handleMouseUp);
     };
-  });
-
-  // console.log("Render", start, end, locked);
+  }, [start, end, locked]);
 
   return (
     <div className="MouseSelection-container" ref={rootRef}>

@@ -23,7 +23,6 @@ const TipContainer = ({
   const nodeRef = useRef<HTMLDivElement | null>(null);
 
   const updatePosition = () => {
-    console.log("update Position called!");
     if (!nodeRef.current) return;
 
     const { offsetHeight, offsetWidth } = nodeRef.current;

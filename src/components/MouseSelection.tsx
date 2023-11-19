@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useEffect, useRef, useState } from "react";
 
 import { asElement, isHTMLElement } from "../lib/pdfjs-dom";
 import "../style/MouseSelection.css";
@@ -8,12 +8,6 @@ import type { LTWH } from "../types.js";
 interface Coords {
   x: number;
   y: number;
-}
-
-interface State {
-  locked: boolean;
-  start: Coords | null;
-  end: Coords | null;
 }
 
 interface Props {
@@ -28,55 +22,49 @@ interface Props {
   onChange: (isVisible: boolean) => void;
 }
 
-class MouseSelection extends Component<Props, State> {
-  state: State = {
-    locked: false,
-    start: null,
-    end: null,
+const getBoundingRect = (start: Coords, end: Coords): LTWH => {
+  return {
+    left: Math.min(end.x, start.x),
+    top: Math.min(end.y, start.y),
+
+    width: Math.abs(end.x - start.x),
+    height: Math.abs(end.y - start.y),
   };
+};
 
-  root?: HTMLElement;
+const shouldRender = (boundingRect: LTWH) => {
+  return boundingRect.width >= 1 && boundingRect.height >= 1;
+};
 
-  reset = () => {
-    const { onDragEnd } = this.props;
+const MouseSelection = ({
+  onSelection,
+  onDragStart,
+  onDragEnd,
+  shouldStart,
+  onChange,
+}: Props) => {
+  const [start, setStart] = useState<Coords | null>(null);
+  const [end, setEnd] = useState<Coords | null>(null);
+  const [locked, setLocked] = useState(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
+  const reset = () => {
     onDragEnd();
-    this.setState({ start: null, end: null, locked: false });
+    setStart(null);
+    setEnd(null);
+    setLocked(false);
   };
 
-  getBoundingRect(start: Coords, end: Coords): LTWH {
-    return {
-      left: Math.min(end.x, start.x),
-      top: Math.min(end.y, start.y),
-
-      width: Math.abs(end.x - start.x),
-      height: Math.abs(end.y - start.y),
-    };
-  }
-
-  componentDidUpdate() {
-    const { onChange } = this.props;
-    const { start, end } = this.state;
-
+  useEffect(() => {
     const isVisible = Boolean(start && end);
-
     onChange(isVisible);
-  }
+  }, [start, end]);
 
-  componentDidMount() {
-    if (!this.root) {
-      return;
-    }
+  useEffect(() => {
+    if (!rootRef.current) return;
 
-    const that = this;
-
-    const { onSelection, onDragStart, onDragEnd, shouldStart } = this.props;
-
-    const container = asElement(this.root.parentElement);
-
-    if (!isHTMLElement(container)) {
-      return;
-    }
+    const container = asElement(rootRef.current.parentElement);
+    if (!isHTMLElement(container)) return;
 
     let containerBoundingRect: DOMRect | null = null;
 
@@ -96,23 +84,18 @@ class MouseSelection extends Component<Props, State> {
     };
 
     container.addEventListener("mousemove", (event: MouseEvent) => {
-      const { start, locked } = this.state;
-
-      if (!start || locked) {
-        return;
-      }
-
-      that.setState({
-        ...this.state,
-        end: containerCoords(event.pageX, event.pageY),
-      });
+      if (!start || locked) return;
+      setEnd(containerCoords(event.pageX, event.pageY));
     });
 
     container.addEventListener("mousedown", (event: MouseEvent) => {
+      console.log("Mouse down!");
       if (!shouldStart(event)) {
-        this.reset();
+        reset();
         return;
       }
+
+      console.log("Should start!");
 
       const startTarget = asElement(event.target);
       if (!isHTMLElement(startTarget)) {
@@ -120,12 +103,10 @@ class MouseSelection extends Component<Props, State> {
       }
 
       onDragStart();
-
-      this.setState({
-        start: containerCoords(event.pageX, event.pageY),
-        end: null,
-        locked: false,
-      });
+      console.log("onDragStart");
+      setStart(containerCoords(event.pageX, event.pageY));
+      setEnd(null);
+      setLocked(false);
 
       const onMouseUp = (event: MouseEvent): void => {
         // emulate listen once
@@ -134,79 +115,47 @@ class MouseSelection extends Component<Props, State> {
           onMouseUp as EventListener
         );
 
-        const { start } = this.state;
-
-        if (!start) {
-          return;
-        }
-
+        if (!start) return;
         const end = containerCoords(event.pageX, event.pageY);
-
-        const boundingRect = that.getBoundingRect(start, end);
+        const boundingRect = getBoundingRect(start, end);
 
         if (
           !isHTMLElement(event.target) ||
           !container.contains(asElement(event.target)) ||
-          !that.shouldRender(boundingRect)
+          !shouldRender(boundingRect)
         ) {
-          that.reset();
+          reset();
           return;
         }
 
-        that.setState(
-          {
-            end,
-            locked: true,
-          },
-          () => {
-            const { start, end } = that.state;
+        setEnd(end);
+        setLocked(true);
 
-            if (!start || !end) {
-              return;
-            }
+        if (!start || !end) {
+          return;
+        }
 
-            if (isHTMLElement(event.target)) {
-              onSelection(startTarget, boundingRect, that.reset);
+        if (isHTMLElement(event.target)) {
+          onSelection(startTarget, boundingRect, reset);
 
-              onDragEnd();
-            }
-          }
-        );
+          onDragEnd();
+        }
+
+        const { ownerDocument: doc } = container;
+        if (doc.body) {
+          doc.body.addEventListener("mouseup", onMouseUp);
+        }
       };
-
-      const { ownerDocument: doc } = container;
-      if (doc.body) {
-        doc.body.addEventListener("mouseup", onMouseUp);
-      }
     });
-  }
+  }, []);
 
-  shouldRender(boundingRect: LTWH) {
-    return boundingRect.width >= 1 && boundingRect.height >= 1;
-  }
-
-  render() {
-    const { start, end } = this.state;
-
-    return (
-      <div
-        className="MouseSelection-container"
-        ref={(node) => {
-          if (!node) {
-            return;
-          }
-          this.root = node;
-        }}
-      >
-        {start && end ? (
-          <div
-            className="MouseSelection"
-            style={this.getBoundingRect(start, end)}
-          />
-        ) : null}
-      </div>
-    );
-  }
-}
+  return (
+    <div className="MouseSelection-container" ref={rootRef}>
+      {start && end && (
+        <div className="MouseSelection" style={getBoundingRect(start, end)} />
+      )}
+    </div>
+  );
+};
 
 export default MouseSelection;

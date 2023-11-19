@@ -2,68 +2,6 @@ export const testHighlights = {
   "https://arxiv.org/pdf/1708.08021.pdf": [
     {
       content: {
-        text: " Type Checking for JavaScript",
-      },
-      position: {
-        boundingRect: {
-          x1: 255.73419189453125,
-          y1: 139.140625,
-          x2: 574.372314453125,
-          y2: 165.140625,
-          width: 809.9999999999999,
-          height: 1200,
-        },
-        rects: [
-          {
-            x1: 255.73419189453125,
-            y1: 139.140625,
-            x2: 574.372314453125,
-            y2: 165.140625,
-            width: 809.9999999999999,
-            height: 1200,
-          },
-        ],
-        pageNumber: 1,
-      },
-      comment: {
-        text: "Flow or TypeScript?",
-        icon: "🔥",
-      },
-      id: "8245652131754351",
-    },
-    {
-      content: {
-        text: " millions of lines of code atFacebookevery day",
-      },
-      position: {
-        boundingRect: {
-          x1: 353.080810546875,
-          y1: 346.390625,
-          x2: 658.6533203125,
-          y2: 363.390625,
-          width: 809.9999999999999,
-          height: 1200,
-        },
-        rects: [
-          {
-            x1: 353.080810546875,
-            y1: 346.390625,
-            x2: 658.6533203125,
-            y2: 363.390625,
-            width: 809.9999999999999,
-            height: 1200,
-          },
-        ],
-        pageNumber: 1,
-      },
-      comment: {
-        text: "impressive",
-        icon: "",
-      },
-      id: "812807243318874",
-    },
-    {
-      content: {
         text: "This fuels a fast edit-refresh cycle, whichpromises an immersive coding experience that is quite appealing to creative developers.",
       },
       position: {
@@ -96,7 +34,6 @@ export const testHighlights = {
             pageNumber: 1,
           },
         ],
-        pageNumber: 1,
       },
       comment: {
         text: "immersive coding experience!",
@@ -120,7 +57,6 @@ export const testHighlights = {
           pageNumber: 3,
         },
         rects: [],
-        pageNumber: 3,
       },
       comment: {
         text: "lisp!",
@@ -162,7 +98,6 @@ export const testHighlights = {
             pageNumber: 4,
           },
         ],
-        pageNumber: 4,
       },
       comment: {
         text: "",
@@ -186,7 +121,6 @@ export const testHighlights = {
           pageNumber: 24,
         },
         rects: [],
-        pageNumber: 24,
       },
       comment: {
         text: "",
@@ -275,7 +209,6 @@ export const testHighlights = {
             pageNumber: 3,
           },
         ],
-        pageNumber: 3,
       },
     },
   ],
@@ -305,7 +238,6 @@ export const testHighlights = {
             pageNumber: 1,
           },
         ],
-        pageNumber: 1,
       },
       comment: {
         text: "Static Single Assignment",

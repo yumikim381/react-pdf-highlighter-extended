@@ -2,7 +2,7 @@ import { isHTMLCanvasElement } from "./pdfjs-dom";
 import type { LTWH, LTWHP } from "../types.js";
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 
-const getAreaAsPng = (canvas: HTMLCanvasElement, position: LTWHP): string => {
+const getAreaAsPng = (canvas: HTMLCanvasElement, position: LTWH): string => {
   const { left, top, width, height } = position;
 
   const doc = canvas ? canvas.ownerDocument : null;

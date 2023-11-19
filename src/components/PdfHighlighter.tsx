@@ -203,7 +203,8 @@ const PdfHighlighter = <T_HT extends IHighlight>({
   };
 
   const scrollTo = (highlight: T_HT) => {
-    const { pageNumber, boundingRect, usePdfCoordinates } = highlight.position;
+    const { boundingRect, usePdfCoordinates } = highlight.position;
+    const pageNumber = boundingRect.pageNumber;
 
     viewer.current!.container.removeEventListener("scroll", onScroll);
 
@@ -305,7 +306,6 @@ const PdfHighlighter = <T_HT extends IHighlight>({
     const viewportPosition: Position = {
       boundingRect,
       rects,
-      pageNumber: pages[0].number,
     };
 
     const content = { text: range.current.toString() };

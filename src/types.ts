@@ -8,7 +8,7 @@ export interface LTWH {
 }
 
 export interface LTWHP extends LTWH {
-  pageNumber?: number;
+  pageNumber: number;
 }
 
 export interface Scaled {
@@ -21,19 +21,17 @@ export interface Scaled {
   width: number;
   height: number;
 
-  pageNumber?: number;
+  pageNumber: number;
 }
 
 export interface Position {
   boundingRect: LTWHP;
   rects: Array<LTWHP>;
-  pageNumber: number;
 }
 
 export interface ScaledPosition {
   boundingRect: Scaled;
   rects: Array<Scaled>;
-  pageNumber: number;
   usePdfCoordinates?: boolean;
 }
 

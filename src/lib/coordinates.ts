@@ -37,16 +37,16 @@ export const viewportToScaled = (
 };
 
 export const viewportPositionToScaled = (
-  { pageNumber, boundingRect, rects }: Position,
+  { boundingRect, rects }: Position,
   viewer: PDFViewer
 ): ScaledPosition => {
+  const pageNumber = boundingRect.pageNumber;
   const viewport = viewer.getPageView(pageNumber - 1).viewport;
   const scale = (obj: LTWHP) => viewportToScaled(obj, viewport);
 
   return {
     boundingRect: scale(boundingRect),
     rects: (rects || []).map(scale),
-    pageNumber,
   };
 };
 
@@ -100,9 +100,10 @@ export const scaledToViewport = (
 };
 
 export const scaledPositionToViewport = (
-  { pageNumber, boundingRect, rects, usePdfCoordinates }: ScaledPosition,
+  { boundingRect, rects, usePdfCoordinates }: ScaledPosition,
   viewer: PDFViewer
 ): Position => {
+  const pageNumber = boundingRect.pageNumber;
   const viewport = viewer.getPageView(pageNumber - 1).viewport;
   const scale = (obj: Scaled) =>
     scaledToViewport(obj, viewport, usePdfCoordinates);
@@ -110,6 +111,5 @@ export const scaledPositionToViewport = (
   return {
     boundingRect: scale(boundingRect),
     rects: (rects || []).map(scale),
-    pageNumber,
   };
 };

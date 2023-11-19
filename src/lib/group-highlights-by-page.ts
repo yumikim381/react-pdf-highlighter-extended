@@ -13,7 +13,7 @@ const groupHighlightsByPage = (
 
   allHighlights.forEach((highlight) => {
     const pageNumbers = new Set<number>();
-    pageNumbers.add(highlight.position.pageNumber);
+    pageNumbers.add(highlight.position.boundingRect.pageNumber);
 
     // Add page numbers of all associated rects
     // to deal with multi-page highlights
@@ -35,8 +35,7 @@ const groupHighlightsByPage = (
           ...highlight.position,
           pageNumber,
           rects: highlight.position.rects.filter(
-            (rect) =>
-              pageNumber === (rect.pageNumber || highlight.position.pageNumber)
+            (rect) => pageNumber === rect.pageNumber
           ),
         } as ScaledPosition,
       };

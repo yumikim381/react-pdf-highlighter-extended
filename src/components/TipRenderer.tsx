@@ -10,12 +10,11 @@ interface Props {
 }
 
 const TipRenderer = ({ tipPosition, tipChildren, viewer }: Props) => {
-  if (!tipPosition) return null;
+  if (!tipPosition || !tipChildren) return null;
 
-  const { boundingRect, pageNumber } = tipPosition;
-  const pageNode = viewer.getPageView(
-    (boundingRect.pageNumber || pageNumber) - 1
-  ).div;
+  const { boundingRect } = tipPosition;
+  const pageNumber = boundingRect.pageNumber;
+  const pageNode = viewer.getPageView(pageNumber - 1).div;
   const pageBoundingClientRect = pageNode.getBoundingClientRect();
 
   // pageBoundingClientRect isn't enumerable
@@ -28,7 +27,7 @@ const TipRenderer = ({ tipPosition, tipChildren, viewer }: Props) => {
     width: pageBoundingClientRect.width,
     x: pageBoundingClientRect.x,
     y: pageBoundingClientRect.y,
-    pageNumber: boundingRect.pageNumber || pageNumber,
+    pageNumber: pageNumber,
   };
 
   return (

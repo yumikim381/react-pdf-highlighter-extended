@@ -94,57 +94,57 @@ const PdfHighlighter = ({
   const scrolledToHighlightIdRef = useRef<string | null>(null); // Keep track of id of highlight scrolled to
   const isAreaSelectionInProgressRef = useRef(false); // Keep track of whether area selection is made
   const pdfScaleValueRef = useRef(pdfScaleValue);
-  const [tip, setTip] = useState<Tip | null>(null);
+  const [_, setTip] = useState<Tip | null>(null); // Keep track of external Tip properties (highlight, content)
   const [tipPosition, setTipPosition] = useState<Position | null>(null);
   const [tipChildren, setTipChildren] = useState<ReactElement | null>(null);
 
   const containerNodeRef = useRef<HTMLDivElement | null>(null);
-  const highlightRoots = useRef<{ [page: number]: HighlightRoot }>({});
-  const eventBus = useRef<EventBus>(new EventBus());
-  const linkService = useRef<PDFLinkService>(
+  const highlightRootsRef = useRef<{ [page: number]: HighlightRoot }>({});
+  const eventBusRef = useRef<EventBus>(new EventBus());
+  const linkServiceRef = useRef<PDFLinkService>(
     new PDFLinkService({
-      eventBus: eventBus.current,
+      eventBus: eventBusRef.current,
       externalLinkTarget: 2,
     })
   );
-  const resizeObserver = useRef<ResizeObserver | null>(null);
-  const viewer = useRef<PDFViewer | null>(null);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
+  const viewerRef = useRef<PDFViewer | null>(null);
   const [isViewerReady, setViewerReady] = useState(false);
 
   useEffect(() => {
-    resizeObserver.current = new ResizeObserver(debouncedScaleValue);
+    resizeObserverRef.current = new ResizeObserver(debouncedScaleValue);
     const doc = containerNodeRef.current?.ownerDocument;
     if (!doc || !containerNodeRef.current) return;
 
-    eventBus.current.on("textlayerrendered", renderHighlightLayers);
-    eventBus.current.on("pagesinit", onDocumentReady);
+    eventBusRef.current.on("textlayerrendered", renderHighlightLayers);
+    eventBusRef.current.on("pagesinit", onDocumentReady);
     doc.addEventListener("selectionchange", onSelectionChange);
     doc.addEventListener("keydown", handleKeyDown);
-    resizeObserver.current.observe(containerNodeRef.current);
+    resizeObserverRef.current.observe(containerNodeRef.current);
 
-    viewer.current =
-      viewer.current ||
+    viewerRef.current =
+      viewerRef.current ||
       new PDFViewer({
         container: containerNodeRef.current!,
-        eventBus: eventBus.current,
+        eventBus: eventBusRef.current,
         textLayerMode: 2,
         removePageBorders: true,
-        linkService: linkService.current,
+        linkService: linkServiceRef.current,
         l10n: NullL10n,
       });
 
-    linkService.current.setDocument(pdfDocument);
-    linkService.current.setViewer(viewer);
-    viewer.current.setDocument(pdfDocument);
+    linkServiceRef.current.setDocument(pdfDocument);
+    linkServiceRef.current.setViewer(viewerRef.current);
+    viewerRef.current.setDocument(pdfDocument);
 
     setViewerReady(true);
 
     return () => {
-      eventBus.current.off("pagesinit", onDocumentReady);
-      eventBus.current.off("textlayerrendered", renderHighlightLayers);
+      eventBusRef.current.off("pagesinit", onDocumentReady);
+      eventBusRef.current.off("textlayerrendered", renderHighlightLayers);
       doc.removeEventListener("selectionchange", onSelectionChange);
       doc.removeEventListener("keydown", handleKeyDown);
-      resizeObserver.current?.disconnect();
+      resizeObserverRef.current?.disconnect();
       setViewerReady(false);
     };
   }, []);
@@ -155,7 +155,7 @@ const PdfHighlighter = ({
   }, [highlights]);
 
   const findOrCreateHighlightLayer = (page: number) => {
-    const { textLayer } = viewer.current!.getPageView(page - 1) || {};
+    const { textLayer } = viewerRef.current!.getPageView(page - 1) || {};
     if (!textLayer) return null;
 
     return findOrCreateContainerLayer(
@@ -164,7 +164,7 @@ const PdfHighlighter = ({
     );
   };
 
-  const showTip = (highlight: ViewportHighlight, content: ReactElement) => {
+  const showTip = (tip: Tip) => {
     // Check if highlight is in progress
     // Don't show an existing tip if a selection goes over it
     // Don't show any tips if a ghost selection is made
@@ -174,8 +174,14 @@ const PdfHighlighter = ({
       isAreaSelectionInProgressRef.current
     )
       return;
-    setTipPosition(highlight.position);
-    setTipChildren(content);
+    setTipPosition(tip.highlight.position);
+
+    if (typeof tip.content === "function") {
+      setTipChildren(tip.content(tip.highlight));
+    } else {
+      // content is a plain ReactElement
+      setTipChildren(tip.content);
+    }
   };
 
   const hideTipAndGhostHighlight = () => {
@@ -190,13 +196,15 @@ const PdfHighlighter = ({
     const { boundingRect, usePdfCoordinates } = highlight.position;
     const pageNumber = boundingRect.pageNumber;
 
-    viewer.current!.container.removeEventListener("scroll", onScroll);
+    viewerRef.current!.container.removeEventListener("scroll", onScroll);
 
-    const pageViewport = viewer.current!.getPageView(pageNumber - 1).viewport;
+    const pageViewport = viewerRef.current!.getPageView(
+      pageNumber - 1
+    ).viewport;
 
     const scrollMargin = 10;
 
-    viewer.current!.scrollPageIntoView({
+    viewerRef.current!.scrollPageIntoView({
       pageNumber,
       destArray: [
         null, // null since we pass pageNumber already as an arg
@@ -215,7 +223,7 @@ const PdfHighlighter = ({
 
     // wait for scrolling to finish
     setTimeout(() => {
-      viewer.current!.container.addEventListener("scroll", onScroll);
+      viewerRef.current!.container.addEventListener("scroll", onScroll);
     }, 100);
   };
 
@@ -299,7 +307,7 @@ const PdfHighlighter = ({
     const content = { text: rangeRef.current.toString() };
     const scaledPosition = viewportPositionToScaled(
       viewportPosition,
-      viewer.current!
+      viewerRef.current!
     );
 
     setTipPosition(viewportPosition);
@@ -322,8 +330,8 @@ const PdfHighlighter = ({
   const debouncedAfterSelection = debounce(afterSelection, 100);
 
   const handleScaleValue = () => {
-    if (viewer) {
-      viewer.current!.currentScaleValue = pdfScaleValueRef.current; //"page-width";
+    if (viewerRef) {
+      viewerRef.current!.currentScaleValue = pdfScaleValueRef.current; //"page-width";
     }
   };
 
@@ -336,7 +344,7 @@ const PdfHighlighter = ({
 
   const renderHighlightLayers = () => {
     for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
-      const highlightRoot = highlightRoots.current[pageNumber];
+      const highlightRoot = highlightRootsRef.current[pageNumber];
 
       // Need to check if container is still attached to the DOM as PDF.js can unload pages.
       if (highlightRoot?.container?.isConnected) {
@@ -346,7 +354,7 @@ const PdfHighlighter = ({
 
         if (highlightLayer) {
           const reactRoot = createRoot(highlightLayer);
-          highlightRoots.current[pageNumber] = {
+          highlightRootsRef.current[pageNumber] = {
             reactRoot,
             container: highlightLayer,
           };
@@ -366,14 +374,15 @@ const PdfHighlighter = ({
         pageNumber={pageNumber.toString()}
         scrolledToHighlightId={scrolledToHighlightIdRef.current}
         highlightTransform={highlightTransform}
-        tip={tip}
         hideTipAndGhostHighlight={hideTipAndGhostHighlight}
-        viewer={viewer.current}
+        viewer={viewerRef.current}
         showTip={showTip}
         setTip={setTip}
       />
     );
   };
+
+  console.log("Re-rendered!");
 
   return (
     <div onPointerDown={onMouseDown}>
@@ -383,12 +392,12 @@ const PdfHighlighter = ({
           <TipRenderer
             tipPosition={tipPosition}
             tipChildren={tipChildren}
-            viewer={viewer.current!}
+            viewer={viewerRef.current!}
           />
         )}
         {isViewerReady && (
           <MouseSelectionRender
-            viewer={viewer.current!}
+            viewer={viewerRef.current!}
             onChange={(isVisible) =>
               (isAreaSelectionInProgressRef.current = isVisible)
             }

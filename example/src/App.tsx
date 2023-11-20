@@ -13,6 +13,7 @@ import type {
   Comment,
   Highlight,
   GhostHighlight,
+  Tip,
 } from "./react-pdf-highlighter";
 
 import { testHighlights as _testHighlights } from "./test-highlights";
@@ -228,7 +229,11 @@ class App extends Component<{}, State> {
                       popupContent={<HighlightPopup {...highlight} />}
                       onMouseOver={(popupContent) => {
                         console.log("Mouse over!");
-                        setTip(highlight, () => popupContent);
+                        const popupTip: Tip = {
+                          highlight,
+                          content: popupContent,
+                        };
+                        setTip(popupTip);
                       }}
                       onMouseOut={() => {
                         console.log("mouse out!");

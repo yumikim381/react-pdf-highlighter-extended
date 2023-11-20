@@ -20,10 +20,9 @@ interface HighlightLayerProps {
   pageNumber: string;
   scrolledToHighlightId: string | null;
   highlightTransform: HighlightTransformer;
-  tip: Tip | null;
   hideTipAndGhostHighlight: () => void;
   viewer: any;
-  showTip: (highlight: any, content: ReactElement) => void;
+  showTip: (tip: Tip) => void;
   setTip: (tip: Tip) => void;
 }
 
@@ -32,7 +31,6 @@ export function HighlightLayer({
   pageNumber,
   scrolledToHighlightId,
   highlightTransform,
-  tip,
   hideTipAndGhostHighlight,
   viewer,
   showTip,
@@ -56,14 +54,9 @@ export function HighlightLayer({
         return highlightTransform(
           viewportHighlight,
           index,
-          (highlight, callback) => {
-            const newTip = {
-              highlight: highlight,
-              callback: callback,
-            };
-            setTip(newTip);
-
-            showTip(highlight, callback(highlight));
+          (tip) => {
+            setTip(tip);
+            showTip(tip);
           },
           hideTipAndGhostHighlight,
           (rect) => {

@@ -71,20 +71,17 @@ export type Page = {
   number: number;
 };
 
+export type Tip = {
+  highlight: ViewportHighlight;
+  content: ReactElement | ((highlight: ViewportHighlight) => ReactElement);
+};
+
 export type HighlightTransformer = (
   highlight: ViewportHighlight,
   index: number,
-  setTip: (
-    highlight: ViewportHighlight,
-    callback: (highlight: ViewportHighlight) => ReactElement
-  ) => void,
+  setTip: (tip: Tip) => void,
   hideTip: () => void,
   viewportToScaled: (rect: LTWHP) => Scaled,
   screenshot: (position: LTWH) => string,
   isScrolledTo: boolean
 ) => ReactNode;
-
-export type Tip = {
-  highlight: ViewportHighlight;
-  callback: (highlight: ViewportHighlight) => ReactElement;
-};

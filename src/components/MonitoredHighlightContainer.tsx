@@ -29,7 +29,12 @@ interface Props {
  *
  * @param {Props} props - The component's properties.
  */
-const Popup = ({ onMouseOver, popupContent, onMouseOut, children }: Props) => {
+const MonitoredHighlightContainer = ({
+  onMouseOver,
+  popupContent,
+  onMouseOut,
+  children,
+}: Props) => {
   const mouseIn = useRef(false); // Whether the mouse is over the child
 
   // Create a mouse monitor for the popup content
@@ -64,4 +69,4 @@ const Popup = ({ onMouseOver, popupContent, onMouseOut, children }: Props) => {
   );
 };
 
-export default Popup;
+export default MonitoredHighlightContainer;

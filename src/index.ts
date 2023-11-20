@@ -1,9 +1,16 @@
 import PdfHighlighter from "./components/PdfHighlighter";
-import Tip from "./components/Tip";
+import SelectionTip from "./components/SelectionTip";
 import TextHighlight from "./components/TextHighlight";
-import Popup from "./components/Popup";
+import MonitoredHighlightContainer from "./components/MonitoredHighlightContainer";
 import AreaHighlight from "./components/AreaHighlight";
 import PdfLoader from "./components/PdfLoader";
 
-export { Tip, PdfHighlighter, PdfLoader, TextHighlight, Popup, AreaHighlight };
+export {
+  SelectionTip,
+  PdfHighlighter,
+  PdfLoader,
+  TextHighlight,
+  MonitoredHighlightContainer,
+  AreaHighlight,
+};
 export * from "./types";

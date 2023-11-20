@@ -271,6 +271,7 @@ const PdfHighlighter = ({
     if (event.code === "Escape") {
       console.log("Escape!");
       renderHighlightLayers();
+      // hideTipAndGhostHighlight();
     }
   };
 

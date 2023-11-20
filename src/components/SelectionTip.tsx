@@ -9,7 +9,7 @@ interface Props {
   children: ReactNode;
 }
 
-const Tip = ({ onOpen, compactStyle, onUpdate, children }: Props) => {
+const SelectionTip = ({ onOpen, compactStyle, onUpdate, children }: Props) => {
   const [compact, setCompact] = useState(true);
 
   useEffect(() => {
@@ -36,4 +36,4 @@ const Tip = ({ onOpen, compactStyle, onUpdate, children }: Props) => {
   );
 };
 
-export default Tip;
+export default SelectionTip;

@@ -3,10 +3,10 @@ import React, { Component } from "react";
 import {
   PdfLoader,
   PdfHighlighter,
-  Tip,
   TextHighlight,
-  Popup,
   AreaHighlight,
+  MonitoredHighlightContainer,
+  SelectionTip,
 } from "./react-pdf-highlighter";
 
 import type {
@@ -176,7 +176,7 @@ class App extends Component<{}, State> {
                   hideTipAndGhostHighlight,
                   transformSelection
                 ) => (
-                  <Tip onOpen={transformSelection}>
+                  <SelectionTip onOpen={transformSelection}>
                     <button
                       onClick={() => {
                         const comment = { text: "comment" };
@@ -188,7 +188,7 @@ class App extends Component<{}, State> {
                     >
                       This is a button!
                     </button>
-                  </Tip>
+                  </SelectionTip>
                 )}
                 highlightTransform={(
                   highlight,
@@ -224,12 +224,16 @@ class App extends Component<{}, State> {
                   );
 
                   return (
-                    <Popup
+                    <MonitoredHighlightContainer
                       popupContent={<HighlightPopup {...highlight} />}
-                      onMouseOver={(popupContent) =>
-                        setTip(highlight, () => popupContent)
-                      }
-                      onMouseOut={hideTip}
+                      onMouseOver={(popupContent) => {
+                        console.log("Mouse over!");
+                        setTip(highlight, () => popupContent);
+                      }}
+                      onMouseOut={() => {
+                        console.log("mouse out!");
+                        hideTip();
+                      }}
                       key={index}
                       children={component}
                     />

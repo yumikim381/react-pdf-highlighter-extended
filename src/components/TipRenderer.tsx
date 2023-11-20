@@ -1,5 +1,5 @@
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
-import React, { ReactElement } from "react";
+import React, { ReactElement, ReactNode } from "react";
 import { Position } from "src/types";
 import TipContainer from "./TipContainer";
 

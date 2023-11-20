@@ -1,17 +1,17 @@
-import { ReactNode } from "react";
+import { ReactElement, ReactNode } from "react";
 
-export interface LTWH {
+export type LTWH = {
   left: number;
   top: number;
   width: number;
   height: number;
-}
+};
 
-export interface LTWHP extends LTWH {
+export type LTWHP = LTWH & {
   pageNumber: number;
-}
+};
 
-export interface Scaled {
+export type Scaled = {
   x1: number;
   y1: number;
 
@@ -22,32 +22,28 @@ export interface Scaled {
   height: number;
 
   pageNumber: number;
-}
+};
 
-export interface Position {
+export type Position = {
   boundingRect: LTWHP;
   rects: Array<LTWHP>;
-}
+};
 
-export interface ScaledPosition {
+export type ScaledPosition = {
   boundingRect: Scaled;
   rects: Array<Scaled>;
   usePdfCoordinates?: boolean;
-}
+};
 
-export interface Content {
+export type Content = {
   text?: string;
   image?: string;
-}
+};
 
-export interface HighlightContent {
-  content: Content;
-}
-
-export interface Comment {
+export type Comment = {
   text: string;
   icon?: ReactNode;
-}
+};
 
 export type Highlight = {
   comment: Comment;
@@ -69,7 +65,20 @@ export interface Viewport {
   height: number;
 }
 
-export interface Page {
+export type Page = {
   node: HTMLElement;
   number: number;
-}
+};
+
+export type HighlightTransformer = (
+  highlight: ViewportHighlight,
+  index: number,
+  setTip: (
+    highlight: ViewportHighlight,
+    callback: (highlight: ViewportHighlight) => ReactElement
+  ) => void,
+  hideTip: () => void,
+  viewportToScaled: (rect: LTWHP) => Scaled,
+  screenshot: (position: LTWH) => string,
+  isScrolledTo: boolean
+) => ReactNode;

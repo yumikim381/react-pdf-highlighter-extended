@@ -11,6 +11,7 @@ import {
 import type {
   Content,
   Highlight,
+  HighlightTransformer,
   LTWH,
   LTWHP,
   Position,
@@ -18,7 +19,14 @@ import type {
   ScaledPosition,
   ViewportHighlight,
 } from "../types";
-import React, { PointerEventHandler, useEffect, useRef, useState } from "react";
+import React, {
+  PointerEventHandler,
+  ReactElement,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   asElement,
   findOrCreateContainerLayer,
@@ -46,18 +54,7 @@ import screenshot from "../lib/screenshot";
 import MouseSelectionRender from "./MouseSelectionRenderer";
 
 interface Props {
-  highlightTransform: (
-    highlight: ViewportHighlight,
-    index: number,
-    setTip: (
-      highlight: ViewportHighlight,
-      callback: (highlight: ViewportHighlight) => JSX.Element
-    ) => void,
-    hideTip: () => void,
-    viewportToScaled: (rect: LTWHP) => Scaled,
-    screenshot: (position: LTWH) => string,
-    isScrolledTo: boolean
-  ) => JSX.Element;
+  highlightTransform: HighlightTransformer;
   highlights: Array<Highlight>;
   onScrollChange: () => void;
   scrollRef: (scrollTo: (highlight: Highlight) => void) => void;
@@ -107,9 +104,7 @@ const PdfHighlighter = ({
   const areaSelectionInProgress = useRef(false);
   const [tip, setTip] = useState<Tip | null>(null);
   const [tipPosition, setTipPosition] = useState<Position | null>(null);
-  const [tipChildren, setTipChildren] = useState<React.JSX.Element | null>(
-    null
-  );
+  const [tipChildren, setTipChildren] = useState<ReactElement | null>(null);
 
   const containerNodeRef = useRef<HTMLDivElement | null>(null);
   const highlightRoots = useRef<{ [page: number]: HighlightRoot }>({});
@@ -178,10 +173,7 @@ const PdfHighlighter = ({
     );
   };
 
-  const showTip = (
-    highlight: ViewportHighlight,
-    content: React.JSX.Element
-  ) => {
+  const showTip = (highlight: ViewportHighlight, content: ReactElement) => {
     // Check if highlight is in progress
     if (
       !isCollapsed.current ||
@@ -360,11 +352,8 @@ const PdfHighlighter = ({
   const renderHighlightLayer = (root: Root, pageNumber: number) => {
     root.render(
       <HighlightLayer
-        // @ts-ignore
         highlightsByPage={groupHighlightsByPage([
-          // @ts-ignore
           ...highlightsRef.current,
-          // @ts-ignore
           ghostHighlight.current,
         ])}
         pageNumber={pageNumber.toString()}

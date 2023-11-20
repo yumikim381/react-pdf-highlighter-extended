@@ -84,7 +84,7 @@ export type HighlightTransformer = (
   isScrolledTo: boolean
 ) => ReactNode;
 
-export type HighlightTip = {
+export type Tip = {
   highlight: ViewportHighlight;
   callback: (highlight: ViewportHighlight) => ReactElement;
 };

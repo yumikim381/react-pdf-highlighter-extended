@@ -12,13 +12,13 @@ import type {
   Content,
   GhostHighlight,
   Highlight,
-  HighlightTip,
   HighlightTransformer,
   LTWH,
   LTWHP,
   Position,
   Scaled,
   ScaledPosition,
+  Tip,
   ViewportHighlight,
 } from "../types";
 import React, {
@@ -94,7 +94,7 @@ const PdfHighlighter = ({
   const scrolledToHighlightIdRef = useRef<string | null>(null); // Keep track of id of highlight scrolled to
   const isAreaSelectionInProgressRef = useRef(false); // Keep track of whether area selection is made
   const pdfScaleValueRef = useRef(pdfScaleValue);
-  const [tip, setTip] = useState<HighlightTip | null>(null);
+  const [tip, setTip] = useState<Tip | null>(null);
   const [tipPosition, setTipPosition] = useState<Position | null>(null);
   const [tipChildren, setTipChildren] = useState<ReactElement | null>(null);
 

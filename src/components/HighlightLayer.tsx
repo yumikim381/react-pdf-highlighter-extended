@@ -3,13 +3,13 @@ import React, { ReactElement, ReactNode } from "react";
 import {
   GhostHighlight,
   Highlight,
-  HighlightTip,
   HighlightTransformer,
   LTWH,
   LTWHP,
   Position,
   Scaled,
   ScaledPosition,
+  Tip,
   ViewportHighlight,
 } from "../types";
 import screenshot from "../lib/screenshot";
@@ -20,11 +20,11 @@ interface HighlightLayerProps {
   pageNumber: string;
   scrolledToHighlightId: string | null;
   highlightTransform: HighlightTransformer;
-  tip: HighlightTip | null;
+  tip: Tip | null;
   hideTipAndGhostHighlight: () => void;
   viewer: any;
   showTip: (highlight: any, content: ReactElement) => void;
-  setTip: (tip: HighlightTip) => void;
+  setTip: (tip: Tip) => void;
 }
 
 export function HighlightLayer({

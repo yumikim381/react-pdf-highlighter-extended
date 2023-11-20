@@ -42,6 +42,8 @@ const TipContainer = ({
 
   const shouldMove = style.top - height - 5 < scrollTop;
 
+  const isStyleCalculationInProgress = width === 0 && height === 0; // Fixes weird flickering
+
   const top = shouldMove ? style.bottom + 5 : style.top - height - 5;
 
   const left = clamp(style.left - width / 2, 0, pageBoundingRect.width - width);
@@ -59,6 +61,7 @@ const TipContainer = ({
     <div
       className="PdfHighlighter__tip-container"
       style={{
+        visibility: isStyleCalculationInProgress ? "hidden" : "visible",
         top,
         left,
       }}

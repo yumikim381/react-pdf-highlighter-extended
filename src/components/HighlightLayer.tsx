@@ -21,7 +21,7 @@ interface HighlightLayerProps {
   scrolledToHighlightId: string | null;
   highlightTransform: HighlightTransformer;
   tip: HighlightTip | null;
-  hideTipAndSelection: () => void;
+  hideTipAndGhostHighlight: () => void;
   viewer: any;
   showTip: (highlight: any, content: ReactElement) => void;
   setTip: (tip: HighlightTip) => void;
@@ -33,7 +33,7 @@ export function HighlightLayer({
   scrolledToHighlightId,
   highlightTransform,
   tip,
-  hideTipAndSelection,
+  hideTipAndGhostHighlight,
   viewer,
   showTip,
   setTip,
@@ -48,10 +48,6 @@ export function HighlightLayer({
           comment: "comment" in highlight ? highlight.comment : { text: "" },
           position: scaledPositionToViewport(highlight.position, viewer),
         };
-
-        if (tip && tip.highlight.id === String(viewportHighlight.id)) {
-          showTip(tip.highlight, tip.callback(viewportHighlight));
-        }
 
         const isScrolledTo = Boolean(
           scrolledToHighlightId === viewportHighlight.id
@@ -69,7 +65,7 @@ export function HighlightLayer({
 
             showTip(highlight, callback(highlight));
           },
-          hideTipAndSelection,
+          hideTipAndGhostHighlight,
           (rect) => {
             const viewport = viewer.getPageView(
               (rect.pageNumber || parseInt(pageNumber)) - 1

@@ -66,7 +66,7 @@ interface Props {
   onSelectionFinished: (
     position: ScaledPosition,
     content: Content,
-    hideTipAndSelection: () => void,
+    hideTipAndGhostHighlight: () => void,
     transformSelection: () => void
   ) => ReactElement | null;
   enableAreaSelection?: (event: MouseEvent) => boolean;
@@ -87,12 +87,13 @@ const PdfHighlighter = ({
   onSelectionFinished,
   enableAreaSelection,
 }: Props) => {
-  const highlightsRef = useRef(highlights);
-  const ghostHighlight = useRef<GhostHighlight | null>(null);
-  const isCollapsed = useRef(true);
-  const range = useRef<Range | null>(null);
-  const scrolledToHighlightId = useRef<string | null>(null);
-  const areaSelectionInProgress = useRef(false);
+  const highlightsRef = useRef(highlights); // Keep track of all highlights
+  const ghostHighlightRef = useRef<GhostHighlight | null>(null); // Keep track of in-progress highlights
+  const isCollapsedRef = useRef(true); // Keep track of whether or not there is text in the selection
+  const rangeRef = useRef<Range | null>(null); // Keep track of nodes and text nodes in selection
+  const scrolledToHighlightIdRef = useRef<string | null>(null); // Keep track of id of highlight scrolled to
+  const isAreaSelectionInProgressRef = useRef(false); // Keep track of whether area selection is made
+  const pdfScaleValueRef = useRef(pdfScaleValue);
   const [tip, setTip] = useState<HighlightTip | null>(null);
   const [tipPosition, setTipPosition] = useState<Position | null>(null);
   const [tipChildren, setTipChildren] = useState<ReactElement | null>(null);
@@ -119,8 +120,7 @@ const PdfHighlighter = ({
     eventBus.current.on("pagesinit", onDocumentReady);
     doc.addEventListener("selectionchange", onSelectionChange);
     doc.addEventListener("keydown", handleKeyDown);
-    // doc.defaultView?.addEventListener("resize", debouncedScaleValue);
-    // resizeObserver.current.observe(containerNodeRef.current);
+    resizeObserver.current.observe(containerNodeRef.current);
 
     viewer.current =
       viewer.current ||
@@ -144,8 +144,8 @@ const PdfHighlighter = ({
       eventBus.current.off("textlayerrendered", renderHighlightLayers);
       doc.removeEventListener("selectionchange", onSelectionChange);
       doc.removeEventListener("keydown", handleKeyDown);
-      // doc.defaultView?.removeEventListener("resize", debouncedScaleValue);
-      // resizeObserver.current?.disconnect();
+      resizeObserver.current?.disconnect();
+      setViewerReady(false);
     };
   }, []);
 
@@ -166,20 +166,22 @@ const PdfHighlighter = ({
 
   const showTip = (highlight: ViewportHighlight, content: ReactElement) => {
     // Check if highlight is in progress
+    // Don't show an existing tip if a selection goes over it
+    // Don't show any tips if a ghost selection is made
     if (
-      !isCollapsed.current ||
-      ghostHighlight.current ||
-      areaSelectionInProgress.current
+      !isCollapsedRef.current ||
+      ghostHighlightRef.current ||
+      isAreaSelectionInProgressRef.current
     )
       return;
     setTipPosition(highlight.position);
     setTipChildren(content);
   };
 
-  const hideTipAndSelection = () => {
+  const hideTipAndGhostHighlight = () => {
     setTipPosition(null);
     setTipChildren(null);
-    ghostHighlight.current = null;
+    ghostHighlightRef.current = null;
     setTip(null);
     renderHighlightLayers();
   };
@@ -208,7 +210,7 @@ const PdfHighlighter = ({
       ],
     });
 
-    scrolledToHighlightId.current = highlight.id;
+    scrolledToHighlightIdRef.current = highlight.id;
     renderHighlightLayers();
 
     // wait for scrolling to finish
@@ -218,7 +220,6 @@ const PdfHighlighter = ({
   };
 
   const onDocumentReady = () => {
-    console.log("onDocumentReady called!");
     debouncedScaleValue();
     scrollRef(scrollTo);
   };
@@ -232,7 +233,7 @@ const PdfHighlighter = ({
     const newRange = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
 
     if (selection.isCollapsed) {
-      isCollapsed.current = true;
+      isCollapsedRef.current = true;
       return;
     }
 
@@ -244,14 +245,14 @@ const PdfHighlighter = ({
       return;
     }
 
-    isCollapsed.current = false;
-    range.current = newRange;
+    isCollapsedRef.current = false;
+    rangeRef.current = newRange;
     debouncedAfterSelection();
   };
 
   const onScroll = () => {
     onScrollChange();
-    scrolledToHighlightId.current = null;
+    scrolledToHighlightIdRef.current = null;
     renderHighlightLayers();
   };
 
@@ -263,24 +264,27 @@ const PdfHighlighter = ({
       return;
     }
 
-    hideTipAndSelection();
+    hideTipAndGhostHighlight();
   };
 
   const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.code === "Escape") hideTipAndSelection();
+    if (event.code === "Escape") {
+      console.log("Escape!");
+      renderHighlightLayers();
+    }
   };
 
   const afterSelection = () => {
-    if (!range.current || isCollapsed.current) {
+    if (!rangeRef.current || isCollapsedRef.current) {
       return;
     }
 
-    const pages = getPagesFromRange(range.current);
+    const pages = getPagesFromRange(rangeRef.current);
     if (!pages || pages.length === 0) {
       return;
     }
 
-    const rects = getClientRects(range.current, pages);
+    const rects = getClientRects(rangeRef.current, pages);
     if (rects.length === 0) {
       return;
     }
@@ -291,7 +295,7 @@ const PdfHighlighter = ({
       rects,
     };
 
-    const content = { text: range.current.toString() };
+    const content = { text: rangeRef.current.toString() };
     const scaledPosition = viewportPositionToScaled(
       viewportPosition,
       viewer.current!
@@ -299,30 +303,35 @@ const PdfHighlighter = ({
 
     setTipPosition(viewportPosition);
     setTipChildren(
-      onSelectionFinished(scaledPosition, content, hideTipAndSelection, () => {
-        ghostHighlight.current = {
-          content: content,
-          position: scaledPosition,
-        };
-        renderHighlightLayers();
-      })
+      onSelectionFinished(
+        scaledPosition,
+        content,
+        hideTipAndGhostHighlight,
+        () => {
+          ghostHighlightRef.current = {
+            content: content,
+            position: scaledPosition,
+          };
+          renderHighlightLayers();
+        }
+      )
     );
   };
 
-  const debouncedAfterSelection = debounce(afterSelection, 500);
+  const debouncedAfterSelection = debounce(afterSelection, 100);
 
   const handleScaleValue = () => {
-    console.log("Inside", pdfScaleValue);
     if (viewer) {
-      viewer.current!.currentScaleValue = pdfScaleValue; //"page-width";
+      viewer.current!.currentScaleValue = pdfScaleValueRef.current; //"page-width";
     }
   };
 
   useEffect(() => {
+    pdfScaleValueRef.current = pdfScaleValue;
     debouncedScaleValue();
   }, [pdfScaleValue]);
 
-  const debouncedScaleValue = debounce(handleScaleValue, 500);
+  const debouncedScaleValue = debounce(handleScaleValue, 100);
 
   const renderHighlightLayers = () => {
     for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
@@ -351,13 +360,13 @@ const PdfHighlighter = ({
       <HighlightLayer
         highlightsByPage={groupHighlightsByPage([
           ...highlightsRef.current,
-          ghostHighlight.current,
+          ghostHighlightRef.current,
         ])}
         pageNumber={pageNumber.toString()}
-        scrolledToHighlightId={scrolledToHighlightId.current}
+        scrolledToHighlightId={scrolledToHighlightIdRef.current}
         highlightTransform={highlightTransform}
         tip={tip}
-        hideTipAndSelection={hideTipAndSelection}
+        hideTipAndGhostHighlight={hideTipAndGhostHighlight}
         viewer={viewer.current}
         showTip={showTip}
         setTip={setTip}
@@ -380,7 +389,7 @@ const PdfHighlighter = ({
           <MouseSelectionRender
             viewer={viewer.current!}
             onChange={(isVisible) =>
-              (areaSelectionInProgress.current = isVisible)
+              (isAreaSelectionInProgressRef.current = isVisible)
             }
             enableAreaSelection={enableAreaSelection}
             afterSelection={(
@@ -394,9 +403,9 @@ const PdfHighlighter = ({
                 onSelectionFinished(
                   scaledPosition,
                   { image },
-                  hideTipAndSelection,
+                  hideTipAndGhostHighlight,
                   () => {
-                    ghostHighlight.current = {
+                    ghostHighlightRef.current = {
                       position: scaledPosition,
                       content: { image },
                     };

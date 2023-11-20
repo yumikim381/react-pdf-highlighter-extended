@@ -21,7 +21,6 @@ import { Sidebar } from "./Sidebar";
 
 import "./style/App.css";
 import { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
-import _, { matches } from "lodash";
 
 const testHighlights: Record<string, Array<Highlight>> = _testHighlights;
 
@@ -44,7 +43,9 @@ const HighlightPopup = ({ comment }: { comment: Comment }) =>
     <div className="Highlight__popup">
       {comment.icon} {comment.text}
     </div>
-  ) : null;
+  ) : (
+    <div className="Highlight__popup">Comment has no Text</div>
+  );
 
 const PRIMARY_PDF_URL = "https://arxiv.org/pdf/1708.08021.pdf";
 const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480.pdf";
@@ -138,9 +139,9 @@ class App extends Component<{}, State> {
   render() {
     const { url, highlights } = this.state;
 
-    const vals = ["2", "auto", "1"];
-    const pdfScaleValue = vals[Math.floor(Math.random() * vals.length)];
-    console.log(pdfScaleValue);
+    // const vals = ["2", "auto", "1"];
+    // const pdfScaleValue = vals[Math.floor(Math.random() * vals.length)];
+    // console.log(pdfScaleValue);
 
     return (
       <div className="App" style={{ display: "flex", height: "100vh" }}>
@@ -160,7 +161,7 @@ class App extends Component<{}, State> {
             {(pdfDocument: PDFDocumentProxy) => (
               <PdfHighlighter
                 pdfDocument={pdfDocument}
-                pdfScaleValue={pdfScaleValue}
+                // pdfScaleValue={pdfScaleValue}
                 enableAreaSelection={(event) => event.altKey}
                 onScrollChange={resetHash}
                 // pdfScaleValue="page-width"
@@ -172,7 +173,7 @@ class App extends Component<{}, State> {
                 onSelectionFinished={(
                   position,
                   content,
-                  hideTipAndSelection,
+                  hideTipAndGhostHighlight,
                   transformSelection
                 ) => (
                   <Tip onOpen={transformSelection}>
@@ -181,7 +182,7 @@ class App extends Component<{}, State> {
                         const comment = { text: "comment" };
                         this.addHighlight({ content, position }, comment);
 
-                        hideTipAndSelection();
+                        hideTipAndGhostHighlight();
                       }}
                       style={{ padding: "20px" }}
                     >
@@ -226,7 +227,7 @@ class App extends Component<{}, State> {
                     <Popup
                       popupContent={<HighlightPopup {...highlight} />}
                       onMouseOver={(popupContent) =>
-                        setTip(highlight, (highlight) => popupContent)
+                        setTip(highlight, () => popupContent)
                       }
                       onMouseOut={hideTip}
                       key={index}

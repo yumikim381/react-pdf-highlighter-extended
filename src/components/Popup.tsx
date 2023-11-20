@@ -4,9 +4,9 @@ import MouseMonitor from "./MouseMonitor";
 interface Props {
   /**
    * A callback function to execute when the mouse hovers over the children.
-   * @param {React.JSX.Element} content - The content to display in the popup.
+   * @param {React.JSX.Element} popupContent - The content to display in the popup.
    */
-  onMouseOver: (content: React.JSX.Element) => void;
+  onMouseOver: (monitoredPopupContent: React.JSX.Element) => void;
 
   /**
    * The content to display in the popup.

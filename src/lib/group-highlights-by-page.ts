@@ -1,10 +1,22 @@
-import { Highlight, ScaledPosition } from "src/types";
+import {
+  GhostHighlight,
+  Highlight,
+  ScaledPosition,
+  ViewportHighlight,
+} from "src/types";
 
-const groupHighlightsByPage = (
-  highlights: Array<Highlight>
-): Record<number, Array<Highlight>> => {
-  const allHighlights = highlights.filter(Boolean) as Array<Highlight>; // TODO: Check if we need falsey validation
-  const groupedHighlights: Record<number, Array<Highlight>> = {};
+type AllHighlights = Highlight | GhostHighlight | ViewportHighlight;
+
+type NonNullableHighlight<T extends AllHighlights | null | undefined> =
+  T extends null | undefined ? never : T;
+
+const groupHighlightsByPage = <T extends AllHighlights | null | undefined>(
+  highlights: Array<T>
+): Record<number, Array<NonNullableHighlight<T>>> => {
+  const allHighlights = highlights.filter(Boolean) as Array<
+    NonNullableHighlight<T>
+  >;
+  const groupedHighlights: Record<number, Array<NonNullableHighlight<T>>> = {};
 
   allHighlights.forEach((highlight) => {
     const pageNumbers = new Set<number>();
@@ -13,7 +25,7 @@ const groupHighlightsByPage = (
     // Add page numbers of all associated rects
     // to deal with multi-page highlights
     highlight.position.rects.forEach((rect) => {
-      if (rect.pageNumber !== undefined) {
+      if (rect.pageNumber) {
         pageNumbers.add(rect.pageNumber);
       }
     });
@@ -28,11 +40,10 @@ const groupHighlightsByPage = (
         ...highlight,
         position: {
           ...highlight.position,
-          pageNumber,
           rects: highlight.position.rects.filter(
             (rect) => pageNumber === rect.pageNumber
           ),
-        } as ScaledPosition,
+        },
       };
 
       groupedHighlights[pageNumber].push(pageSpecificHighlight);

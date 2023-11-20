@@ -1,29 +1,30 @@
 import { scaledPositionToViewport, viewportToScaled } from "../lib/coordinates";
 import React, { ReactElement, ReactNode } from "react";
 import {
+  GhostHighlight,
   Highlight,
+  HighlightTip,
   HighlightTransformer,
   LTWH,
   LTWHP,
   Position,
   Scaled,
   ScaledPosition,
+  ViewportHighlight,
 } from "../types";
 import screenshot from "../lib/screenshot";
+import { EMPTY_ID } from "../constants";
 
 interface HighlightLayerProps {
-  highlightsByPage: { [pageNumber: string]: Array<Highlight> };
+  highlightsByPage: { [pageNumber: string]: Array<Highlight | GhostHighlight> };
   pageNumber: string;
-  scrolledToHighlightId: string;
+  scrolledToHighlightId: string | null;
   highlightTransform: HighlightTransformer;
-  tip: {
-    highlight: any;
-    callback: (highlight: any) => ReactElement;
-  } | null;
+  tip: HighlightTip | null;
   hideTipAndSelection: () => void;
   viewer: any;
   showTip: (highlight: any, content: ReactElement) => void;
-  setState: (state: any) => void;
+  setTip: (tip: HighlightTip) => void;
 }
 
 export function HighlightLayer({
@@ -35,24 +36,26 @@ export function HighlightLayer({
   hideTipAndSelection,
   viewer,
   showTip,
-  setState,
+  setTip,
 }: HighlightLayerProps) {
   const currentHighlights = highlightsByPage[String(pageNumber)] || [];
   return (
     <div>
-      {currentHighlights.map(({ position, id, ...highlight }, index) => {
-        // @ts-ignore
-        const viewportHighlight: any = {
-          id,
-          position: scaledPositionToViewport(position, viewer),
+      {currentHighlights.map((highlight, index) => {
+        const viewportHighlight: ViewportHighlight = {
           ...highlight,
+          id: "id" in highlight ? highlight.id : EMPTY_ID,
+          comment: "comment" in highlight ? highlight.comment : { text: "" },
+          position: scaledPositionToViewport(highlight.position, viewer),
         };
 
-        if (tip && tip.highlight.id === String(id)) {
+        if (tip && tip.highlight.id === String(viewportHighlight.id)) {
           showTip(tip.highlight, tip.callback(viewportHighlight));
         }
 
-        const isScrolledTo = Boolean(scrolledToHighlightId === id);
+        const isScrolledTo = Boolean(
+          scrolledToHighlightId === viewportHighlight.id
+        );
 
         return highlightTransform(
           viewportHighlight,
@@ -62,7 +65,7 @@ export function HighlightLayer({
               highlight: highlight,
               callback: callback,
             };
-            setState(newTip);
+            setTip(newTip);
 
             showTip(highlight, callback(highlight));
           },

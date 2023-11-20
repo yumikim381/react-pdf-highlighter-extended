@@ -10,7 +10,9 @@ import {
 } from "pdfjs-dist/legacy/web/pdf_viewer";
 import type {
   Content,
+  GhostHighlight,
   Highlight,
+  HighlightTip,
   HighlightTransformer,
   LTWH,
   LTWHP,
@@ -52,6 +54,7 @@ import groupHighlightsByPage from "../lib/group-highlights-by-page";
 import TipRenderer from "./TipRenderer";
 import screenshot from "../lib/screenshot";
 import MouseSelectionRender from "./MouseSelectionRenderer";
+import { EMPTY_ID } from "../constants";
 
 interface Props {
   highlightTransform: HighlightTransformer;
@@ -62,10 +65,10 @@ interface Props {
   pdfScaleValue?: string;
   onSelectionFinished: (
     position: ScaledPosition,
-    content: { text?: string; image?: string },
+    content: Content,
     hideTipAndSelection: () => void,
     transformSelection: () => void
-  ) => JSX.Element | null;
+  ) => ReactElement | null;
   enableAreaSelection?: (event: MouseEvent) => boolean;
 }
 
@@ -73,18 +76,6 @@ interface HighlightRoot {
   reactRoot: Root;
   container: Element;
 }
-
-interface GhostHighlight {
-  position: ScaledPosition;
-  content?: Content;
-}
-
-interface Tip {
-  highlight: ViewportHighlight;
-  callback: (highlight: ViewportHighlight) => React.JSX.Element;
-}
-
-const EMPTY_ID = "empty-id";
 
 const PdfHighlighter = ({
   highlightTransform,
@@ -100,9 +91,9 @@ const PdfHighlighter = ({
   const ghostHighlight = useRef<GhostHighlight | null>(null);
   const isCollapsed = useRef(true);
   const range = useRef<Range | null>(null);
-  const scrolledToHighlightId = useRef(EMPTY_ID);
+  const scrolledToHighlightId = useRef<string | null>(null);
   const areaSelectionInProgress = useRef(false);
-  const [tip, setTip] = useState<Tip | null>(null);
+  const [tip, setTip] = useState<HighlightTip | null>(null);
   const [tipPosition, setTipPosition] = useState<Position | null>(null);
   const [tipChildren, setTipChildren] = useState<ReactElement | null>(null);
 
@@ -259,7 +250,7 @@ const PdfHighlighter = ({
 
   const onScroll = () => {
     onScrollChange();
-    scrolledToHighlightId.current = EMPTY_ID;
+    scrolledToHighlightId.current = null;
     renderHighlightLayers();
   };
 
@@ -309,7 +300,7 @@ const PdfHighlighter = ({
     setTipChildren(
       onSelectionFinished(scaledPosition, content, hideTipAndSelection, () => {
         ghostHighlight.current = {
-          ...ghostHighlight.current,
+          content: content,
           position: scaledPosition,
         };
         renderHighlightLayers();
@@ -363,7 +354,7 @@ const PdfHighlighter = ({
         hideTipAndSelection={hideTipAndSelection}
         viewer={viewer.current}
         showTip={showTip}
-        setState={setTip}
+        setTip={setTip}
       />
     );
   };

@@ -9,7 +9,11 @@ import {
   AreaHighlight,
 } from "./react-pdf-highlighter";
 
-import type { Comment, Highlight, NewHighlight } from "./react-pdf-highlighter";
+import type {
+  Comment,
+  Highlight,
+  GhostHighlight,
+} from "./react-pdf-highlighter";
 
 import { testHighlights as _testHighlights } from "./test-highlights";
 import { Spinner } from "./Spinner";
@@ -97,13 +101,13 @@ class App extends Component<{}, State> {
     return highlights.find((highlight) => highlight.id === id);
   }
 
-  addHighlight(highlight: NewHighlight) {
+  addHighlight(highlight: GhostHighlight, comment: Comment) {
     const { highlights } = this.state;
 
     console.log("Saving highlight", highlight);
 
     this.setState({
-      highlights: [{ ...highlight, id: getNextId() }, ...highlights],
+      highlights: [{ ...highlight, comment, id: getNextId() }, ...highlights],
     });
   }
 
@@ -169,7 +173,7 @@ class App extends Component<{}, State> {
                     <button
                       onClick={() => {
                         const comment = { text: "comment" };
-                        this.addHighlight({ content, position, comment });
+                        this.addHighlight({ content, position }, comment);
 
                         hideTipAndSelection();
                       }}

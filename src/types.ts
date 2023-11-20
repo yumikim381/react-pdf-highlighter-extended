@@ -40,6 +40,7 @@ export type Content = {
   image?: string;
 };
 
+// TODO: Remove comment type and deprectated icon
 export type Comment = {
   text: string;
   icon?: ReactNode;
@@ -52,18 +53,18 @@ export type Highlight = {
   id: string;
 };
 
-export type NewHighlight = Omit<Highlight, "id">;
+export type GhostHighlight = Omit<Highlight, "id" | "comment">;
 
-export type ViewportHighlight = Highlight & {
+export type ViewportHighlight = Omit<Highlight, "position"> & {
   position: Position;
 };
 
-export interface Viewport {
+export type Viewport = {
   convertToPdfPoint: (x: number, y: number) => Array<number>;
   convertToViewportRectangle: (pdfRectangle: Array<number>) => Array<number>;
   width: number;
   height: number;
-}
+};
 
 export type Page = {
   node: HTMLElement;
@@ -82,3 +83,8 @@ export type HighlightTransformer = (
   screenshot: (position: LTWH) => string,
   isScrolledTo: boolean
 ) => ReactNode;
+
+export type HighlightTip = {
+  highlight: ViewportHighlight;
+  callback: (highlight: ViewportHighlight) => ReactElement;
+};

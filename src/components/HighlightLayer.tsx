@@ -1,7 +1,7 @@
 import { scaledPositionToViewport, viewportToScaled } from "../lib/coordinates";
 import React from "react";
 import {
-  IHighlight,
+  Highlight,
   LTWH,
   LTWHP,
   Position,
@@ -10,8 +10,8 @@ import {
 } from "../types";
 import screenshot from "../lib/screenshot";
 
-interface HighlightLayerProps<T_HT> {
-  highlightsByPage: { [pageNumber: string]: Array<T_HT> };
+interface HighlightLayerProps {
+  highlightsByPage: { [pageNumber: string]: Array<Highlight> };
   pageNumber: string;
   scrolledToHighlightId: string;
   highlightTransform: (
@@ -33,7 +33,7 @@ interface HighlightLayerProps<T_HT> {
   setState: (state: any) => void;
 }
 
-export function HighlightLayer<T_HT extends IHighlight>({
+export function HighlightLayer({
   highlightsByPage,
   pageNumber,
   scrolledToHighlightId,
@@ -43,7 +43,7 @@ export function HighlightLayer<T_HT extends IHighlight>({
   viewer,
   showTip,
   setState,
-}: HighlightLayerProps<T_HT>) {
+}: HighlightLayerProps) {
   const currentHighlights = highlightsByPage[String(pageNumber)] || [];
   return (
     <div>

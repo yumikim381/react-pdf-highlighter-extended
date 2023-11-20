@@ -1,15 +1,10 @@
-import { IHighlight, ScaledPosition } from "src/types";
-
-// TODO: Type overhaul
-type T_HT = {
-  position: ScaledPosition;
-};
+import { Highlight, ScaledPosition } from "src/types";
 
 const groupHighlightsByPage = (
-  highlights: Array<T_HT>
-): Record<number, Array<T_HT>> => {
-  const allHighlights = highlights.filter(Boolean) as Array<T_HT>; // TODO: Check if we need falsey validation
-  const groupedHighlights: Record<number, Array<T_HT>> = {};
+  highlights: Array<Highlight>
+): Record<number, Array<Highlight>> => {
+  const allHighlights = highlights.filter(Boolean) as Array<Highlight>; // TODO: Check if we need falsey validation
+  const groupedHighlights: Record<number, Array<Highlight>> = {};
 
   allHighlights.forEach((highlight) => {
     const pageNumbers = new Set<number>();

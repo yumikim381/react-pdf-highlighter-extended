@@ -9,11 +9,7 @@ import {
   AreaHighlight,
 } from "./react-pdf-highlighter";
 
-import type {
-  Comment,
-  IHighlight,
-  NewHighlight,
-} from "./react-pdf-highlighter";
+import type { Comment, Highlight, NewHighlight } from "./react-pdf-highlighter";
 
 import { testHighlights as _testHighlights } from "./test-highlights";
 import { Spinner } from "./Spinner";
@@ -22,11 +18,11 @@ import { Sidebar } from "./Sidebar";
 import "./style/App.css";
 import { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
 
-const testHighlights: Record<string, Array<IHighlight>> = _testHighlights;
+const testHighlights: Record<string, Array<Highlight>> = _testHighlights;
 
 interface State {
   url: string;
-  highlights: Array<IHighlight>;
+  highlights: Array<Highlight>;
 }
 
 const getNextId = () => String(Math.random()).slice(2);

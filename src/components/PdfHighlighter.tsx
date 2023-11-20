@@ -10,12 +10,13 @@ import {
 } from "pdfjs-dist/legacy/web/pdf_viewer";
 import type {
   Content,
-  IHighlight,
+  Highlight,
   LTWH,
   LTWHP,
   Position,
   Scaled,
   ScaledPosition,
+  ViewportHighlight,
 } from "../types";
 import React, { PointerEventHandler, useEffect, useRef, useState } from "react";
 import {
@@ -44,24 +45,22 @@ import TipRenderer from "./TipRenderer";
 import screenshot from "../lib/screenshot";
 import MouseSelectionRender from "./MouseSelectionRenderer";
 
-export type T_ViewportHighlight<T_HT> = { position: Position } & T_HT;
-
-interface Props<T_HT> {
+interface Props {
   highlightTransform: (
-    highlight: T_ViewportHighlight<T_HT>,
+    highlight: ViewportHighlight,
     index: number,
     setTip: (
-      highlight: T_ViewportHighlight<T_HT>,
-      callback: (highlight: T_ViewportHighlight<T_HT>) => JSX.Element
+      highlight: ViewportHighlight,
+      callback: (highlight: ViewportHighlight) => JSX.Element
     ) => void,
     hideTip: () => void,
     viewportToScaled: (rect: LTWHP) => Scaled,
     screenshot: (position: LTWH) => string,
     isScrolledTo: boolean
   ) => JSX.Element;
-  highlights: Array<T_HT>;
+  highlights: Array<Highlight>;
   onScrollChange: () => void;
-  scrollRef: (scrollTo: (highlight: T_HT) => void) => void;
+  scrollRef: (scrollTo: (highlight: Highlight) => void) => void;
   pdfDocument: PDFDocumentProxy;
   pdfScaleValue?: string;
   onSelectionFinished: (
@@ -83,14 +82,14 @@ interface GhostHighlight {
   content?: Content;
 }
 
-interface Tip<T_HT> {
-  highlight: T_ViewportHighlight<T_HT>;
-  callback: (highlight: T_ViewportHighlight<T_HT>) => React.JSX.Element;
+interface Tip {
+  highlight: ViewportHighlight;
+  callback: (highlight: ViewportHighlight) => React.JSX.Element;
 }
 
 const EMPTY_ID = "empty-id";
 
-const PdfHighlighter = <T_HT extends IHighlight>({
+const PdfHighlighter = ({
   highlightTransform,
   highlights,
   onScrollChange,
@@ -99,14 +98,14 @@ const PdfHighlighter = <T_HT extends IHighlight>({
   pdfScaleValue = "auto",
   onSelectionFinished,
   enableAreaSelection,
-}: Props<T_HT>) => {
+}: Props) => {
   const highlightsRef = useRef(highlights);
   const ghostHighlight = useRef<GhostHighlight | null>(null);
   const isCollapsed = useRef(true);
   const range = useRef<Range | null>(null);
   const scrolledToHighlightId = useRef(EMPTY_ID);
   const areaSelectionInProgress = useRef(false);
-  const [tip, setTip] = useState<Tip<T_HT> | null>(null);
+  const [tip, setTip] = useState<Tip | null>(null);
   const [tipPosition, setTipPosition] = useState<Position | null>(null);
   const [tipChildren, setTipChildren] = useState<React.JSX.Element | null>(
     null
@@ -180,7 +179,7 @@ const PdfHighlighter = <T_HT extends IHighlight>({
   };
 
   const showTip = (
-    highlight: T_ViewportHighlight<T_HT>,
+    highlight: ViewportHighlight,
     content: React.JSX.Element
   ) => {
     // Check if highlight is in progress
@@ -202,7 +201,7 @@ const PdfHighlighter = <T_HT extends IHighlight>({
     renderHighlightLayers();
   };
 
-  const scrollTo = (highlight: T_HT) => {
+  const scrollTo = (highlight: Highlight) => {
     const { boundingRect, usePdfCoordinates } = highlight.position;
     const pageNumber = boundingRect.pageNumber;
 
@@ -374,7 +373,6 @@ const PdfHighlighter = <T_HT extends IHighlight>({
         tip={tip}
         hideTipAndSelection={hideTipAndSelection}
         viewer={viewer.current}
-        screenshot={screenshot}
         showTip={showTip}
         setState={setTip}
       />

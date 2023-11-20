@@ -49,21 +49,18 @@ export interface Comment {
   icon?: ReactNode;
 }
 
-export interface HighlightComment {
+export type Highlight = {
   comment: Comment;
-}
-
-export interface NewHighlight extends HighlightContent, HighlightComment {
+  content: Content;
   position: ScaledPosition;
-}
-
-export interface IHighlight extends NewHighlight {
   id: string;
-}
+};
 
-export interface ViewportHighlight extends HighlightContent, HighlightComment {
+export type NewHighlight = Omit<Highlight, "id">;
+
+export type ViewportHighlight = Highlight & {
   position: Position;
-}
+};
 
 export interface Viewport {
   convertToPdfPoint: (x: number, y: number) => Array<number>;

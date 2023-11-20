@@ -21,6 +21,7 @@ import { Sidebar } from "./Sidebar";
 
 import "./style/App.css";
 import { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
+import _, { matches } from "lodash";
 
 const testHighlights: Record<string, Array<Highlight>> = _testHighlights;
 
@@ -137,6 +138,10 @@ class App extends Component<{}, State> {
   render() {
     const { url, highlights } = this.state;
 
+    const vals = ["2", "auto", "1"];
+    const pdfScaleValue = vals[Math.floor(Math.random() * vals.length)];
+    console.log(pdfScaleValue);
+
     return (
       <div className="App" style={{ display: "flex", height: "100vh" }}>
         <Sidebar
@@ -155,6 +160,7 @@ class App extends Component<{}, State> {
             {(pdfDocument: PDFDocumentProxy) => (
               <PdfHighlighter
                 pdfDocument={pdfDocument}
+                pdfScaleValue={pdfScaleValue}
                 enableAreaSelection={(event) => event.altKey}
                 onScrollChange={resetHash}
                 // pdfScaleValue="page-width"

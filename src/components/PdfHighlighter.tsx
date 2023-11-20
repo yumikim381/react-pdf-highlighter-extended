@@ -119,8 +119,8 @@ const PdfHighlighter = ({
     eventBus.current.on("pagesinit", onDocumentReady);
     doc.addEventListener("selectionchange", onSelectionChange);
     doc.addEventListener("keydown", handleKeyDown);
-    doc.defaultView?.addEventListener("resize", debouncedScaleValue);
-    resizeObserver.current.observe(containerNodeRef.current);
+    // doc.defaultView?.addEventListener("resize", debouncedScaleValue);
+    // resizeObserver.current.observe(containerNodeRef.current);
 
     viewer.current =
       viewer.current ||
@@ -144,8 +144,8 @@ const PdfHighlighter = ({
       eventBus.current.off("textlayerrendered", renderHighlightLayers);
       doc.removeEventListener("selectionchange", onSelectionChange);
       doc.removeEventListener("keydown", handleKeyDown);
-      doc.defaultView?.removeEventListener("resize", debouncedScaleValue);
-      resizeObserver.current?.disconnect();
+      // doc.defaultView?.removeEventListener("resize", debouncedScaleValue);
+      // resizeObserver.current?.disconnect();
     };
   }, []);
 
@@ -218,7 +218,8 @@ const PdfHighlighter = ({
   };
 
   const onDocumentReady = () => {
-    handleScaleValue();
+    console.log("onDocumentReady called!");
+    debouncedScaleValue();
     scrollRef(scrollTo);
   };
 
@@ -311,10 +312,15 @@ const PdfHighlighter = ({
   const debouncedAfterSelection = debounce(afterSelection, 500);
 
   const handleScaleValue = () => {
+    console.log("Inside", pdfScaleValue);
     if (viewer) {
       viewer.current!.currentScaleValue = pdfScaleValue; //"page-width";
     }
   };
+
+  useEffect(() => {
+    debouncedScaleValue();
+  }, [pdfScaleValue]);
 
   const debouncedScaleValue = debounce(handleScaleValue, 500);
 

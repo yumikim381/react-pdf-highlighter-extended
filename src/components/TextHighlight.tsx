@@ -49,22 +49,10 @@ const TextHighlight = ({
   style,
 }: Props) => {
   const highlightClass = isScrolledTo ? "TextHighlight--scrolledTo" : "";
-  const { rects, boundingRect } = position;
+  const { rects } = position;
 
   return (
     <div className={`TextHighlight ${highlightClass}`}>
-      {comment?.icon && (
-        <div
-          className="TextHighlight__icon"
-          style={{
-            left: 20,
-            top: boundingRect.top,
-          }}
-        >
-          {comment.icon}
-        </div>
-      )}
-
       <div className="TextHighlight__parts">
         {rects.map((rect, index) => (
           <div

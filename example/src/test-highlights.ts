@@ -37,7 +37,6 @@ export const testHighlights = {
       },
       comment: {
         text: "immersive coding experience!",
-        icon: "",
       },
       id: "2599712881412761",
     },
@@ -101,7 +100,6 @@ export const testHighlights = {
       },
       comment: {
         text: "",
-        icon: "",
       },
       id: "32839601376722394",
     },
@@ -124,7 +122,6 @@ export const testHighlights = {
       },
       comment: {
         text: "",
-        icon: "",
       },
       id: "46570518065661615",
     },
@@ -241,7 +238,6 @@ export const testHighlights = {
       },
       comment: {
         text: "Static Single Assignment",
-        icon: "😎",
       },
       id: "29668244118038056",
     },

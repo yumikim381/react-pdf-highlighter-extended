@@ -2,13 +2,6 @@
   position: absolute;
 }
 
-.TextHighlight__icon {
-  position: absolute;
-  color: black;
-  opacity: 1;
-  font-size: 28px;
-}
-
 .TextHighlight__parts {
   opacity: 1;
 }

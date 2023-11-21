@@ -40,10 +40,8 @@ export type Content = {
   image?: string;
 };
 
-// TODO: Remove comment type and deprectated icon
 export type Comment = {
   text: string;
-  icon?: ReactNode;
 };
 
 export type Highlight = {

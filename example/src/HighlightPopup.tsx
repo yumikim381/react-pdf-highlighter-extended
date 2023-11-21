@@ -7,9 +7,7 @@ interface HighlightPopupProps {
 
 const HighlightPopup = ({ comment }: HighlightPopupProps) => {
   return comment.text ? (
-    <div className="Highlight__popup">
-      {comment.icon} {comment.text}
-    </div>
+    <div className="Highlight__popup">{comment.text}</div>
   ) : (
     <div className="Highlight__popup">Comment has no Text</div>
   );

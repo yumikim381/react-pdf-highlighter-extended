@@ -17,19 +17,45 @@ interface HighlightLayerProps {
   /** Highlights and GhostHighlights grouped by page number in the rendered PDF Document. */
   highlightsByPage: { [pageNumber: number]: Array<Highlight | GhostHighlight> };
 
-  /** The
-   */
+  /** The page number of the PDF document to highlight (1 indexed). */
   pageNumber: number;
+
+  /** ID of the highlight the parent PDF Highlighter is trying to autoscroll to. */
   scrolledToHighlightId: string | null;
+
+  /**
+   * Should exit any existing tip or ghost highlight. Ideally this is only called by the
+   * HighlightRenderer and managed by the PdfHighlighter.
+   */
   hideTipAndGhostHighlight: () => void;
+
+  /** PDF.js viewer instance */
   viewer: PDFViewer;
+
+  /**
+   * Callback to display a tip in a PdfHighlighter componenet.
+   * Should be managed by the HighlightRenderer.
+   * @param {Tip} tip - Currently considered highlight tip
+   */
   showTip: (tip: Tip) => void;
+
+  /**
+   * Callback to update the currently held tip in the PdfHighlighter parent.
+   * @param {Tip} tip - Currently considered highlight tip
+   */
   setTip: (tip: Tip) => void;
+
+  /**
+   * This should be a HighlightRenderer of some sorts. It will be given
+   * appropriate context for a single highlight which it can then use to
+   * render a TextHighlight, AreaHighlight, etc. in the correct place.
+   */
   children: ReactElement;
 }
 
 /**
- * An internal component that holds all the highlights for a single page of a PDF document.
+ * An internal component that holds all the highlights and ghost highlights
+ * for a single page of a PDF document.
  * It should be given a HighlightRenderer as a child and all children will be wrapped
  * in the correct HighlightContext. Its rendering should be managed by the PdfHighlighter.
  *
@@ -72,7 +98,7 @@ const HighlightLayer = ({
           hideTip: hideTipAndGhostHighlight,
           viewportToScaled: (rect: LTWHP) => {
             const viewport = viewer.getPageView(
-              (rect.pageNumber || pageNumber) - 1
+              (rect.pageNumber || pageNumber) - 1 // Convert to 0 index
             ).viewport;
 
             return viewportToScaled(rect, viewport);
@@ -83,7 +109,7 @@ const HighlightLayer = ({
         };
 
         return (
-          <HighlightContext.Provider value={nameThis}>
+          <HighlightContext.Provider value={nameThis} key={index}>
             {children}
           </HighlightContext.Provider>
         );

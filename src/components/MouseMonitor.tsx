@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from "react";
+import React, { ReactElement, useEffect, useRef } from "react";
 
-interface Props {
+interface MouseMonitorProps {
   /**
    * A callback function to be executed when the mouse moves away from the monitored area.
    */
@@ -19,15 +19,20 @@ interface Props {
   /**
    * The content to be wrapped by the MouseMonitor.
    */
-  children: React.JSX.Element;
+  children: ReactElement;
 }
 
 /**
- * A component that monitors mouse movements over a child and padded area.
+ * A component that monitors mouse movements over a child and invisible padded area.
  *
- * @param {Props} props - The component's props.
+ * @param {MouseMonitorProps} props - The component's props.
  */
-const MouseMonitor = ({ onMoveAway, paddingX, paddingY, children }: Props) => {
+const MouseMonitor = ({
+  onMoveAway,
+  paddingX,
+  paddingY,
+  children,
+}: MouseMonitorProps) => {
   const container = useRef<HTMLDivElement | null>(null);
 
   const onMouseMove = (event: MouseEvent) => {

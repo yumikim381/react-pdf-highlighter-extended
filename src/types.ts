@@ -24,7 +24,7 @@ export type Scaled = {
   pageNumber: number;
 };
 
-export type Position = {
+export type ViewportPosition = {
   boundingRect: LTWHP;
   rects: Array<LTWHP>;
 };
@@ -54,7 +54,7 @@ export type Highlight = {
 export type GhostHighlight = Omit<Highlight, "id" | "comment">;
 
 export type ViewportHighlight = Omit<Highlight, "position"> & {
-  position: Position;
+  position: ViewportPosition;
 };
 
 export type Viewport = {

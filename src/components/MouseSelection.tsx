@@ -1,4 +1,4 @@
-import React, { Component, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { asElement, isHTMLElement } from "../lib/pdfjs-dom";
 import "../style/MouseSelection.css";

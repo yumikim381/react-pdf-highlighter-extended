@@ -1,59 +1,45 @@
 import "pdfjs-dist/web/pdf_viewer.css";
-import "../style/pdf_viewer.css";
 import "../style/PdfHighlighter.css";
+import "../style/pdf_viewer.css";
 
+import debounce from "lodash.debounce";
+import type { PDFDocumentProxy } from "pdfjs-dist";
 import {
   EventBus,
   NullL10n,
   PDFLinkService,
   PDFViewer,
 } from "pdfjs-dist/legacy/web/pdf_viewer";
-import type {
-  Content,
-  GhostHighlight,
-  Highlight,
-  LTWH,
-  LTWHP,
-  Position,
-  Scaled,
-  ScaledPosition,
-  Tip,
-  ViewportHighlight,
-} from "../types";
 import React, {
   PointerEventHandler,
   ReactElement,
-  ReactNode,
   useEffect,
   useRef,
   useState,
 } from "react";
+import { Root, createRoot } from "react-dom/client";
+import { scaledToViewport, viewportPositionToScaled } from "../lib/coordinates";
+import getBoundingRect from "../lib/get-bounding-rect";
+import getClientRects from "../lib/get-client-rects";
+import groupHighlightsByPage from "../lib/group-highlights-by-page";
 import {
   asElement,
   findOrCreateContainerLayer,
-  getPageFromElement,
   getPagesFromRange,
   getWindow,
   isHTMLElement,
 } from "../lib/pdfjs-dom";
-import {
-  scaledToViewport,
-  viewportPositionToScaled,
-  viewportToScaled,
-} from "../lib/coordinates";
-import MouseSelection from "./MouseSelection";
-import type { PDFDocumentProxy } from "pdfjs-dist";
-import TipContainer from "./TipContainer";
-import { createRoot, Root } from "react-dom/client";
-import debounce from "lodash.debounce";
-import getBoundingRect from "../lib/get-bounding-rect";
-import getClientRects from "../lib/get-client-rects";
+import type {
+  Content,
+  GhostHighlight,
+  Highlight,
+  ViewportPosition,
+  ScaledPosition,
+  Tip,
+} from "../types";
 import { HighlightLayer } from "./HighlightLayer";
-import groupHighlightsByPage from "../lib/group-highlights-by-page";
-import TipRenderer from "./TipRenderer";
-import screenshot from "../lib/screenshot";
 import MouseSelectionRender from "./MouseSelectionRenderer";
-import { EMPTY_ID } from "../constants";
+import TipRenderer from "./TipRenderer";
 
 interface Props {
   highlights: Array<Highlight>;
@@ -94,7 +80,7 @@ const PdfHighlighter = ({
   const isAreaSelectionInProgressRef = useRef(false); // Keep track of whether area selection is made
   const pdfScaleValueRef = useRef(pdfScaleValue);
   const [_, setTip] = useState<Tip | null>(null); // Keep track of external Tip properties (highlight, content)
-  const [tipPosition, setTipPosition] = useState<Position | null>(null);
+  const [tipPosition, setTipPosition] = useState<ViewportPosition | null>(null);
   const [tipChildren, setTipChildren] = useState<ReactElement | null>(null);
 
   const containerNodeRef = useRef<HTMLDivElement | null>(null);
@@ -298,7 +284,7 @@ const PdfHighlighter = ({
     }
 
     const boundingRect = getBoundingRect(rects);
-    const viewportPosition: Position = {
+    const viewportPosition: ViewportPosition = {
       boundingRect,
       rects,
     };

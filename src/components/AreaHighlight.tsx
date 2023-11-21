@@ -8,12 +8,12 @@ import "../style/Highlight.css";
 
 import type { LTWHP, ViewportHighlight } from "../types";
 
-interface Props {
+interface AreaHighlightProps {
   /** The highlight to associate with the area. */
   highlight: ViewportHighlight;
 
   /**
-   * A callback function called when the highlight area changes.
+   * A callback function for when the highlight area changes.
    * @param {LTWHP} rect - The updated highlight area.
    */
   onChange: (rect: LTWHP) => void;
@@ -21,16 +21,21 @@ interface Props {
   /** Indicates whether the component is scrolled into view. */
   isScrolledTo: boolean;
 
-  /** Additional CSS styles for the component. */
+  /** Optional CSS styling for the highlighted area. */
   style?: CSSProperties;
 }
 
 /**
  * A component for displaying and interacting with a rectangular highlight area.
  *
- * @param {Props} props - The component's properties.
+ * @param {AreaHighlightProps} props - The component's properties.
  */
-const AreaHighlight = ({ highlight, onChange, isScrolledTo, style }: Props) => {
+const AreaHighlight = ({
+  highlight,
+  onChange,
+  isScrolledTo,
+  style,
+}: AreaHighlightProps) => {
   const highlightClass = isScrolledTo ? "AreaHighlight--scrolledTo" : "";
 
   return (

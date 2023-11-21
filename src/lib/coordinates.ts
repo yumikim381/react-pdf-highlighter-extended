@@ -7,7 +7,7 @@
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 import type {
   LTWHP,
-  Position,
+  ViewportPosition,
   Scaled,
   ScaledPosition,
   Viewport,
@@ -37,7 +37,7 @@ export const viewportToScaled = (
 };
 
 export const viewportPositionToScaled = (
-  { boundingRect, rects }: Position,
+  { boundingRect, rects }: ViewportPosition,
   viewer: PDFViewer
 ): ScaledPosition => {
   const pageNumber = boundingRect.pageNumber;
@@ -102,7 +102,7 @@ export const scaledToViewport = (
 export const scaledPositionToViewport = (
   { boundingRect, rects, usePdfCoordinates }: ScaledPosition,
   viewer: PDFViewer
-): Position => {
+): ViewportPosition => {
   const pageNumber = boundingRect.pageNumber;
   const viewport = viewer.getPageView(pageNumber - 1).viewport;
   const scale = (obj: Scaled) =>

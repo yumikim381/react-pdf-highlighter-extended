@@ -1,18 +1,15 @@
+import React, { ReactElement } from "react";
+import { EMPTY_ID } from "../constants";
 import { scaledPositionToViewport, viewportToScaled } from "../lib/coordinates";
-import React, { ReactElement, ReactNode, cloneElement } from "react";
+import screenshot from "../lib/screenshot";
 import {
   GhostHighlight,
   Highlight,
   LTWH,
   LTWHP,
-  Position,
-  Scaled,
-  ScaledPosition,
   Tip,
   ViewportHighlight,
 } from "../types";
-import screenshot from "../lib/screenshot";
-import { EMPTY_ID } from "../constants";
 import { HighlightContext, NameThis } from "./context";
 
 interface HighlightLayerProps {

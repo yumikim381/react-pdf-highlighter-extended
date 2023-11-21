@@ -1,22 +1,12 @@
-import {
-  GhostHighlight,
-  Highlight,
-  ScaledPosition,
-  ViewportHighlight,
-} from "src/types";
+import { GhostHighlight, Highlight, ViewportHighlight } from "src/types";
 
 type AllHighlights = Highlight | GhostHighlight | ViewportHighlight;
 
-type NonNullableHighlight<T extends AllHighlights | null | undefined> =
-  T extends null | undefined ? never : T;
-
 const groupHighlightsByPage = <T extends AllHighlights | null | undefined>(
   highlights: Array<T>
-): Record<number, Array<NonNullableHighlight<T>>> => {
-  const allHighlights = highlights.filter(Boolean) as Array<
-    NonNullableHighlight<T>
-  >;
-  const groupedHighlights: Record<number, Array<NonNullableHighlight<T>>> = {};
+): Record<number, Array<NonNullable<T>>> => {
+  const allHighlights = highlights.filter(Boolean) as Array<NonNullable<T>>;
+  const groupedHighlights: Record<number, Array<NonNullable<T>>> = {};
 
   allHighlights.forEach((highlight) => {
     const pageNumbers = new Set<number>();

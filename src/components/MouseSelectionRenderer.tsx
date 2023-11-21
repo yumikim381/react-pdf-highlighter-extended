@@ -1,20 +1,21 @@
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_rendering_queue";
-import MouseSelection from "./MouseSelection";
-import screenshot from "../lib/screenshot";
-import { asElement, getPageFromElement, isHTMLElement } from "../lib/pdfjs-dom";
-import { viewportPositionToScaled } from "../lib/coordinates";
 import React from "react";
+import { viewportPositionToScaled } from "../lib/coordinates";
+import { asElement, getPageFromElement, isHTMLElement } from "../lib/pdfjs-dom";
+import screenshot from "../lib/screenshot";
+import MouseSelection from "./MouseSelection";
+import { LTWH, ScaledPosition, ViewportPosition } from "src/types";
 
 interface Props {
   viewer: PDFViewer;
   onChange: (isVisible: boolean) => void;
   enableAreaSelection?: (event: MouseEvent) => boolean;
   afterSelection: (
-    viewportPosition: any,
-    scaledPosition: any,
-    image: any,
-    resetSelection: any
-  ) => void; //TODO: Fix typings
+    viewportPosition: ViewportPosition,
+    scaledPosition: ScaledPosition,
+    image: string,
+    resetSelection: () => void
+  ) => void;
 }
 const MouseSelectionRender = ({
   viewer,
@@ -24,13 +25,14 @@ const MouseSelectionRender = ({
 }: Props) => {
   if (!viewer) return null;
 
-  const toggleTextSelection = (flag: boolean) => {
+  const disableTextSelection = (flag: boolean) => {
     viewer.viewer?.classList.toggle("PdfHighlighter--disable-selection", flag);
   };
+
   const handleSelection = (
-    startTarget: any,
-    boundingRect: any,
-    resetSelection: any
+    startTarget: HTMLElement,
+    boundingRect: LTWH,
+    resetSelection: () => void
   ) => {
     const page = getPageFromElement(startTarget);
     if (!page) return;
@@ -57,8 +59,8 @@ const MouseSelectionRender = ({
   return (
     enableAreaSelection && (
       <MouseSelection
-        onDragStart={() => toggleTextSelection(true)}
-        onDragEnd={() => toggleTextSelection(false)}
+        onDragStart={() => disableTextSelection(true)}
+        onDragEnd={() => disableTextSelection(false)}
         onChange={onChange}
         shouldStart={(event) =>
           enableAreaSelection(event) &&

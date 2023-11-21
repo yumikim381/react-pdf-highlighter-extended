@@ -1,31 +1,36 @@
-import React, { useRef } from "react";
+import React, { ReactElement, useRef } from "react";
 import MouseMonitor from "./MouseMonitor";
 
-interface Props {
+interface MonitoredHighlightContainerProps {
   /**
    * A callback function to execute when the mouse hovers over the children.
-   * @param {React.JSX.Element} popupContent - The content to display in the popup.
+   * Can be used for triggering popup renders.
+   * @param {ReactElement} monitoredPopupContent - The content to display in a popup.
    */
-  onMouseOver: (monitoredPopupContent: React.JSX.Element) => void;
+  onMouseOver: (monitoredPopupContent: ReactElement) => void;
 
   /**
-   * The content to display in the popup.
+   * The content to display in a popup. NOTE: This will not render the popupContent,
+   * but it will monitor mouse activity over it
    */
-  popupContent: React.JSX.Element;
+  popupContent: ReactElement;
 
   /**
-   * A callback function to execute when the mouse moves out of the component.
+   * A callback function to execute when the mouse completely moves out from both the popupContent
+   * and highlight (children).
    */
   onMouseOut: () => void;
 
   /**
-   * The child elements.
+   * Container children. Ideally, should be highlight components of some sort.
    */
-  children: React.JSX.Element;
+  children: ReactElement;
 }
 
 /**
- * A component that displays a popup when the mouse hovers over its children.
+ * A container for a highlight component that monitors whether a mouse is over a highlight
+ * and over some secondary/popup content. This does not render any popup/tip,
+ * but it should ideally be used to set the visible state / rendering of a popup.
  *
  * @param {Props} props - The component's properties.
  */
@@ -34,17 +39,19 @@ const MonitoredHighlightContainer = ({
   popupContent,
   onMouseOut,
   children,
-}: Props) => {
-  const mouseIn = useRef(false); // Whether the mouse is over the child
+}: MonitoredHighlightContainerProps) => {
+  const mouseIn = useRef(false); // Whether the mouse is over the child (highlight)
 
   // Create a mouse monitor for the popup content
   const monitorContent = (
     <MouseMonitor
       onMoveAway={() => {
+        console.log("onMoveAway");
         if (mouseIn.current) {
           return;
         }
 
+        console.log("onMouseOut!");
         onMouseOut();
       }}
       paddingX={60}

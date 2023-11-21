@@ -32,11 +32,7 @@ const HighlightRenderer = ({ updateHighlight }: HighlightRendererProps) => {
   );
 
   const component = isTextHighlight ? (
-    <TextHighlight
-      isScrolledTo={isScrolledTo}
-      position={highlight.position}
-      comment={highlight.comment}
-    />
+    <TextHighlight isScrolledTo={isScrolledTo} position={highlight.position} />
   ) : (
     <AreaHighlight
       isScrolledTo={isScrolledTo}

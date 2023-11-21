@@ -13,12 +13,12 @@ interface AreaHighlightProps {
   highlight: ViewportHighlight;
 
   /**
-   * A callback function for when the highlight area changes.
+   * A callback function for when the highlight area is either moved or resized.
    * @param {LTWHP} rect - The updated highlight area.
    */
   onChange: (rect: LTWHP) => void;
 
-  /** Indicates whether the component is scrolled into view. */
+  /** Whether the component is scrolled into view. */
   isScrolledTo: boolean;
 
   /** Optional CSS styling for the highlighted area. */

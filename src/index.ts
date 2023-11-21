@@ -4,7 +4,7 @@ import TextHighlight from "./components/TextHighlight";
 import MonitoredHighlightContainer from "./components/MonitoredHighlightContainer";
 import AreaHighlight from "./components/AreaHighlight";
 import PdfLoader from "./components/PdfLoader";
-import { NameThis, useHighlightContext } from "./components/context";
+import { NameThis, useHighlightContext } from "./contexts/HighlightContext";
 
 export {
   SelectionTip,

@@ -10,20 +10,32 @@ import {
   Tip,
   ViewportHighlight,
 } from "../types";
-import { HighlightContext, NameThis } from "./context";
+import { HighlightContext, NameThis } from "../contexts/HighlightContext";
+import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 
 interface HighlightLayerProps {
-  highlightsByPage: { [pageNumber: string]: Array<Highlight | GhostHighlight> };
-  pageNumber: string;
+  /** Highlights and GhostHighlights grouped by page number in the rendered PDF Document. */
+  highlightsByPage: { [pageNumber: number]: Array<Highlight | GhostHighlight> };
+
+  /** The
+   */
+  pageNumber: number;
   scrolledToHighlightId: string | null;
   hideTipAndGhostHighlight: () => void;
-  viewer: any;
+  viewer: PDFViewer;
   showTip: (tip: Tip) => void;
   setTip: (tip: Tip) => void;
   children: ReactElement;
 }
 
-export function HighlightLayer({
+/**
+ * An internal component that holds all the highlights for a single page of a PDF document.
+ * It should be given a HighlightRenderer as a child and all children will be wrapped
+ * in the correct HighlightContext. Its rendering should be managed by the PdfHighlighter.
+ *
+ * @param {AreaHighlightProps} props - The component's properties.
+ */
+const HighlightLayer = ({
   highlightsByPage,
   pageNumber,
   scrolledToHighlightId,
@@ -32,21 +44,23 @@ export function HighlightLayer({
   showTip,
   setTip,
   children,
-}: HighlightLayerProps) {
-  const currentHighlights = highlightsByPage[String(pageNumber)] || [];
+}: HighlightLayerProps) => {
+  const currentHighlights = highlightsByPage[pageNumber] || [];
   return (
     <div>
       {currentHighlights.map((highlight, index) => {
         const viewportHighlight: ViewportHighlight = {
           ...highlight,
-          id: "id" in highlight ? highlight.id : EMPTY_ID,
-          comment: "comment" in highlight ? highlight.comment : { text: "" },
+          id: "id" in highlight ? highlight.id : EMPTY_ID, // Give Empty ID to GhostHighlight
+          comment: "comment" in highlight ? highlight.comment : { text: "" }, // Give empty comment to GhostHighlight
           position: scaledPositionToViewport(highlight.position, viewer),
         };
 
         const isScrolledTo = Boolean(
           scrolledToHighlightId === viewportHighlight.id
         );
+
+        console.log(pageNumber, viewer.currentPageNumber);
 
         const nameThis: NameThis = {
           highlight: viewportHighlight,
@@ -58,17 +72,15 @@ export function HighlightLayer({
           hideTip: hideTipAndGhostHighlight,
           viewportToScaled: (rect: LTWHP) => {
             const viewport = viewer.getPageView(
-              (rect.pageNumber || parseInt(pageNumber)) - 1
+              (rect.pageNumber || pageNumber) - 1
             ).viewport;
 
             return viewportToScaled(rect, viewport);
           },
           screenshot: (boundingRect: LTWH) =>
-            screenshot(boundingRect, parseInt(pageNumber), viewer),
+            screenshot(boundingRect, pageNumber, viewer),
           isScrolledTo: isScrolledTo,
         };
-
-        console.log("Rendered Highlight!");
 
         return (
           <HighlightContext.Provider value={nameThis}>
@@ -78,4 +90,6 @@ export function HighlightLayer({
       })}
     </div>
   );
-}
+};
+
+export default HighlightLayer;

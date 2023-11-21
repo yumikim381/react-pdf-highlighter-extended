@@ -37,9 +37,9 @@ import type {
   ScaledPosition,
   Tip,
 } from "../types";
-import { HighlightLayer } from "./HighlightLayer";
 import MouseSelectionRender from "./MouseSelectionRenderer";
 import TipRenderer from "./TipRenderer";
+import HighlightLayer from "./HighlightLayer";
 
 interface Props {
   highlights: Array<Highlight>;
@@ -350,13 +350,15 @@ const PdfHighlighter = ({
   };
 
   const renderHighlightLayer = (root: Root, pageNumber: number) => {
+    if (!viewerRef.current) return;
+
     root.render(
       <HighlightLayer
         highlightsByPage={groupHighlightsByPage([
           ...highlightsRef.current,
           ghostHighlightRef.current,
         ])}
-        pageNumber={pageNumber.toString()}
+        pageNumber={pageNumber}
         scrolledToHighlightId={scrolledToHighlightIdRef.current}
         hideTipAndGhostHighlight={hideTipAndGhostHighlight}
         viewer={viewerRef.current}

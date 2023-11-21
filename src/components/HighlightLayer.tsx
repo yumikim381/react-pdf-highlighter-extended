@@ -86,8 +86,6 @@ const HighlightLayer = ({
           scrolledToHighlightId === viewportHighlight.id
         );
 
-        console.log(pageNumber, viewer.currentPageNumber);
-
         const nameThis: NameThis = {
           highlight: viewportHighlight,
           index: index,

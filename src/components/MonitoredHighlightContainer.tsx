@@ -46,12 +46,10 @@ const MonitoredHighlightContainer = ({
   const monitorContent = (
     <MouseMonitor
       onMoveAway={() => {
-        console.log("onMoveAway");
         if (mouseIn.current) {
           return;
         }
 
-        console.log("onMouseOut!");
         onMouseOut();
       }}
       paddingX={60}

@@ -51,7 +51,6 @@ const HighlightRenderer = ({ updateHighlight }: HighlightRendererProps) => {
     <MonitoredHighlightContainer
       popupContent={<HighlightPopup comment={highlight.comment} />}
       onMouseOver={(popupContent) => {
-        console.log("Mouse over!");
         const popupTip: Tip = {
           highlight,
           content: popupContent,
@@ -59,7 +58,6 @@ const HighlightRenderer = ({ updateHighlight }: HighlightRendererProps) => {
         setTip(popupTip);
       }}
       onMouseOut={() => {
-        console.log("mouse out!");
         hideTip();
       }}
       key={index}

@@ -11,6 +11,7 @@ import {
   PDFViewer,
 } from "pdfjs-dist/legacy/web/pdf_viewer";
 import React, {
+  CSSProperties,
   PointerEventHandler,
   ReactElement,
   useEffect,
@@ -54,6 +55,7 @@ interface Props {
     transformSelection: () => void
   ) => ReactElement | null;
   enableAreaSelection?: (event: MouseEvent) => boolean;
+  mouseSelectionStyle?: CSSProperties;
   children: ReactElement;
 }
 
@@ -70,6 +72,7 @@ const PdfHighlighter = ({
   pdfScaleValue = "auto",
   onSelectionFinished,
   enableAreaSelection,
+  mouseSelectionStyle,
   children,
 }: Props) => {
   const highlightsRef = useRef(highlights); // Keep track of all highlights
@@ -389,6 +392,7 @@ const PdfHighlighter = ({
               (isAreaSelectionInProgressRef.current = isVisible)
             }
             enableAreaSelection={enableAreaSelection}
+            style={mouseSelectionStyle}
             afterSelection={(
               viewportPosition,
               scaledPosition,

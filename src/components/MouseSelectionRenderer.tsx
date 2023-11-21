@@ -1,5 +1,5 @@
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_rendering_queue";
-import React from "react";
+import React, { CSSProperties } from "react";
 import { viewportPositionToScaled } from "../lib/coordinates";
 import { asElement, getPageFromElement, isHTMLElement } from "../lib/pdfjs-dom";
 import screenshot from "../lib/screenshot";
@@ -16,12 +16,14 @@ interface Props {
     image: string,
     resetSelection: () => void
   ) => void;
+  style?: CSSProperties;
 }
 const MouseSelectionRender = ({
   viewer,
   onChange,
   enableAreaSelection,
   afterSelection,
+  style,
 }: Props) => {
   if (!viewer) return null;
 
@@ -68,6 +70,7 @@ const MouseSelectionRender = ({
           Boolean(asElement(event.target).closest(".page"))
         }
         onSelection={handleSelection}
+        style={style}
       />
     )
   );

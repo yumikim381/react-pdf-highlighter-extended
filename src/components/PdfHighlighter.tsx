@@ -38,9 +38,9 @@ import type {
   ScaledPosition,
   Tip,
 } from "../types";
-import MouseSelectionRender from "./MouseSelectionRenderer";
 import TipRenderer from "./TipRenderer";
 import HighlightLayer from "./HighlightLayer";
+import MouseSelectionRenderer from "./MouseSelectionRenderer";
 
 interface Props {
   highlights: Array<Highlight>;
@@ -385,8 +385,8 @@ const PdfHighlighter = ({
             viewer={viewerRef.current!}
           />
         )}
-        {isViewerReady && (
-          <MouseSelectionRender
+        {isViewerReady && enableAreaSelection && (
+          <MouseSelectionRenderer
             viewer={viewerRef.current!}
             onChange={(isVisible) =>
               (isAreaSelectionInProgressRef.current = isVisible)

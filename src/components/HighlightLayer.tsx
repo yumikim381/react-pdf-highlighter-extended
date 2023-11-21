@@ -1,9 +1,8 @@
 import { scaledPositionToViewport, viewportToScaled } from "../lib/coordinates";
-import React, { ReactElement, ReactNode } from "react";
+import React, { ReactElement, ReactNode, cloneElement } from "react";
 import {
   GhostHighlight,
   Highlight,
-  HighlightTransformer,
   LTWH,
   LTWHP,
   Position,
@@ -14,27 +13,28 @@ import {
 } from "../types";
 import screenshot from "../lib/screenshot";
 import { EMPTY_ID } from "../constants";
+import { HighlightContext, NameThis } from "./context";
 
 interface HighlightLayerProps {
   highlightsByPage: { [pageNumber: string]: Array<Highlight | GhostHighlight> };
   pageNumber: string;
   scrolledToHighlightId: string | null;
-  highlightTransform: HighlightTransformer;
   hideTipAndGhostHighlight: () => void;
   viewer: any;
   showTip: (tip: Tip) => void;
   setTip: (tip: Tip) => void;
+  children: ReactElement;
 }
 
 export function HighlightLayer({
   highlightsByPage,
   pageNumber,
   scrolledToHighlightId,
-  highlightTransform,
   hideTipAndGhostHighlight,
   viewer,
   showTip,
   setTip,
+  children,
 }: HighlightLayerProps) {
   const currentHighlights = highlightsByPage[String(pageNumber)] || [];
   return (
@@ -51,24 +51,32 @@ export function HighlightLayer({
           scrolledToHighlightId === viewportHighlight.id
         );
 
-        return highlightTransform(
-          viewportHighlight,
-          index,
-          (tip) => {
+        const nameThis: NameThis = {
+          highlight: viewportHighlight,
+          index: index,
+          setTip: (tip: Tip) => {
             setTip(tip);
             showTip(tip);
           },
-          hideTipAndGhostHighlight,
-          (rect) => {
+          hideTip: hideTipAndGhostHighlight,
+          viewportToScaled: (rect: LTWHP) => {
             const viewport = viewer.getPageView(
               (rect.pageNumber || parseInt(pageNumber)) - 1
             ).viewport;
 
             return viewportToScaled(rect, viewport);
           },
-          (boundingRect) =>
+          screenshot: (boundingRect: LTWH) =>
             screenshot(boundingRect, parseInt(pageNumber), viewer),
-          isScrolledTo
+          isScrolledTo: isScrolledTo,
+        };
+
+        console.log("Rendered Highlight!");
+
+        return (
+          <HighlightContext.Provider value={nameThis}>
+            {children}
+          </HighlightContext.Provider>
         );
       })}
     </div>

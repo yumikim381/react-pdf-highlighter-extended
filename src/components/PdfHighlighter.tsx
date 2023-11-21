@@ -12,7 +12,6 @@ import type {
   Content,
   GhostHighlight,
   Highlight,
-  HighlightTransformer,
   LTWH,
   LTWHP,
   Position,
@@ -57,7 +56,6 @@ import MouseSelectionRender from "./MouseSelectionRenderer";
 import { EMPTY_ID } from "../constants";
 
 interface Props {
-  highlightTransform: HighlightTransformer;
   highlights: Array<Highlight>;
   onScrollChange: () => void;
   scrollRef: (scrollTo: (highlight: Highlight) => void) => void;
@@ -70,6 +68,7 @@ interface Props {
     transformSelection: () => void
   ) => ReactElement | null;
   enableAreaSelection?: (event: MouseEvent) => boolean;
+  children: ReactElement;
 }
 
 interface HighlightRoot {
@@ -78,7 +77,6 @@ interface HighlightRoot {
 }
 
 const PdfHighlighter = ({
-  highlightTransform,
   highlights,
   onScrollChange,
   scrollRef,
@@ -86,6 +84,7 @@ const PdfHighlighter = ({
   pdfScaleValue = "auto",
   onSelectionFinished,
   enableAreaSelection,
+  children,
 }: Props) => {
   const highlightsRef = useRef(highlights); // Keep track of all highlights
   const ghostHighlightRef = useRef<GhostHighlight | null>(null); // Keep track of in-progress highlights
@@ -373,11 +372,11 @@ const PdfHighlighter = ({
         ])}
         pageNumber={pageNumber.toString()}
         scrolledToHighlightId={scrolledToHighlightIdRef.current}
-        highlightTransform={highlightTransform}
         hideTipAndGhostHighlight={hideTipAndGhostHighlight}
         viewer={viewerRef.current}
         showTip={showTip}
         setTip={setTip}
+        children={children}
       />
     );
   };

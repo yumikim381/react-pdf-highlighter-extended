@@ -75,13 +75,3 @@ export type Tip = {
   highlight: ViewportHighlight;
   content: ReactElement | ((highlight: ViewportHighlight) => ReactElement);
 };
-
-export type HighlightTransformer = (
-  highlight: ViewportHighlight,
-  index: number,
-  setTip: (tip: Tip) => void,
-  hideTip: () => void,
-  viewportToScaled: (rect: LTWHP) => Scaled,
-  screenshot: (position: LTWH) => string,
-  isScrolledTo: boolean
-) => ReactNode;

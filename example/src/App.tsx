@@ -22,6 +22,7 @@ import { Sidebar } from "./Sidebar";
 
 import "./style/App.css";
 import { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
+import HighlightRenderer from "./HighlightRenderer";
 
 const testHighlights: Record<string, Array<Highlight>> = _testHighlights;
 
@@ -38,15 +39,6 @@ const parseIdFromHash = () =>
 const resetHash = () => {
   document.location.hash = "";
 };
-
-const HighlightPopup = ({ comment }: { comment: Comment }) =>
-  comment.text ? (
-    <div className="Highlight__popup">
-      {comment.icon} {comment.text}
-    </div>
-  ) : (
-    <div className="Highlight__popup">Comment has no Text</div>
-  );
 
 const PRIMARY_PDF_URL = "https://arxiv.org/pdf/1708.08021.pdf";
 const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480.pdf";
@@ -191,61 +183,12 @@ class App extends Component<{}, State> {
                     </button>
                   </SelectionTip>
                 )}
-                highlightTransform={(
-                  highlight,
-                  index,
-                  setTip,
-                  hideTip,
-                  viewportToScaled,
-                  screenshot,
-                  isScrolledTo
-                ) => {
-                  const isTextHighlight = !Boolean(
-                    highlight.content && highlight.content.image
-                  );
-
-                  const component = isTextHighlight ? (
-                    <TextHighlight
-                      isScrolledTo={isScrolledTo}
-                      position={highlight.position}
-                      comment={highlight.comment}
-                    />
-                  ) : (
-                    <AreaHighlight
-                      isScrolledTo={isScrolledTo}
-                      highlight={highlight}
-                      onChange={(boundingRect) => {
-                        this.updateHighlight(
-                          highlight.id,
-                          { boundingRect: viewportToScaled(boundingRect) },
-                          { image: screenshot(boundingRect) }
-                        );
-                      }}
-                    />
-                  );
-
-                  return (
-                    <MonitoredHighlightContainer
-                      popupContent={<HighlightPopup {...highlight} />}
-                      onMouseOver={(popupContent) => {
-                        console.log("Mouse over!");
-                        const popupTip: Tip = {
-                          highlight,
-                          content: popupContent,
-                        };
-                        setTip(popupTip);
-                      }}
-                      onMouseOut={() => {
-                        console.log("mouse out!");
-                        hideTip();
-                      }}
-                      key={index}
-                      children={component}
-                    />
-                  );
-                }}
                 highlights={highlights}
-              />
+              >
+                <HighlightRenderer
+                  updateHighlight={this.updateHighlight.bind(this)}
+                />
+              </PdfHighlighter>
             )}
           </PdfLoader>
         </div>

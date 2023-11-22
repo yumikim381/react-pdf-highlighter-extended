@@ -1,21 +1,13 @@
-import React, { CSSProperties, ReactNode, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelectionTipContext } from "../../src/contexts/SelectionTipContext";
 import { Comment, GhostHighlight } from "./react-pdf-highlighter";
+import "./style/ExpandableTip.css";
 
-const COMPACT_STYLE: CSSProperties = {
-  cursor: "pointer",
-  backgroundColor: "#3d464d",
-  border: "1px solid rgba(255, 255, 255, 0.25)",
-  color: "white",
-  padding: "5px 10px",
-  borderRadius: "3px",
-};
-
-interface Props {
+interface ExpandableTipProps {
   addHighlight: (highlight: GhostHighlight, comment: Comment) => void;
 }
 
-const SelectionTip = ({ addHighlight }: Props) => {
+const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
   const [compact, setCompact] = useState(true);
   const {
     selectionPosition,
@@ -38,7 +30,6 @@ const SelectionTip = ({ addHighlight }: Props) => {
             setCompact(false);
             makeGhostHighlight();
           }}
-          style={COMPACT_STYLE}
         >
           Add highlight
         </div>
@@ -62,4 +53,4 @@ const SelectionTip = ({ addHighlight }: Props) => {
   );
 };
 
-export default SelectionTip;
+export default ExpandableTip;

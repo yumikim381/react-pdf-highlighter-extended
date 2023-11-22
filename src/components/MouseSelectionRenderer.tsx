@@ -16,10 +16,10 @@ interface MouseSelectionRendererProps {
   /**
    * Callback after a valid mouse selection has been made inside of a PdfHighlighter.
    *
-   * @param {ViewportPosition} viewportPosition - ViewportPosition of selection.
-   * @param {ScaledPosition} scaledPosition - ScaledPosition of selection.
-   * @param {string} image - PNG data url of a screenshot of the mouse selection.
-   * @param {() => void} resetSelection - Callback to reset current selection. See MouseSelection.
+   * @param viewportPosition - ViewportPosition of selection.
+   * @param scaledPosition - ScaledPosition of selection.
+   * @param image - PNG data url of a screenshot of the mouse selection.
+   * @param resetSelection - Callback to reset current selection. See MouseSelection.
    */
   afterSelection: (
     viewportPosition: ViewportPosition,
@@ -33,7 +33,7 @@ interface MouseSelectionRendererProps {
    * Checks for whether the click occurred inside the PdfHighlighter and on a valid element are already made.
    * This should be used strictly for any conditionals to area selection.
    *
-   * @param {MouseEvent} event - The mouse event.
+   * @param event - The mouse event.
    */
   enableAreaSelection: (event: MouseEvent) => boolean;
 
@@ -46,7 +46,7 @@ interface MouseSelectionRendererProps {
  * component inside of a PdfHighlighter component. Its existence is highly dependent on a
  * PdfHighlighter, but it is independently written to help declutter the PdfHighlighter.
  *
- * @param {MouseSelectionRendererProps} props - The component's properties.
+ * @param props - The component's properties.
  */
 const MouseSelectionRenderer = ({
   viewer,

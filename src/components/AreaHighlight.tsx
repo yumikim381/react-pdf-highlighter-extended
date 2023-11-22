@@ -14,7 +14,7 @@ interface AreaHighlightProps {
 
   /**
    * A callback function for when the highlight area is either moved or resized.
-   * @param {LTWHP} rect - The updated highlight area.
+   * @param rect - The updated highlight area.
    */
   onChange: (rect: LTWHP) => void;
 
@@ -28,7 +28,7 @@ interface AreaHighlightProps {
 /**
  * A component for displaying and interacting with a rectangular highlight area.
  *
- * @param {AreaHighlightProps} props - The component's properties.
+ * @param props - The component's properties.
  */
 const AreaHighlight = ({
   highlight,

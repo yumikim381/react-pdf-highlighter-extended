@@ -1,5 +1,4 @@
 import React, { ReactElement } from "react";
-import { EMPTY_ID } from "../constants";
 import { scaledPositionToViewport, viewportToScaled } from "../lib/coordinates";
 import screenshot from "../lib/screenshot";
 import {
@@ -12,6 +11,8 @@ import {
 } from "../types";
 import { HighlightContext, NameThis } from "../contexts/HighlightContext";
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
+
+const EMPTY_ID = "empty-id";
 
 interface HighlightLayerProps {
   /** Highlights and GhostHighlights grouped by page number in the rendered PDF Document. */
@@ -35,13 +36,13 @@ interface HighlightLayerProps {
   /**
    * Callback to display a tip in a PdfHighlighter componenet.
    * Should be managed by the HighlightRenderer.
-   * @param {Tip} tip - Currently considered highlight tip
+   * @param tip - Currently considered highlight tip
    */
   showTip: (tip: Tip) => void;
 
   /**
    * Callback to update the currently held tip in the PdfHighlighter parent.
-   * @param {Tip} tip - Currently considered highlight tip
+   * @param tip - Currently considered highlight tip
    */
   setTip: (tip: Tip) => void;
 
@@ -59,7 +60,7 @@ interface HighlightLayerProps {
  * It should be given a HighlightRenderer as a child and all children will be wrapped
  * in the correct HighlightContext. Its rendering should be managed by the PdfHighlighter.
  *
- * @param {AreaHighlightProps} props - The component's properties.
+ * @param props - The component's properties.
  */
 const HighlightLayer = ({
   highlightsByPage,

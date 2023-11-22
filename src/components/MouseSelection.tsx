@@ -30,9 +30,9 @@ interface MouseSelectionProps {
    * and a valid area selection is made. In general, this will only
    * be called if a mouse selection is even rendered.
    *
-   * @param {HTMLElement} startTarget - Whatever element the user's pointer started selection on.
-   * @param {LTWH} boundingRect - The bounding rectangle of the mouse selection.
-   * @param {() => void} resetSelection - Callback to reset current selection.
+   * @param startTarget - Whatever element the user's pointer started selection on.
+   * @param boundingRect - The bounding rectangle of the mouse selection.
+   * @param resetSelection - Callback to reset current selection.
    */
   onSelection: (
     startTarget: HTMLElement,
@@ -54,14 +54,14 @@ interface MouseSelectionProps {
   /**
    * Function to determine whether the selection should start based on a mouse event.
    *
-   * @param {MouseEvent} event - The mouse event.
+   * @param event - The mouse event.
    */
   shouldStart: (event: MouseEvent) => boolean;
 
   /**
    * Callback whenever the mouse selection area changes.
    *
-   * @param {boolean} isVisible - Whether the mouse selection is rendered (i.e., non-zero area)
+   * @param isVisible - Whether the mouse selection is rendered (i.e., non-zero area)
    */
   onChange: (isVisible: boolean) => void;
 
@@ -75,7 +75,7 @@ interface MouseSelectionProps {
  * selection in whatever container the component is placed in. That must be handled
  * through the onDragStart and onDragEnd events.
  *
- * @param {MouseSelectionProps} props - The component's properties.
+ * @param props - The component's properties.
  */
 const MouseSelection = ({
   onSelection,

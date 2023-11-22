@@ -25,7 +25,7 @@ interface MouseMonitorProps {
 /**
  * A component that monitors mouse movements over a child and invisible padded area.
  *
- * @param {MouseMonitorProps} props - The component's props.
+ * @param props - The component's props.
  */
 const MouseMonitor = ({
   onMoveAway,

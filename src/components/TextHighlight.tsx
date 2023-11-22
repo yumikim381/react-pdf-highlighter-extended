@@ -3,9 +3,9 @@ import React, { CSSProperties } from "react";
 import "../style/Highlight.css";
 import "../style/TextHighlight.css";
 
-import type { LTWHP, ViewportPosition } from "../types.js";
+import type { ViewportPosition } from "../types.js";
 
-interface Props {
+interface TextHighlightProps {
   /** Position information for the highlight. */
   position: ViewportPosition;
 
@@ -18,17 +18,17 @@ interface Props {
   /** Optional callback function for mouse out events. */
   onMouseOut?: () => void;
 
-  /** Indicates whether the component is scrolled into view. */
+  /** Indicates whether the component is autoscrolled into view. */
   isScrolledTo: boolean;
 
-  /** Additional CSS styles for the component. */
+  /** Optional CSS styles for the component. */
   style?: CSSProperties;
 }
 
 /**
  * A component for displaying a highlighted text area
  *
- * @param {Props} props - The component props.
+ * @param props - The component props.
  */
 const TextHighlight = ({
   position,
@@ -37,7 +37,7 @@ const TextHighlight = ({
   onMouseOut,
   isScrolledTo,
   style,
-}: Props) => {
+}: TextHighlightProps) => {
   const highlightClass = isScrolledTo ? "TextHighlight--scrolledTo" : "";
   const { rects } = position;
 

@@ -3,18 +3,27 @@ import React, { ReactElement } from "react";
 import { ViewportPosition } from "src/types";
 import TipContainer from "./TipContainer";
 
-interface Props {
+interface TipRendererProps {
   tipPosition: ViewportPosition | null;
   tipChildren: ReactElement | null;
   viewer: PDFViewer;
 }
 
-const TipRenderer = ({ tipPosition, tipChildren, viewer }: Props) => {
+/**
+ * A helper component that defines and processes the right props to setup a TipContainer
+ * component inside of a PdfHighlighter component. Its existence is highly dependent on a
+ * PdfHighlighter, but it is independently written to help declutter the PdfHighlighter.
+ */
+const TipRenderer = ({
+  tipPosition,
+  tipChildren,
+  viewer,
+}: TipRendererProps) => {
   if (!tipPosition || !tipChildren) return null;
 
   const { boundingRect } = tipPosition;
   const pageNumber = boundingRect.pageNumber;
-  const pageNode = viewer.getPageView(pageNumber - 1).div;
+  const pageNode = viewer.getPageView(pageNumber - 1).div; // Account for 1 indexing of pdf documents
   const pageBoundingClientRect = pageNode.getBoundingClientRect();
 
   // pageBoundingClientRect isn't enumerable
@@ -34,10 +43,11 @@ const TipRenderer = ({ tipPosition, tipChildren, viewer }: Props) => {
     <TipContainer
       scrollTop={viewer.container.scrollTop}
       pageBoundingRect={pageBoundingRect}
-      style={{
-        left: pageNode.offsetLeft + boundingRect.left + boundingRect.width / 2,
-        top: boundingRect.top + pageNode.offsetTop,
-        bottom: boundingRect.top + pageNode.offsetTop + boundingRect.height,
+      position={{
+        left: pageNode.offsetLeft + boundingRect.left + boundingRect.width / 2, // centre tip over highlight
+        highlightTop: boundingRect.top + pageNode.offsetTop,
+        highlightBottom:
+          boundingRect.top + pageNode.offsetTop + boundingRect.height,
       }}
     >
       {tipChildren}

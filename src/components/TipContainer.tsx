@@ -3,19 +3,32 @@ import React, { ReactElement, useEffect, useRef, useState } from "react";
 import type { LTWHP } from "../types";
 import { TipContainerContext } from "../contexts/SelectionTipContext";
 
+const clamp = (value: number, left: number, right: number) =>
+  Math.min(Math.max(value, left), right);
+
+const VERTICAL_PADDING = 5;
+
+interface TipPosition {
+  highlightTop: number;
+  highlightBottom: number;
+  left: number;
+}
+
 interface TipContainerProps {
   children: ReactElement;
-  style: { top: number; left: number; bottom: number };
+  position: TipPosition;
   scrollTop: number;
   pageBoundingRect: LTWHP;
 }
 
-const clamp = (value: number, left: number, right: number) =>
-  Math.min(Math.max(value, left), right);
-
+/**
+ * A component that manages rendering and placement of a tip around a highlight.
+ * It also provides the ability for children to update the position of the container
+ * via context.
+ */
 const TipContainer = ({
   children,
-  style,
+  position,
   scrollTop,
   pageBoundingRect,
 }: TipContainerProps) => {
@@ -31,21 +44,23 @@ const TipContainer = ({
     setWidth(offsetWidth);
   };
 
-  const shouldMove = style.top - height - 5 < scrollTop;
+  // We can only get width and height after mount
+  // So we have to run updatePosition then to make the tip visible.
+  useEffect(() => {
+    updatePosition();
+  }, []);
 
-  const isStyleCalculationInProgress = width === 0 && height === 0; // Fixes weird flickering
-
-  const top = shouldMove ? style.bottom + 5 : style.top - height - 5;
-
-  const left = clamp(style.left - width / 2, 0, pageBoundingRect.width - width);
-
-  const childrenWithProps = React.Children.map(children, (child) =>
-    React.cloneElement(child, {
-      popup: {
-        position: shouldMove ? "below" : "above",
-      },
-    })
-  );
+  const shouldMove =
+    position.highlightTop - height - VERTICAL_PADDING < scrollTop; // should move below highlight?
+  const isStyleCalculationInProgress = width === 0 && height === 0; // Fixes flickering
+  const top = shouldMove
+    ? position.highlightBottom + 5
+    : position.highlightTop - height - 5;
+  const left = clamp(
+    position.left - width / 2,
+    0,
+    pageBoundingRect.width - width
+  ); // Force tip into page bounds
 
   return (
     <TipContainerContext.Provider value={{ updatePosition }}>
@@ -58,7 +73,7 @@ const TipContainer = ({
         }}
         ref={nodeRef}
       >
-        {childrenWithProps}
+        {children}
       </div>
     </TipContainerContext.Provider>
   );

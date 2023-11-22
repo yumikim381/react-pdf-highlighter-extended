@@ -21,12 +21,13 @@ export {
   MonitoredHighlightContainer,
   AreaHighlight,
   useHighlightContext,
-  useSelectionTipContext as useTipContext,
+  useSelectionTipContext,
 };
+
 export type {
-  HighlightUtils as NameThis,
-  SelectionUtils as NameThis2,
-  TipContainerUtils as NameThis3,
-  SelectionTipUtils as NameThis4,
+  HighlightUtils,
+  SelectionUtils,
+  TipContainerUtils,
+  SelectionTipUtils,
 };
 export * from "./types";

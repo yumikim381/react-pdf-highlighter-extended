@@ -2,10 +2,13 @@ import { Page } from "../types";
 
 export const getDocument = (elm: any): Document =>
   (elm || {}).ownerDocument || document;
+
 export const getWindow = (elm: any): typeof window =>
   (getDocument(elm) || {}).defaultView || window;
+
 export const isHTMLElement = (elm: any) =>
   elm instanceof HTMLElement || elm instanceof getWindow(elm).HTMLElement;
+
 export const isHTMLCanvasElement = (elm: any) =>
   elm instanceof HTMLCanvasElement ||
   elm instanceof getWindow(elm).HTMLCanvasElement;

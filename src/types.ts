@@ -69,13 +69,16 @@ export type Page = {
   number: number;
 };
 
-// Tip for only existing highlights
+/** Tip for only existing highlights */
 export type HighlightTip = {
   highlight: ViewportHighlight;
   content: ReactElement | ((highlight: ViewportHighlight) => ReactElement);
 };
 
-// TODO: Document
+/**
+ * The accepted scale values by the PDF.JS viewer.
+ * Numeric entries accept floats, e.g. 1.2 = 120%
+ */
 export type PdfScaleValue =
   | "page-actual"
   | "page-width"

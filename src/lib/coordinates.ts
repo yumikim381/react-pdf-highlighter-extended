@@ -41,7 +41,7 @@ export const viewportPositionToScaled = (
   viewer: PDFViewer
 ): ScaledPosition => {
   const pageNumber = boundingRect.pageNumber;
-  const viewport = viewer.getPageView(pageNumber - 1).viewport;
+  const viewport = viewer.getPageView(pageNumber - 1).viewport; // Account for 1 indexing of PDF documents
   const scale = (obj: LTWHP) => viewportToScaled(obj, viewport);
 
   return {
@@ -104,7 +104,7 @@ export const scaledPositionToViewport = (
   viewer: PDFViewer
 ): ViewportPosition => {
   const pageNumber = boundingRect.pageNumber;
-  const viewport = viewer.getPageView(pageNumber - 1).viewport;
+  const viewport = viewer.getPageView(pageNumber - 1).viewport; // Account for 1 indexing of PDF documents
   const scale = (obj: Scaled) =>
     scaledToViewport(obj, viewport, usePdfCoordinates);
 

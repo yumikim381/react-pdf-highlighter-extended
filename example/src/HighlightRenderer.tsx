@@ -1,12 +1,12 @@
-import React, { useContext } from "react";
+import React from "react";
+import HighlightPopup from "./HighlightPopup";
 import {
   AreaHighlight,
+  HighlightTip,
   MonitoredHighlightContainer,
   TextHighlight,
-  HighlightTip,
   useHighlightContext,
 } from "./react-pdf-highlighter";
-import HighlightPopup from "./HighlightPopup";
 
 interface HighlightRendererProps {
   updateHighlight: (
@@ -19,7 +19,7 @@ interface HighlightRendererProps {
 const HighlightRenderer = ({ updateHighlight }: HighlightRendererProps) => {
   const {
     highlight,
-    index,
+    key,
     setTip,
     hideTip,
     viewportToScaled,
@@ -60,7 +60,7 @@ const HighlightRenderer = ({ updateHighlight }: HighlightRendererProps) => {
       onMouseOut={() => {
         hideTip();
       }}
-      key={index}
+      key={key}
       children={component}
     />
   );

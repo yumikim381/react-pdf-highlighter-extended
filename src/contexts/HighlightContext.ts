@@ -7,13 +7,26 @@ import {
   ViewportHighlight,
 } from "src/types";
 
+/**
+ * A set of utilities for existing highlights designed to be used
+ * by a highlight renderer.
+ */
 export type HighlightUtils = {
   highlight: ViewportHighlight;
-  index: number;
+  key: number;
   setTip: (tip: HighlightTip) => void;
   hideTip: () => void;
+
+  /**
+   * Convert a Viewport rectangle to a scaled rectangle. Can be used
+   * for storing and updating area selection highlights, for example.
+   */
   viewportToScaled: (rect: LTWHP) => Scaled;
+
+  /** Capture a PNG data url of a viewport rectangle */
   screenshot: (position: LTWH) => string;
+
+  /** Whether the highlight has been autoscrolled to. */
   isScrolledTo: boolean;
 };
 

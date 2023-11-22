@@ -81,7 +81,7 @@ const HighlightLayer = ({
 
         const highlightUtils: HighlightUtils = {
           highlight: viewportHighlight,
-          index: index,
+          key: index,
           setTip: (tip: HighlightTip) => {
             setHighlightTip(tip);
             showHighlightTip(tip);

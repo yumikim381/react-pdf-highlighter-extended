@@ -69,7 +69,8 @@ export type Page = {
   number: number;
 };
 
-export type Tip = {
+// Tip for only existing highlights
+export type HighlightTip = {
   highlight: ViewportHighlight;
   content: ReactElement | ((highlight: ViewportHighlight) => ReactElement);
 };

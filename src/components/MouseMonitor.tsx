@@ -1,31 +1,14 @@
 import React, { ReactElement, useEffect, useRef } from "react";
 
 interface MouseMonitorProps {
-  /**
-   * A callback function to be executed when the mouse moves away from the monitored area.
-   */
   onMoveAway: () => void;
-
-  /**
-   * The horizontal padding around the monitored area.
-   */
   paddingX: number;
-
-  /**
-   * The vertical padding around the monitored area.
-   */
   paddingY: number;
-
-  /**
-   * The content to be wrapped by the MouseMonitor.
-   */
   children: ReactElement;
 }
 
 /**
  * A component that monitors mouse movements over a child and invisible padded area.
- *
- * @param props - The component's props.
  */
 const MouseMonitor = ({
   onMoveAway,

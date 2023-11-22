@@ -39,8 +39,6 @@ interface MouseSelectionProps {
     boundingRect: LTWH,
     resetSelection: () => void
   ) => void;
-
-  /** Callback whenever a mouse selection starts */
   onDragStart: () => void;
 
   /**
@@ -50,12 +48,6 @@ interface MouseSelectionProps {
    * interference with the parent component (e.g., disabling text selection).
    */
   onDragEnd: () => void;
-
-  /**
-   * Function to determine whether the selection should start based on a mouse event.
-   *
-   * @param event - The mouse event.
-   */
   shouldStart: (event: MouseEvent) => boolean;
 
   /**
@@ -64,8 +56,6 @@ interface MouseSelectionProps {
    * @param isVisible - Whether the mouse selection is rendered (i.e., non-zero area)
    */
   onChange: (isVisible: boolean) => void;
-
-  /** Optional CSS styling for the mouse selection. */
   style?: CSSProperties;
 }
 
@@ -74,8 +64,6 @@ interface MouseSelectionProps {
  * mouse selections within a given container. NOTE: This does not disable
  * selection in whatever container the component is placed in. That must be handled
  * through the onDragStart and onDragEnd events.
- *
- * @param props - The component's properties.
  */
 const MouseSelection = ({
   onSelection,

@@ -12,10 +12,6 @@ interface PdfLoaderProps {
    * @param progress - PDF.js progress status.
    */
   beforeLoad?: (progress: OnProgressParameters) => ReactNode;
-
-  /**
-   * Error message to display if there is an error loading the PDF document.
-   */
   errorMessage?: ReactNode;
 
   /**
@@ -23,11 +19,6 @@ interface PdfLoaderProps {
    * @param pdfDocument - The loaded PDF document.
    */
   children: (pdfDocument: PDFDocumentProxy) => ReactNode;
-
-  /**
-   * Callback function to handle errors when loading a PDF document.
-   * @param error - The error object.
-   */
   onError?: (error: Error) => void;
 
   /** These options will be applied to all PdfLoader componenets. See `GlobalWorkerOptionsType`. */
@@ -55,8 +46,6 @@ const DEFAULT_WORKER_SRC =
 
 /**
  * A component for loading a PDF document and passing it to a child.
- *
- * @param props - The component's properties.
  */
 const PdfLoader = ({
   url,

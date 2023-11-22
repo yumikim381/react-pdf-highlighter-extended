@@ -1,9 +1,9 @@
 import React, { ReactElement, useEffect, useRef, useState } from "react";
 
 import type { LTWHP } from "../types";
-import { TipContainerContext } from "../contexts/TipContext";
+import { TipContainerContext } from "../contexts/SelectionTipContext";
 
-interface Props {
+interface TipContainerProps {
   children: ReactElement;
   style: { top: number; left: number; bottom: number };
   scrollTop: number;
@@ -18,7 +18,7 @@ const TipContainer = ({
   style,
   scrollTop,
   pageBoundingRect,
-}: Props) => {
+}: TipContainerProps) => {
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
   const nodeRef = useRef<HTMLDivElement | null>(null);

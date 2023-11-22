@@ -1,6 +1,15 @@
 import React, { CSSProperties, ReactNode, useEffect, useState } from "react";
-import { useTipContext } from "../../src/contexts/TipContext";
+import { useSelectionTipContext } from "../../src/contexts/SelectionTipContext";
 import { Comment, GhostHighlight } from "./react-pdf-highlighter";
+
+const COMPACT_STYLE: CSSProperties = {
+  cursor: "pointer",
+  backgroundColor: "#3d464d",
+  border: "1px solid rgba(255, 255, 255, 0.25)",
+  color: "white",
+  padding: "5px 10px",
+  borderRadius: "3px",
+};
 
 interface Props {
   addHighlight: (highlight: GhostHighlight, comment: Comment) => void;
@@ -14,20 +23,11 @@ const SelectionTip = ({ addHighlight }: Props) => {
     hideTipAndGhostHighlight,
     makeGhostHighlight,
     updatePosition,
-  } = useTipContext();
+  } = useSelectionTipContext();
 
   useEffect(() => {
     updatePosition();
   }, [compact]);
-
-  const compactStyle: CSSProperties = {
-    cursor: "pointer",
-    backgroundColor: "#3d464d",
-    border: "1px solid rgba(255, 255, 255, 0.25)",
-    color: "white",
-    padding: "5px 10px",
-    borderRadius: "3px",
-  };
 
   return (
     <div className="Tip">
@@ -38,7 +38,7 @@ const SelectionTip = ({ addHighlight }: Props) => {
             setCompact(false);
             makeGhostHighlight();
           }}
-          style={compactStyle}
+          style={COMPACT_STYLE}
         >
           Add highlight
         </div>

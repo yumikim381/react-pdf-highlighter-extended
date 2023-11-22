@@ -7,7 +7,6 @@ import MouseSelection from "./MouseSelection";
 import { LTWH, LTWHP, ScaledPosition, ViewportPosition } from "src/types";
 
 interface MouseSelectionRendererProps {
-  /** PDF.js viewer instance */
   viewer: PDFViewer;
 
   /** Callback passed to MouseSelection. See doc there. */
@@ -36,8 +35,6 @@ interface MouseSelectionRendererProps {
    * @param event - The mouse event.
    */
   enableAreaSelection: (event: MouseEvent) => boolean;
-
-  /** Optional CSS styling passed to the mouse selection. */
   style?: CSSProperties;
 }
 
@@ -45,8 +42,6 @@ interface MouseSelectionRendererProps {
  * A helper component that defines and processes the right props to setup a MouseSelection
  * component inside of a PdfHighlighter component. Its existence is highly dependent on a
  * PdfHighlighter, but it is independently written to help declutter the PdfHighlighter.
- *
- * @param props - The component's properties.
  */
 const MouseSelectionRenderer = ({
   viewer,

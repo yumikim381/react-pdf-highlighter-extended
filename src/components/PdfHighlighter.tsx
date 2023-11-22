@@ -19,6 +19,10 @@ import React, {
   useState,
 } from "react";
 import { Root, createRoot } from "react-dom/client";
+import {
+  SelectionUtils,
+  TipHighlighterContext,
+} from "../contexts/SelectionTipContext";
 import { scaledToViewport, viewportPositionToScaled } from "../lib/coordinates";
 import getBoundingRect from "../lib/get-bounding-rect";
 import getClientRects from "../lib/get-client-rects";
@@ -34,15 +38,13 @@ import type {
   Content,
   GhostHighlight,
   Highlight,
-  ViewportPosition,
-  ScaledPosition,
-  Tip,
+  HighlightTip,
   PdfScaleValue,
+  ViewportPosition,
 } from "../types";
-import TipRenderer from "./TipRenderer";
 import HighlightLayer from "./HighlightLayer";
 import MouseSelectionRenderer from "./MouseSelectionRenderer";
-import { NameThis2, TipHighlighterContext } from "../contexts/TipContext";
+import TipRenderer from "./TipRenderer";
 
 interface HighlightRoot {
   reactRoot: Root;
@@ -54,10 +56,7 @@ const TIP_WAIT = 500; // Debounce wait time in milliseconds for a selection chan
 const RESIZE_WAIT = 500; // Debounce wait time in milliseconds for the window being resized and the PDF Viewer adjusting
 
 interface PdfHighlighterProps {
-  /** Array of highlights to render. */
   highlights: Array<Highlight>;
-
-  /** Callback whenever a user scrolls the PDF document */
   onScrollChange: () => void;
 
   /**
@@ -72,23 +71,20 @@ interface PdfHighlighterProps {
 
   /** PDF document to view. Designed to be provided by a PdfLoader */
   pdfDocument: PDFDocumentProxy;
-
-  /** Specifies the scale value of the PDF Viewer. */
   pdfScaleValue?: PdfScaleValue;
 
   /**
-   * Tip to display whenever a user selects "Add Highlight" on a new
-   * selection. TODO: Rework this into an "expandedTip" component
-   * that has its own context.
+   * Event listener for whenever a user finishes making an area selection or has selected text.
    *
-   * @param position - The position of the highlighted area.
-   * @param content - The content of the highlighted area.
-   * @param hideTipAndGhostHighlight - Callback to close the current tip and exit the ghost highlight.
-   * @param transformSelection - Transform the current selected area into a ghost highlight
-   * @returns - The expanded tip when the user selects "Add Highlight"
+   * @param event - Event data and utilities to convert selection into a ghost highlight.
    */
-  onSelectionFinished?: (event: NameThis2) => void;
+  onSelectionFinished?: (event: SelectionUtils) => void;
 
+  /**
+   * Optional element that can be displayed as a tip whenever a user makes a selection.
+   * This element will be provided an appropriate SelectionTipContext. See docs there
+   * for more info.
+   */
   selectionTip?: ReactElement;
 
   /**
@@ -96,8 +92,6 @@ interface PdfHighlighterProps {
    * If not provided Area Selection will be disabled.
    */
   enableAreaSelection?: (event: MouseEvent) => boolean;
-
-  /** Optional CSS styling for mouse selection area. */
   mouseSelectionStyle?: CSSProperties;
 
   /**
@@ -114,8 +108,6 @@ interface PdfHighlighterProps {
  * This does not handle rendering of highlights, but it can provide a HighlightContext
  * to a HighlightRenderer for each highlight per page per document with capabilities
  * to generate tips. However, this does handle text selection and (optionally) area selection.
- *
- * @param props - The component's properties.
  */
 const PdfHighlighter = ({
   highlights,
@@ -130,6 +122,10 @@ const PdfHighlighter = ({
   children,
 }: PdfHighlighterProps) => {
   const containerNodeRef = useRef<HTMLDivElement | null>(null);
+
+  // These are all refs because
+  // 1. They must be accessible to all event listeners
+  // 2. HighlightLayers are manually rendered per page and thus unaffected by state
   const highlightsRef = useRef(highlights); // Reference to all highlights
   const highlightRootsRef = useRef<{ [page: number]: HighlightRoot }>({}); // Reference to highlight roots per page
   const ghostHighlightRef = useRef<GhostHighlight | null>(null); // Reference to in-progress highlight (after "Add Highlight is selected")
@@ -138,9 +134,10 @@ const PdfHighlighter = ({
   const scrolledToHighlightIdRef = useRef<string | null>(null); // Reference to the ID of the highlight autoscrolled to
   const isAreaSelectionInProgressRef = useRef(false);
   const pdfScaleValueRef = useRef(pdfScaleValue);
-  const [_, setTip] = useState<Tip | null>(null); // Reference for user to set Tip properties (highlight, content)
-  const [tipPosition, setTipPosition] = useState<ViewportPosition | null>(null); // Reference to the position of the Tip
-  const [tipChildren, setTipChildren] = useState<ReactElement | null>(null); // Reference to the children of the Tip
+
+  const [_, setHighlightTip] = useState<HighlightTip | null>(null); // Tips only for existing highligts
+  const [tipPosition, setTipPosition] = useState<ViewportPosition | null>(null); // Any kind of tip
+  const [tipChildren, setTipChildren] = useState<ReactElement | null>(null); // Any kind of tip
 
   // These should only change when a document loads/unloads
   const eventBusRef = useRef<EventBus>(new EventBus());
@@ -174,7 +171,7 @@ const PdfHighlighter = ({
         textLayerMode: 2, // EnablePermissions (i.e., don't allow selecting if PDF prevents it)
         removePageBorders: true,
         linkService: linkServiceRef.current,
-        l10n: NullL10n,
+        l10n: NullL10n, // No localisation
       });
 
     linkServiceRef.current.setDocument(pdfDocument);
@@ -209,7 +206,7 @@ const PdfHighlighter = ({
     );
   };
 
-  const showTip = (tip: Tip) => {
+  const showHighlightTip = (tip: HighlightTip) => {
     if (
       !isCollapsedRef.current || // Selection has no text in it
       ghostHighlightRef.current || // There's already a ghostHighlight and expanded tip
@@ -230,7 +227,7 @@ const PdfHighlighter = ({
     setTipPosition(null);
     setTipChildren(null);
     ghostHighlightRef.current = null;
-    setTip(null);
+    setHighlightTip(null);
     renderHighlightLayers();
   };
 
@@ -348,7 +345,7 @@ const PdfHighlighter = ({
       viewerRef.current!
     );
 
-    const nameThis2: NameThis2 = {
+    const selectionUtils: SelectionUtils = {
       selectionPosition: scaledPosition,
       selectionContent: content,
       hideTipAndGhostHighlight,
@@ -361,13 +358,13 @@ const PdfHighlighter = ({
       },
     };
 
-    if (onSelectionFinished) onSelectionFinished(nameThis2);
+    if (onSelectionFinished) onSelectionFinished(selectionUtils);
 
     if (selectionTip) {
       setTipPosition(viewportPosition);
       setTipChildren(
         <TipHighlighterContext.Provider
-          value={nameThis2}
+          value={selectionUtils}
           children={selectionTip}
         />
       );
@@ -425,8 +422,8 @@ const PdfHighlighter = ({
         scrolledToHighlightId={scrolledToHighlightIdRef.current}
         hideTipAndGhostHighlight={hideTipAndGhostHighlight}
         viewer={viewerRef.current}
-        showTip={showTip}
-        setTip={setTip}
+        showHighlightTip={showHighlightTip}
+        setHighlightTip={setHighlightTip}
         children={children}
       />
     );
@@ -457,7 +454,7 @@ const PdfHighlighter = ({
               image,
               resetSelection
             ) => {
-              const nameThis2: NameThis2 = {
+              const selectionUtils: SelectionUtils = {
                 selectionPosition: scaledPosition,
                 selectionContent: { image },
                 hideTipAndGhostHighlight,
@@ -471,13 +468,13 @@ const PdfHighlighter = ({
                 },
               };
 
-              if (onSelectionFinished) onSelectionFinished(nameThis2);
+              if (onSelectionFinished) onSelectionFinished(selectionUtils);
 
               if (selectionTip) {
                 setTipPosition(viewportPosition);
                 setTipChildren(
                   <TipHighlighterContext.Provider
-                    value={nameThis2}
+                    value={selectionUtils}
                     children={selectionTip}
                   />
                 );

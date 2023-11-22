@@ -3,8 +3,9 @@ import MouseMonitor from "./MouseMonitor";
 
 interface MonitoredHighlightContainerProps {
   /**
-   * A callback function to execute when the mouse hovers over the children.
+   * A callback function to execute when the mouse hovers over the children/highlight.
    * Can be used for triggering popup renders.
+   *
    * @param monitoredPopupContent - The content to display in a popup.
    */
   onMouseOver: (monitoredPopupContent: ReactElement) => void;
@@ -31,8 +32,6 @@ interface MonitoredHighlightContainerProps {
  * A container for a highlight component that monitors whether a mouse is over a highlight
  * and over some secondary/popup content. This does not render any popup/tip,
  * but it should ideally be used to set the visible state / rendering of a popup.
- *
- * @param props - The component's properties.
  */
 const MonitoredHighlightContainer = ({
   onMouseOver,

@@ -12,6 +12,7 @@ import type {
   Comment,
   Highlight,
   GhostHighlight,
+  NameThis2,
 } from "./react-pdf-highlighter";
 
 import { testHighlights as _testHighlights } from "./test-highlights";
@@ -154,10 +155,9 @@ class App extends Component<{}, State> {
             {(pdfDocument: PDFDocumentProxy) => (
               <PdfHighlighter
                 pdfDocument={pdfDocument}
-                // pdfScaleValue={pdfScaleValue}
                 enableAreaSelection={(event) => event.altKey}
                 onScrollChange={resetHash}
-                // pdfScaleValue="page-width"
+                pdfScaleValue={2}
                 scrollRef={(scrollTo) => {
                   this.scrollViewerTo = scrollTo;
 

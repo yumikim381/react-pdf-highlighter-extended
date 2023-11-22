@@ -6,16 +6,15 @@ import {
   Highlight,
   LTWH,
   LTWHP,
-  Tip,
+  HighlightTip,
   ViewportHighlight,
 } from "../types";
-import { HighlightContext, NameThis } from "../contexts/HighlightContext";
+import { HighlightContext, HighlightUtils } from "../contexts/HighlightContext";
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 
 const EMPTY_ID = "empty-id";
 
 interface HighlightLayerProps {
-  /** Highlights and GhostHighlights grouped by page number in the rendered PDF Document. */
   highlightsByPage: { [pageNumber: number]: Array<Highlight | GhostHighlight> };
 
   /** The page number of the PDF document to highlight (1 indexed). */
@@ -23,28 +22,23 @@ interface HighlightLayerProps {
 
   /** ID of the highlight the parent PDF Highlighter is trying to autoscroll to. */
   scrolledToHighlightId: string | null;
-
-  /**
-   * Should exit any existing tip or ghost highlight. Ideally this is only called by the
-   * HighlightRenderer and managed by the PdfHighlighter.
-   */
   hideTipAndGhostHighlight: () => void;
-
-  /** PDF.js viewer instance */
   viewer: PDFViewer;
 
   /**
-   * Callback to display a tip in a PdfHighlighter componenet.
+   * Callback to display a tip for an existing Highlight (i.e., a popup).
    * Should be managed by the HighlightRenderer.
+   *
    * @param tip - Currently considered highlight tip
    */
-  showTip: (tip: Tip) => void;
+  showHighlightTip: (tip: HighlightTip) => void;
 
   /**
-   * Callback to update the currently held tip in the PdfHighlighter parent.
+   * Callback to update what tip should be shown for an existing highlight.
+   *
    * @param tip - Currently considered highlight tip
    */
-  setTip: (tip: Tip) => void;
+  setHighlightTip: (tip: HighlightTip) => void;
 
   /**
    * This should be a HighlightRenderer of some sorts. It will be given
@@ -59,8 +53,6 @@ interface HighlightLayerProps {
  * for a single page of a PDF document.
  * It should be given a HighlightRenderer as a child and all children will be wrapped
  * in the correct HighlightContext. Its rendering should be managed by the PdfHighlighter.
- *
- * @param props - The component's properties.
  */
 const HighlightLayer = ({
   highlightsByPage,
@@ -68,8 +60,8 @@ const HighlightLayer = ({
   scrolledToHighlightId,
   hideTipAndGhostHighlight,
   viewer,
-  showTip,
-  setTip,
+  showHighlightTip,
+  setHighlightTip,
   children,
 }: HighlightLayerProps) => {
   const currentHighlights = highlightsByPage[pageNumber] || [];
@@ -87,12 +79,12 @@ const HighlightLayer = ({
           scrolledToHighlightId === viewportHighlight.id
         );
 
-        const nameThis: NameThis = {
+        const highlightUtils: HighlightUtils = {
           highlight: viewportHighlight,
           index: index,
-          setTip: (tip: Tip) => {
-            setTip(tip);
-            showTip(tip);
+          setTip: (tip: HighlightTip) => {
+            setHighlightTip(tip);
+            showHighlightTip(tip);
           },
           hideTip: hideTipAndGhostHighlight,
           viewportToScaled: (rect: LTWHP) => {
@@ -108,7 +100,7 @@ const HighlightLayer = ({
         };
 
         return (
-          <HighlightContext.Provider value={nameThis} key={index}>
+          <HighlightContext.Provider value={highlightUtils} key={index}>
             {children}
           </HighlightContext.Provider>
         );

@@ -6,29 +6,18 @@ import "../style/TextHighlight.css";
 import type { ViewportPosition } from "../types.js";
 
 interface TextHighlightProps {
-  /** Position information for the highlight. */
   position: ViewportPosition;
-
-  /** Optional callback function for click events. */
   onClick?: () => void;
-
-  /** Optional callback function for mouse over events. */
   onMouseOver?: () => void;
-
-  /** Optional callback function for mouse out events. */
   onMouseOut?: () => void;
 
   /** Indicates whether the component is autoscrolled into view. */
   isScrolledTo: boolean;
-
-  /** Optional CSS styles for the component. */
   style?: CSSProperties;
 }
 
 /**
  * A component for displaying a highlighted text area
- *
- * @param props - The component props.
  */
 const TextHighlight = ({
   position,

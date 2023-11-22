@@ -3,7 +3,7 @@ import {
   AreaHighlight,
   MonitoredHighlightContainer,
   TextHighlight,
-  Tip,
+  HighlightTip,
   useHighlightContext,
 } from "./react-pdf-highlighter";
 import HighlightPopup from "./HighlightPopup";
@@ -51,7 +51,7 @@ const HighlightRenderer = ({ updateHighlight }: HighlightRendererProps) => {
     <MonitoredHighlightContainer
       popupContent={<HighlightPopup comment={highlight.comment} />}
       onMouseOver={(popupContent) => {
-        const popupTip: Tip = {
+        const popupTip: HighlightTip = {
           highlight,
           content: popupContent,
         };

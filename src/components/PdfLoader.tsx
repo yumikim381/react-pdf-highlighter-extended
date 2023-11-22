@@ -3,15 +3,13 @@ import React, { ReactNode, useEffect, useState } from "react";
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist/legacy/build/pdf";
 import type { PDFDocumentProxy, OnProgressParameters } from "pdfjs-dist";
 
-interface Props {
-  /**
-   * URL for the PDF document.
-   */
+interface PdfLoaderProps {
+  /** URL for the PDF document. */
   url: string;
 
   /**
    * Callback function to render content before the PDF document is loaded.
-   * @param {OnProgressParameters} progress - PDF.js progress status.
+   * @param progress - PDF.js progress status.
    */
   beforeLoad?: (progress: OnProgressParameters) => ReactNode;
 
@@ -21,8 +19,8 @@ interface Props {
   errorMessage?: ReactNode;
 
   /**
-   * Callback function to use/render the loaded PDF document.
-   * @param {PDFDocumentProxy} pdfDocument - The loaded PDF document.
+   * Child components to use/render the loaded PDF document.
+   * @param pdfDocument - The loaded PDF document.
    */
   children: (pdfDocument: PDFDocumentProxy) => ReactNode;
 
@@ -32,7 +30,7 @@ interface Props {
    */
   onError?: (error: Error) => void;
 
-  /** See `GlobalWorkerOptionsType`. */
+  /** These options will be applied to all PdfLoader componenets. See `GlobalWorkerOptionsType`. */
   workerSrc?: string;
   cMapUrl?: string;
   cMapPacked?: boolean;
@@ -43,18 +41,22 @@ const DEFAULT_BEFORE_LOAD = (progress: OnProgressParameters) => (
     Loading {Math.floor((progress.loaded / progress.total) * 100)}%
   </div>
 );
+
 const DEFAULT_ERROR_MESSAGE = (
   <div style={{ color: "black" }}>Oh no! An error has occurred.</div>
 );
-const DEFAULT_ON_ERROR = (error: Error) =>
-  console.log(`Error loading PDF document: ${error.message}!`);
+
+const DEFAULT_ON_ERROR = (error: Error) => {
+  throw new Error(`Error loading PDF document: ${error.message}!`);
+};
+
 const DEFAULT_WORKER_SRC =
   "https://unpkg.com/pdfjs-dist@3.8.162/build/pdf.worker.min.js";
 
 /**
  * A component for loading a PDF document and passing it to a child.
  *
- * @param {Props} props - The component's properties.
+ * @param props - The component's properties.
  */
 const PdfLoader = ({
   url,
@@ -65,12 +67,13 @@ const PdfLoader = ({
   workerSrc = DEFAULT_WORKER_SRC,
   cMapUrl,
   cMapPacked,
-}: Props) => {
+}: PdfLoaderProps) => {
   const [pdfDocument, setPdfDocument] = useState<PDFDocumentProxy | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [loadingProgress, setLoadingProgress] =
     useState<OnProgressParameters | null>(null);
 
+  // Intitialise document with every url change
   useEffect(() => {
     GlobalWorkerOptions.workerSrc = workerSrc;
 

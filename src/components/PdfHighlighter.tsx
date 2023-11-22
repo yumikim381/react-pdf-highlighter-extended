@@ -42,6 +42,7 @@ import type {
 import TipRenderer from "./TipRenderer";
 import HighlightLayer from "./HighlightLayer";
 import MouseSelectionRenderer from "./MouseSelectionRenderer";
+import { NameThis2, TipHighlighterContext } from "../contexts/TipContext";
 
 interface HighlightRoot {
   reactRoot: Root;
@@ -86,12 +87,9 @@ interface PdfHighlighterProps {
    * @param transformSelection - Transform the current selected area into a ghost highlight
    * @returns - The expanded tip when the user selects "Add Highlight"
    */
-  onSelectionFinished: (
-    position: ScaledPosition,
-    content: Content,
-    hideTipAndGhostHighlight: () => void,
-    transformSelection: () => void
-  ) => ReactElement | null;
+  onSelectionFinished?: (event: NameThis2) => void;
+
+  selectionTip?: ReactElement;
 
   /**
    * The optional conditional for starting an area selection by mouse.
@@ -126,6 +124,7 @@ const PdfHighlighter = ({
   pdfDocument,
   pdfScaleValue = "auto",
   onSelectionFinished,
+  selectionTip,
   enableAreaSelection,
   mouseSelectionStyle,
   children,
@@ -349,21 +348,30 @@ const PdfHighlighter = ({
       viewerRef.current!
     );
 
-    setTipPosition(viewportPosition);
-    setTipChildren(
-      onSelectionFinished(
-        scaledPosition,
-        content,
-        hideTipAndGhostHighlight,
-        () => {
-          ghostHighlightRef.current = {
-            content: content,
-            position: scaledPosition,
-          };
-          renderHighlightLayers();
-        }
-      )
-    );
+    const nameThis2: NameThis2 = {
+      selectionPosition: scaledPosition,
+      selectionContent: content,
+      hideTipAndGhostHighlight,
+      makeGhostHighlight: () => {
+        ghostHighlightRef.current = {
+          content: content,
+          position: scaledPosition,
+        };
+        renderHighlightLayers();
+      },
+    };
+
+    if (onSelectionFinished) onSelectionFinished(nameThis2);
+
+    if (selectionTip) {
+      setTipPosition(viewportPosition);
+      setTipChildren(
+        <TipHighlighterContext.Provider
+          value={nameThis2}
+          children={selectionTip}
+        />
+      );
+    }
   };
 
   const debouncedAfterSelection = debounce(afterSelection, TIP_WAIT);
@@ -449,22 +457,31 @@ const PdfHighlighter = ({
               image,
               resetSelection
             ) => {
-              setTipPosition(viewportPosition);
-              setTipChildren(
-                onSelectionFinished(
-                  scaledPosition,
-                  { image },
-                  hideTipAndGhostHighlight,
-                  () => {
-                    ghostHighlightRef.current = {
-                      position: scaledPosition,
-                      content: { image },
-                    };
-                    resetSelection();
-                    renderHighlightLayers();
-                  }
-                )
-              );
+              const nameThis2: NameThis2 = {
+                selectionPosition: scaledPosition,
+                selectionContent: { image },
+                hideTipAndGhostHighlight,
+                makeGhostHighlight: () => {
+                  ghostHighlightRef.current = {
+                    position: scaledPosition,
+                    content: { image },
+                  };
+                  resetSelection();
+                  renderHighlightLayers();
+                },
+              };
+
+              if (onSelectionFinished) onSelectionFinished(nameThis2);
+
+              if (selectionTip) {
+                setTipPosition(viewportPosition);
+                setTipChildren(
+                  <TipHighlighterContext.Provider
+                    value={nameThis2}
+                    children={selectionTip}
+                  />
+                );
+              }
             }}
           />
         )}

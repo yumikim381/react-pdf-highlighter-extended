@@ -1,6 +1,7 @@
 import React, { ReactElement, useEffect, useRef, useState } from "react";
 
 import type { LTWHP } from "../types";
+import { TipContainerContext } from "../contexts/TipContext";
 
 interface Props {
   children: ReactElement;
@@ -30,10 +31,6 @@ const TipContainer = ({
     setWidth(offsetWidth);
   };
 
-  useEffect(() => {
-    updatePosition();
-  }, [children]);
-
   const shouldMove = style.top - height - 5 < scrollTop;
 
   const isStyleCalculationInProgress = width === 0 && height === 0; // Fixes weird flickering
@@ -44,7 +41,6 @@ const TipContainer = ({
 
   const childrenWithProps = React.Children.map(children, (child) =>
     React.cloneElement(child, {
-      onUpdate: updatePosition,
       popup: {
         position: shouldMove ? "below" : "above",
       },
@@ -52,17 +48,19 @@ const TipContainer = ({
   );
 
   return (
-    <div
-      className="PdfHighlighter__tip-container"
-      style={{
-        visibility: isStyleCalculationInProgress ? "hidden" : "visible",
-        top,
-        left,
-      }}
-      ref={nodeRef}
-    >
-      {childrenWithProps}
-    </div>
+    <TipContainerContext.Provider value={{ updatePosition }}>
+      <div
+        className="PdfHighlighter__tip-container"
+        style={{
+          visibility: isStyleCalculationInProgress ? "hidden" : "visible",
+          top,
+          left,
+        }}
+        ref={nodeRef}
+      >
+        {childrenWithProps}
+      </div>
+    </TipContainerContext.Provider>
   );
 };
 

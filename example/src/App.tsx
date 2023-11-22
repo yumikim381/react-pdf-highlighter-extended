@@ -6,14 +6,12 @@ import {
   TextHighlight,
   AreaHighlight,
   MonitoredHighlightContainer,
-  SelectionTip,
 } from "./react-pdf-highlighter";
 
 import type {
   Comment,
   Highlight,
   GhostHighlight,
-  Tip,
 } from "./react-pdf-highlighter";
 
 import { testHighlights as _testHighlights } from "./test-highlights";
@@ -23,6 +21,7 @@ import { Sidebar } from "./Sidebar";
 import "./style/App.css";
 import { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
 import HighlightRenderer from "./HighlightRenderer";
+import ExpandableTip from "./ExpandableTip";
 
 const testHighlights: Record<string, Array<Highlight>> = _testHighlights;
 
@@ -164,26 +163,9 @@ class App extends Component<{}, State> {
 
                   this.scrollToHighlightFromHash();
                 }}
-                onSelectionFinished={(
-                  position,
-                  content,
-                  hideTipAndGhostHighlight,
-                  transformSelection
-                ) => (
-                  <SelectionTip onOpen={transformSelection}>
-                    <button
-                      onClick={() => {
-                        const comment = { text: "comment" };
-                        this.addHighlight({ content, position }, comment);
-
-                        hideTipAndGhostHighlight();
-                      }}
-                      style={{ padding: "20px" }}
-                    >
-                      This is a button!
-                    </button>
-                  </SelectionTip>
-                )}
+                selectionTip={
+                  <ExpandableTip addHighlight={this.addHighlight.bind(this)} />
+                }
                 highlights={highlights}
               >
                 <HighlightRenderer

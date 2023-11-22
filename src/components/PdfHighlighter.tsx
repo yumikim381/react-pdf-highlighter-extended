@@ -37,33 +37,84 @@ import type {
   ViewportPosition,
   ScaledPosition,
   Tip,
+  PdfScaleValue,
 } from "../types";
 import TipRenderer from "./TipRenderer";
 import HighlightLayer from "./HighlightLayer";
 import MouseSelectionRenderer from "./MouseSelectionRenderer";
-
-interface Props {
-  highlights: Array<Highlight>;
-  onScrollChange: () => void;
-  scrollRef: (scrollTo: (highlight: Highlight) => void) => void;
-  pdfDocument: PDFDocumentProxy;
-  pdfScaleValue?: string;
-  onSelectionFinished: (
-    position: ScaledPosition,
-    content: Content,
-    hideTipAndGhostHighlight: () => void,
-    transformSelection: () => void
-  ) => ReactElement | null;
-  enableAreaSelection?: (event: MouseEvent) => boolean;
-  mouseSelectionStyle?: CSSProperties;
-  children: ReactElement;
-}
 
 interface HighlightRoot {
   reactRoot: Root;
   container: Element;
 }
 
+interface PdfHighlighterProps {
+  /** Array of highlights to render. */
+  highlights: Array<Highlight>;
+
+  /** Callback whenever a user scrolls the PDF document */
+  onScrollChange: () => void;
+
+  /**
+   * Runs on every document load. Provides a reference function, scrollTo,
+   * to the parent which it can then use to make the PDF Viewer auto scroll
+   * to a given highlight. The highlight context will also be notified of this
+   * through the isScrolledTo property to allow for styling.
+   *
+   * @param scrollTo - Callback the parent component can use to make the PDF Viewer auto scroll to a highlight
+   */
+  scrollRef: (scrollTo: (highlight: Highlight) => void) => void;
+
+  /** PDF document to view. Designed to be provided by a PdfLoader */
+  pdfDocument: PDFDocumentProxy;
+
+  /** Specifies the scale value of the PDF Viewer. */
+  pdfScaleValue?: PdfScaleValue;
+
+  /**
+   * Tip to display whenever a user selects "Add Highlight" on a new
+   * selection. TODO: Rework this into an "expandedTip" component
+   * that has its own context.
+   *
+   * @param position - The position of the highlighted area.
+   * @param content - The content of the highlighted area.
+   * @param hideTipAndGhostHighlight - Callback to close the current tip and exit the ghost highlight.
+   * @param transformSelection - Transform the current selected area into a ghost highlight
+   * @returns - The expanded tip when the user selects "Add Highlight"
+   */
+  onSelectionFinished: (
+    position: ScaledPosition,
+    content: Content,
+    hideTipAndGhostHighlight: () => void,
+    transformSelection: () => void
+  ) => ReactElement | null;
+
+  /**
+   * The optional conditional for starting an area selection by mouse.
+   * If not provided Area Selection will be disabled.
+   */
+  enableAreaSelection?: (event: MouseEvent) => boolean;
+
+  /** Optional CSS styling for mouse selection area. */
+  mouseSelectionStyle?: CSSProperties;
+
+  /**
+   * This should be a HighlightRenderer of some sorts. It will be given
+   * appropriate context for a single highlight which it can then use to
+   * render a TextHighlight, AreaHighlight, etc. in the correct place.
+   */
+  children: ReactElement;
+}
+
+/**
+ * This is a large-scale PDF viewer component designed to facilitate highlighting.
+ * It should be used as a child to a PdfLoader to ensure proper document loading.
+ * This does not handle rendering of highlights, but it can provide a HighlightContext
+ * to a HighlightRenderer for each highlight per page per document with capabilities
+ * to generate tips. However, this does handle text selection and (optionally) area selection.
+ *
+ * @param {PdfHighlighterProps} props - The component's properties.
+ */
 const PdfHighlighter = ({
   highlights,
   onScrollChange,
@@ -74,20 +125,21 @@ const PdfHighlighter = ({
   enableAreaSelection,
   mouseSelectionStyle,
   children,
-}: Props) => {
-  const highlightsRef = useRef(highlights); // Keep track of all highlights
-  const ghostHighlightRef = useRef<GhostHighlight | null>(null); // Keep track of in-progress highlights
-  const isCollapsedRef = useRef(true); // Keep track of whether or not there is text in the selection
-  const rangeRef = useRef<Range | null>(null); // Keep track of nodes and text nodes in selection
-  const scrolledToHighlightIdRef = useRef<string | null>(null); // Keep track of id of highlight scrolled to
-  const isAreaSelectionInProgressRef = useRef(false); // Keep track of whether area selection is made
-  const pdfScaleValueRef = useRef(pdfScaleValue);
-  const [_, setTip] = useState<Tip | null>(null); // Keep track of external Tip properties (highlight, content)
-  const [tipPosition, setTipPosition] = useState<ViewportPosition | null>(null);
-  const [tipChildren, setTipChildren] = useState<ReactElement | null>(null);
-
+}: PdfHighlighterProps) => {
   const containerNodeRef = useRef<HTMLDivElement | null>(null);
-  const highlightRootsRef = useRef<{ [page: number]: HighlightRoot }>({});
+  const highlightsRef = useRef(highlights); // Reference to all highlights
+  const highlightRootsRef = useRef<{ [page: number]: HighlightRoot }>({}); // Reference to highlight roots per page
+  const ghostHighlightRef = useRef<GhostHighlight | null>(null); // Reference to in-progress highlight (after "Add Highlight is selected")
+  const isCollapsedRef = useRef(true); // Reference to whether the selection is collapsed (i.e., no text in it)
+  const rangeRef = useRef<Range | null>(null); // Reference to nodes in the selection
+  const scrolledToHighlightIdRef = useRef<string | null>(null); // Reference to the ID of the highlight autoscrolled to
+  const isAreaSelectionInProgressRef = useRef(false);
+  const pdfScaleValueRef = useRef(pdfScaleValue);
+  const [_, setTip] = useState<Tip | null>(null); // Reference for user to set Tip properties (highlight, content)
+  const [tipPosition, setTipPosition] = useState<ViewportPosition | null>(null); // Reference to the position of the Tip
+  const [tipChildren, setTipChildren] = useState<ReactElement | null>(null); // Reference to the children of the Tip
+
+  // These should only change when a document loads/unloads
   const eventBusRef = useRef<EventBus>(new EventBus());
   const linkServiceRef = useRef<PDFLinkService>(
     new PDFLinkService({
@@ -99,8 +151,9 @@ const PdfHighlighter = ({
   const viewerRef = useRef<PDFViewer | null>(null);
   const [isViewerReady, setViewerReady] = useState(false);
 
+  // Initialise PDF Viewer and listeners
   useEffect(() => {
-    resizeObserverRef.current = new ResizeObserver(debouncedScaleValue);
+    resizeObserverRef.current = new ResizeObserver(debouncedHandleScaleValue);
     const doc = containerNodeRef.current?.ownerDocument;
     if (!doc || !containerNodeRef.current) return;
 
@@ -115,7 +168,7 @@ const PdfHighlighter = ({
       new PDFViewer({
         container: containerNodeRef.current!,
         eventBus: eventBusRef.current,
-        textLayerMode: 2,
+        textLayerMode: 2, // EnablePermissions (i.e., don't allow selecting if PDF prevents it)
         removePageBorders: true,
         linkService: linkServiceRef.current,
         l10n: NullL10n,
@@ -216,7 +269,7 @@ const PdfHighlighter = ({
   };
 
   const onDocumentReady = () => {
-    debouncedScaleValue();
+    debouncedHandleScaleValue();
     scrollRef(scrollTo);
   };
 
@@ -319,16 +372,17 @@ const PdfHighlighter = ({
 
   const handleScaleValue = () => {
     if (viewerRef) {
-      viewerRef.current!.currentScaleValue = pdfScaleValueRef.current; //"page-width";
+      viewerRef.current!.currentScaleValue =
+        pdfScaleValueRef.current.toString(); //"page-width";
     }
   };
 
   useEffect(() => {
     pdfScaleValueRef.current = pdfScaleValue;
-    debouncedScaleValue();
+    debouncedHandleScaleValue();
   }, [pdfScaleValue]);
 
-  const debouncedScaleValue = debounce(handleScaleValue, 100);
+  const debouncedHandleScaleValue = debounce(handleScaleValue, 100);
 
   const renderHighlightLayers = () => {
     for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {

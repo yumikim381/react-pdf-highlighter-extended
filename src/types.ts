@@ -73,3 +73,12 @@ export type Tip = {
   highlight: ViewportHighlight;
   content: ReactElement | ((highlight: ViewportHighlight) => ReactElement);
 };
+
+// TODO: Document
+export type PdfScaleValue =
+  | "page-actual"
+  | "page-width"
+  | "page-height"
+  | "page-fit"
+  | "auto"
+  | number;

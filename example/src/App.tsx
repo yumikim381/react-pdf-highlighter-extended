@@ -78,6 +78,7 @@ class App extends Component<{}, State> {
     const highlight = this.getHighlightById(parseIdFromHash());
 
     if (highlight) {
+      console.log("Scroll viewer to!");
       this.scrollViewerTo(highlight);
     }
   };

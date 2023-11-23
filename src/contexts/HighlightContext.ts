@@ -5,6 +5,7 @@ import {
   Scaled,
   HighlightTip,
   ViewportHighlight,
+  HighlightBindings,
 } from "src/types";
 
 /**
@@ -28,6 +29,9 @@ export type HighlightUtils = {
 
   /** Whether the highlight has been autoscrolled to. */
   isScrolledTo: boolean;
+
+  // TODO: DOC
+  highlightBindings: HighlightBindings;
 };
 
 export const HighlightContext = createContext<HighlightUtils | undefined>(

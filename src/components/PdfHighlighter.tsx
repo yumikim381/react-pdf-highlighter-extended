@@ -38,6 +38,7 @@ import type {
   Content,
   GhostHighlight,
   Highlight,
+  HighlightBindings,
   HighlightTip,
   PdfScaleValue,
   ViewportPosition,
@@ -45,11 +46,6 @@ import type {
 import HighlightLayer from "./HighlightLayer";
 import MouseSelectionRenderer from "./MouseSelectionRenderer";
 import TipRenderer from "./TipRenderer";
-
-interface HighlightRoot {
-  reactRoot: Root;
-  container: Element;
-}
 
 const SCROLL_MARGIN = 10;
 const TIP_WAIT = 500; // Debounce wait time in milliseconds for a selection changing and a tip being displayed
@@ -133,7 +129,9 @@ const PdfHighlighter = ({
   // These are all refs because
   // 1. We need to use their updated states immediately
   // 2. HighlightLayers are manually rendered per page and thus unaffected by state
-  const highlightRootsRef = useRef<{ [page: number]: HighlightRoot }>({}); // Reference to highlight roots per page
+  const highlightBindingsRef = useRef<{ [page: number]: HighlightBindings }>(
+    {}
+  ); // Reference to highlight bindings per page
   const ghostHighlightRef = useRef<GhostHighlight | null>(null); // Reference to in-progress highlight (after "Add Highlight is selected")
   const isCollapsedRef = useRef(true); // Reference to whether the selection is collapsed (i.e., no text in it)
   const rangeRef = useRef<Range | null>(null); // Reference to nodes in the selection
@@ -208,12 +206,9 @@ const PdfHighlighter = ({
     };
   }, [selectionTip, highlights, onSelectionFinished]);
 
-  const findOrCreateHighlightLayer = (page: number) => {
-    const { textLayer } = viewerRef.current!.getPageView(page - 1) || {};
-    if (!textLayer) return null;
-
+  const findOrCreateHighlightLayer = (textLayer: HTMLElement) => {
     return findOrCreateContainerLayer(
-      textLayer.div,
+      textLayer,
       "PdfHighlighter__highlight-layer"
     );
   };
@@ -326,7 +321,10 @@ const PdfHighlighter = ({
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.code === "Escape") {
-      hideTipAndGhostHighlight();
+      // hideTipAndGhostHighlight();
+      console.log("escape key pressed!");
+      pdfScaleValue = 2;
+      handleScaleValue();
     }
   };
 
@@ -395,30 +393,42 @@ const PdfHighlighter = ({
 
   const renderHighlightLayers = () => {
     for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
-      const highlightRoot = highlightRootsRef.current[pageNumber];
+      const highlightBindings = highlightBindingsRef.current[pageNumber];
 
       // Need to check if container is still attached to the DOM as PDF.js can unload pages.
-      if (highlightRoot?.container?.isConnected) {
-        renderHighlightLayer(highlightRoot.reactRoot, pageNumber);
+      if (highlightBindings?.container?.isConnected) {
+        renderHighlightLayer(highlightBindings, pageNumber);
       } else {
-        const highlightLayer = findOrCreateHighlightLayer(pageNumber);
+        const { textLayer } =
+          viewerRef.current!.getPageView(pageNumber - 1) || {};
+        if (!textLayer) continue; // Viewer hasn't rendered page yet
+
+        const highlightLayer = findOrCreateHighlightLayer(textLayer.div);
 
         if (highlightLayer) {
           const reactRoot = createRoot(highlightLayer);
-          highlightRootsRef.current[pageNumber] = {
+          highlightBindingsRef.current[pageNumber] = {
             reactRoot,
             container: highlightLayer,
+            textLayer: textLayer.div,
           };
-          renderHighlightLayer(reactRoot, pageNumber);
+
+          renderHighlightLayer(
+            highlightBindingsRef.current[pageNumber],
+            pageNumber
+          );
         }
       }
     }
   };
 
-  const renderHighlightLayer = (root: Root, pageNumber: number) => {
+  const renderHighlightLayer = (
+    highlightBindings: HighlightBindings,
+    pageNumber: number
+  ) => {
     if (!viewerRef.current) return;
 
-    root.render(
+    highlightBindings.reactRoot.render(
       <HighlightLayer
         highlightsByPage={groupHighlightsByPage([
           ...highlights,
@@ -430,12 +440,13 @@ const PdfHighlighter = ({
         viewer={viewerRef.current}
         showHighlightTip={showHighlightTip}
         setHighlightTip={setHighlightTip}
+        highlightBindings={highlightBindings}
         children={children}
       />
     );
   };
 
-  console.log("Pdf Highlighter re-rendered!");
+  console.log("PdfHighlighter re-rendered!");
 
   return (
     <div onPointerDown={handleMouseDown}>

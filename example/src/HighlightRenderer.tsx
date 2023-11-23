@@ -25,6 +25,7 @@ const HighlightRenderer = ({ updateHighlight }: HighlightRendererProps) => {
     viewportToScaled,
     screenshot,
     isScrolledTo,
+    highlightBindings,
   } = useHighlightContext();
 
   const isTextHighlight = !Boolean(
@@ -44,25 +45,27 @@ const HighlightRenderer = ({ updateHighlight }: HighlightRendererProps) => {
           { image: screenshot(boundingRect) }
         );
       }}
+      bounds={highlightBindings.textLayer}
     />
   );
 
-  return component;
-  // <MonitoredHighlightContainer
-  //   popupContent={<HighlightPopup comment={highlight.comment} />}
-  //   onMouseOver={(popupContent) => {
-  //     const popupTip: HighlightTip = {
-  //       highlight,
-  //       content: popupContent,
-  //     };
-  //     setTip(popupTip);
-  //   }}
-  //   onMouseOut={() => {
-  //     hideTip();
-  //   }}
-  //   key={key}
-  //   children={component}
-  // />
+  return (
+    <MonitoredHighlightContainer
+      popupContent={<HighlightPopup comment={highlight.comment} />}
+      onMouseOver={(popupContent) => {
+        const popupTip: HighlightTip = {
+          highlight,
+          content: popupContent,
+        };
+        setTip(popupTip);
+      }}
+      onMouseOut={() => {
+        hideTip();
+      }}
+      key={key}
+      children={component}
+    />
+  );
 };
 
 export default HighlightRenderer;

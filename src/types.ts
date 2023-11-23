@@ -1,4 +1,5 @@
 import { ReactElement } from "react";
+import { Root } from "react-dom/client";
 
 export type LTWH = {
   left: number;
@@ -67,6 +68,13 @@ export type Viewport = {
 export type Page = {
   node: HTMLElement;
   number: number;
+};
+
+/** All the DOM refs for a group of highlights on one page */
+export type HighlightBindings = {
+  reactRoot: Root;
+  container: Element;
+  textLayer: HTMLElement;
 };
 
 /** Tip for only existing highlights */

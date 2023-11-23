@@ -19,6 +19,9 @@ interface AreaHighlightProps {
 
   /** Whether the component is autoscrolled into view. */
   isScrolledTo: boolean;
+
+  // TODO: DOC
+  bounds?: string | Element;
   style?: CSSProperties;
 }
 
@@ -29,6 +32,7 @@ const AreaHighlight = ({
   highlight,
   onChange,
   isScrolledTo,
+  bounds,
   style,
 }: AreaHighlightProps) => {
   const highlightClass = isScrolledTo ? "AreaHighlight--scrolledTo" : "";
@@ -63,6 +67,7 @@ const AreaHighlight = ({
           width: highlight.position.boundingRect.width,
           height: highlight.position.boundingRect.height,
         }}
+        bounds={bounds}
         // Prevevent any event clicks as clicking is already used for movement
         onClick={(event: Event) => {
           event.stopPropagation();

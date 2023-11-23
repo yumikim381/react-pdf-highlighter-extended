@@ -8,6 +8,7 @@ import {
   LTWHP,
   HighlightTip,
   ViewportHighlight,
+  HighlightBindings,
 } from "../types";
 import { HighlightContext, HighlightUtils } from "../contexts/HighlightContext";
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
@@ -40,6 +41,9 @@ interface HighlightLayerProps {
    */
   setHighlightTip: (tip: HighlightTip) => void;
 
+  // TODO: DOC
+  highlightBindings: HighlightBindings;
+
   /**
    * This should be a HighlightRenderer of some sorts. It will be given
    * appropriate context for a single highlight which it can then use to
@@ -62,6 +66,7 @@ const HighlightLayer = ({
   viewer,
   showHighlightTip,
   setHighlightTip,
+  highlightBindings,
   children,
 }: HighlightLayerProps) => {
   const currentHighlights = highlightsByPage[pageNumber] || [];
@@ -97,6 +102,7 @@ const HighlightLayer = ({
           screenshot: (boundingRect: LTWH) =>
             screenshot(boundingRect, pageNumber, viewer),
           isScrolledTo: isScrolledTo,
+          highlightBindings,
         };
 
         return (

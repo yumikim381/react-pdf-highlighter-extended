@@ -242,6 +242,9 @@ const PdfHighlighter = ({
     const { boundingRect, usePdfCoordinates } = highlight.position;
     const pageNumber = boundingRect.pageNumber;
 
+    // Remove scroll listener in case user auto-scrolls in succession.
+    viewerRef.current!.container.removeEventListener("scroll", handleScroll);
+
     const pageViewport = viewerRef.current!.getPageView(
       pageNumber - 1
     ).viewport;
@@ -303,6 +306,7 @@ const PdfHighlighter = ({
   };
 
   const handleScroll = () => {
+    console.log("Detected scroll!");
     onScrollAway();
     scrolledToHighlightIdRef.current = null;
     renderHighlightLayers();

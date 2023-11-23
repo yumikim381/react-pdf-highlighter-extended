@@ -2,6 +2,7 @@ import { PDFDocumentProxy } from "pdfjs-dist";
 import React, { useEffect, useRef, useState } from "react";
 import ExpandableTip from "./ExpandableTip";
 import HighlightRenderer from "./HighlightRenderer";
+import Sidebar from "./Sidebar";
 import {
   Comment,
   Content,
@@ -9,12 +10,10 @@ import {
   Highlight,
   PdfHighlighter,
   PdfLoader,
-  PdfScaleValue,
   ScaledPosition,
 } from "./react-pdf-highlighter";
 import "./style/App.css";
 import { testHighlights as _testHighlights } from "./test-highlights";
-import Sidebar from "./Sidebar";
 
 const TEST_HIGHLIGHTS = _testHighlights;
 const PRIMARY_PDF_URL = "https://arxiv.org/pdf/1708.08021.pdf";
@@ -84,8 +83,6 @@ const App = () => {
   ) => {
     console.log("Updating highlight", id, position, content);
 
-    // DOESN'T RENDER FAST ENOUGH!!!
-
     setHighlights(
       highlights.map((highlight) =>
         highlight.id === id
@@ -98,18 +95,6 @@ const App = () => {
       )
     );
   };
-
-  // function getRandomValue(list: Array<PdfScaleValue>) {
-  //   // Generate a random index
-  //   const randomIndex = Math.floor(Math.random() * list.length);
-
-  //   // Return the value at the random index
-  //   return list[randomIndex];
-  // }
-
-  // // Example usage
-  // const randomValue = getRandomValue(["auto", 1, 2, 3, 4]);
-  // console.log(randomValue);
 
   return (
     <div
@@ -134,7 +119,6 @@ const App = () => {
               pdfDocument={pdfDocument}
               enableAreaSelection={(event) => event.altKey}
               onScrollAway={resetHash}
-              // pdfScaleValue={randomValue}
               scrollRef={(scrollTo) => {
                 scrollToRef.current = scrollTo;
               }}

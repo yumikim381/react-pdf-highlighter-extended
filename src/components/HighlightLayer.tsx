@@ -41,7 +41,10 @@ interface HighlightLayerProps {
    */
   setHighlightTip: (tip: HighlightTip) => void;
 
-  // TODO: DOC
+  /**
+   * Group of DOM refs for all the highlights on this layer.
+   * See the type comment for more explanation.
+   */
   highlightBindings: HighlightBindings;
 
   /**

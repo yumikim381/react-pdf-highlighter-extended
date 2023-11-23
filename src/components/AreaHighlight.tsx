@@ -20,7 +20,10 @@ interface AreaHighlightProps {
   /** Whether the component is autoscrolled into view. */
   isScrolledTo: boolean;
 
-  // TODO: DOC
+  /**
+   * react-rnd bounds on the highlight area. This is useful for preventing the user
+   * moving the highlight off the viewer/page.
+   */
   bounds?: string | Element;
   style?: CSSProperties;
 }

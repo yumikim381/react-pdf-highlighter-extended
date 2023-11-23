@@ -36,7 +36,7 @@ const MouseMonitor = ({
   };
 
   useEffect(() => {
-    // TODO: Throttle this
+    // TODO: Maybe optimise/throttle?
     document.addEventListener("mousemove", onMouseMove);
 
     return () => {

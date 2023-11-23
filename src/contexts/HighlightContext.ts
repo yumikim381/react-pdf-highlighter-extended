@@ -30,7 +30,10 @@ export type HighlightUtils = {
   /** Whether the highlight has been autoscrolled to. */
   isScrolledTo: boolean;
 
-  // TODO: DOC
+  /**
+   * All the DOM refs for the highlights shared on the same page
+   * as `highlight`
+   */
   highlightBindings: HighlightBindings;
 };
 

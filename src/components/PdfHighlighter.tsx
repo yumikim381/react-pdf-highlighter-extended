@@ -18,7 +18,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Root, createRoot } from "react-dom/client";
+import { createRoot } from "react-dom/client";
 import {
   SelectionUtils,
   TipHighlighterContext,
@@ -306,7 +306,6 @@ const PdfHighlighter = ({
   };
 
   const handleScroll = () => {
-    console.log("Detected scroll!");
     onScrollAway();
     scrolledToHighlightIdRef.current = null;
     renderHighlightLayers();
@@ -325,10 +324,7 @@ const PdfHighlighter = ({
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.code === "Escape") {
-      // hideTipAndGhostHighlight();
-      console.log("escape key pressed!");
-      pdfScaleValue = 2;
-      handleScaleValue();
+      hideTipAndGhostHighlight();
     }
   };
 
@@ -449,8 +445,6 @@ const PdfHighlighter = ({
       />
     );
   };
-
-  console.log("PdfHighlighter re-rendered!");
 
   return (
     <div onPointerDown={handleMouseDown}>

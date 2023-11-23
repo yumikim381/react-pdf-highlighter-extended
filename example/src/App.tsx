@@ -9,6 +9,7 @@ import {
   Highlight,
   PdfHighlighter,
   PdfLoader,
+  PdfScaleValue,
   ScaledPosition,
 } from "./react-pdf-highlighter";
 import "./style/App.css";
@@ -56,7 +57,13 @@ const App = () => {
   };
 
   const scrollToHighlightFromHash = () => {
+    if (!document.location.hash) {
+      console.log("No hash!");
+      return;
+    }
+
     const highlight = getHighlightById(parseIdFromHash());
+    console.log("Scroll to highlight, ", highlight, highlights.length);
 
     if (highlight && scrollToRef.current) {
       scrollToRef.current(highlight);
@@ -64,15 +71,15 @@ const App = () => {
   };
 
   useEffect(() => {
+    console.log("scrollToHighlightFromHash updated!", highlights.length);
     window.addEventListener("hashchange", scrollToHighlightFromHash);
 
     return () => {
       window.removeEventListener("hashchange", scrollToHighlightFromHash);
     };
-  }, []);
+  }, [scrollToHighlightFromHash]);
 
   const addHighlight = (highlight: GhostHighlight, comment: Comment) => {
-    console.log(highlights.length);
     console.log("Saving highlight", highlight);
     setHighlights([{ ...highlight, comment, id: getNextId() }, ...highlights]);
   };
@@ -98,7 +105,17 @@ const App = () => {
     );
   };
 
-  console.log("Re-render", highlights.length);
+  // function getRandomValue(list: Array<PdfScaleValue>) {
+  //   // Generate a random index
+  //   const randomIndex = Math.floor(Math.random() * list.length);
+
+  //   // Return the value at the random index
+  //   return list[randomIndex];
+  // }
+
+  // // Example usage
+  // const randomValue = getRandomValue(["auto", 1, 2, 3, 4]);
+  // console.log(randomValue);
 
   return (
     <div className="App" style={{ display: "flex", height: "100vh" }}>
@@ -119,11 +136,10 @@ const App = () => {
             <PdfHighlighter
               pdfDocument={pdfDocument}
               enableAreaSelection={(event) => event.altKey}
-              onScrollChange={resetHash}
-              // pdfScaleValue={2}
+              onScrollAway={resetHash}
+              // pdfScaleValue={randomValue}
               scrollRef={(scrollTo) => {
                 scrollToRef.current = scrollTo;
-                scrollToHighlightFromHash();
               }}
               selectionTip={<ExpandableTip addHighlight={addHighlight} />}
               highlights={highlights}

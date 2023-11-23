@@ -57,13 +57,20 @@ const RESIZE_WAIT = 500; // Debounce wait time in milliseconds for the window be
 
 interface PdfHighlighterProps {
   highlights: Array<Highlight>;
-  onScrollChange: () => void;
 
   /**
-   * Runs on every document load. Provides a reference function, scrollTo,
+   * Event is called only once whenever the user changes scroll after
+   * the autoscroll function, scrollTo, has been called.
+   */
+  onScrollAway: () => void;
+
+  /**
+   * Provides a reference function, scrollTo,
    * to the parent which it can then use to make the PDF Viewer auto scroll
    * to a given highlight. The highlight context will also be notified of this
    * through the isScrolledTo property to allow for styling.
+   *
+   * Runs on every document load and whenever props change.
    *
    * @param scrollTo - Callback the parent component can use to make the PDF Viewer auto scroll to a highlight
    */
@@ -111,7 +118,7 @@ interface PdfHighlighterProps {
  */
 const PdfHighlighter = ({
   highlights,
-  onScrollChange,
+  onScrollAway,
   scrollRef,
   pdfDocument,
   pdfScaleValue = "auto",
@@ -124,18 +131,16 @@ const PdfHighlighter = ({
   const containerNodeRef = useRef<HTMLDivElement | null>(null);
 
   // These are all refs because
-  // 1. They must be accessible to all event listeners
+  // 1. We need to use their updated states immediately
   // 2. HighlightLayers are manually rendered per page and thus unaffected by state
-  const highlightsRef = useRef(highlights); // Reference to all highlights
   const highlightRootsRef = useRef<{ [page: number]: HighlightRoot }>({}); // Reference to highlight roots per page
   const ghostHighlightRef = useRef<GhostHighlight | null>(null); // Reference to in-progress highlight (after "Add Highlight is selected")
   const isCollapsedRef = useRef(true); // Reference to whether the selection is collapsed (i.e., no text in it)
   const rangeRef = useRef<Range | null>(null); // Reference to nodes in the selection
   const scrolledToHighlightIdRef = useRef<string | null>(null); // Reference to the ID of the highlight autoscrolled to
   const isAreaSelectionInProgressRef = useRef(false);
-  const pdfScaleValueRef = useRef(pdfScaleValue);
 
-  const [_, setHighlightTip] = useState<HighlightTip | null>(null); // Tips only for existing highligts
+  const [_tip, setHighlightTip] = useState<HighlightTip | null>(null); // Tips only for existing highligts
   const [tipPosition, setTipPosition] = useState<ViewportPosition | null>(null); // Any kind of tip
   const [tipChildren, setTipChildren] = useState<ReactElement | null>(null); // Any kind of tip
 
@@ -151,17 +156,10 @@ const PdfHighlighter = ({
   const viewerRef = useRef<PDFViewer | null>(null);
   const [isViewerReady, setViewerReady] = useState(false);
 
-  // Initialise PDF Viewer and listeners
+  // Initialise PDF Viewer
   useEffect(() => {
-    resizeObserverRef.current = new ResizeObserver(debouncedHandleScaleValue);
     const doc = containerNodeRef.current?.ownerDocument;
     if (!doc || !containerNodeRef.current) return;
-
-    eventBusRef.current.on("textlayerrendered", renderHighlightLayers);
-    eventBusRef.current.on("pagesinit", handleDocumentReady);
-    doc.addEventListener("selectionchange", handleSelectionChange);
-    doc.addEventListener("keydown", handleKeyDown);
-    resizeObserverRef.current.observe(containerNodeRef.current);
 
     viewerRef.current =
       viewerRef.current ||
@@ -181,20 +179,34 @@ const PdfHighlighter = ({
     setViewerReady(true);
 
     return () => {
+      setViewerReady(false);
+    };
+  }, []);
+
+  // Intiialise listeners
+  useEffect(() => {
+    resizeObserverRef.current = new ResizeObserver(debouncedHandleScaleValue);
+    const doc = containerNodeRef.current?.ownerDocument;
+    if (!doc || !containerNodeRef.current) return;
+
+    resizeObserverRef.current.observe(containerNodeRef.current);
+
+    eventBusRef.current.on("textlayerrendered", renderHighlightLayers);
+    eventBusRef.current.on("pagesinit", handleDocumentReady);
+    doc.addEventListener("selectionchange", handleSelectionChange);
+    doc.addEventListener("keydown", handleKeyDown);
+
+    scrollRef(scrollTo);
+    renderHighlightLayers();
+
+    return () => {
       eventBusRef.current.off("pagesinit", handleDocumentReady);
       eventBusRef.current.off("textlayerrendered", renderHighlightLayers);
       doc.removeEventListener("selectionchange", handleSelectionChange);
       doc.removeEventListener("keydown", handleKeyDown);
       resizeObserverRef.current?.disconnect();
-      setViewerReady(false);
     };
-  }, []);
-
-  // Update highlights if new ones are provided
-  useEffect(() => {
-    highlightsRef.current = highlights;
-    renderHighlightLayers();
-  }, [highlights]);
+  }, [selectionTip, highlights, onSelectionFinished]);
 
   const findOrCreateHighlightLayer = (page: number) => {
     const { textLayer } = viewerRef.current!.getPageView(page - 1) || {};
@@ -232,10 +244,9 @@ const PdfHighlighter = ({
   };
 
   const scrollTo = (highlight: Highlight) => {
+    console.log("scrollTo", highlights.length);
     const { boundingRect, usePdfCoordinates } = highlight.position;
     const pageNumber = boundingRect.pageNumber;
-
-    viewerRef.current!.container.removeEventListener("scroll", handleScroll);
 
     const pageViewport = viewerRef.current!.getPageView(
       pageNumber - 1
@@ -260,7 +271,9 @@ const PdfHighlighter = ({
 
     // wait for scrolling to finish
     setTimeout(() => {
-      viewerRef.current!.container.addEventListener("scroll", handleScroll);
+      viewerRef.current!.container.addEventListener("scroll", handleScroll, {
+        once: true,
+      });
     }, 100);
   };
 
@@ -296,7 +309,7 @@ const PdfHighlighter = ({
   };
 
   const handleScroll = () => {
-    onScrollChange();
+    onScrollAway();
     scrolledToHighlightIdRef.current = null;
     renderHighlightLayers();
   };
@@ -375,15 +388,9 @@ const PdfHighlighter = ({
 
   const handleScaleValue = () => {
     if (viewerRef.current) {
-      viewerRef.current.currentScaleValue = pdfScaleValueRef.current.toString();
+      viewerRef.current.currentScaleValue = pdfScaleValue.toString();
     }
   };
-
-  // Update scale value if new one is provided
-  useEffect(() => {
-    pdfScaleValueRef.current = pdfScaleValue;
-    debouncedHandleScaleValue();
-  }, [pdfScaleValue]);
 
   const debouncedHandleScaleValue = debounce(handleScaleValue, RESIZE_WAIT);
 
@@ -415,7 +422,7 @@ const PdfHighlighter = ({
     root.render(
       <HighlightLayer
         highlightsByPage={groupHighlightsByPage([
-          ...highlightsRef.current,
+          ...highlights,
           ghostHighlightRef.current,
         ])}
         pageNumber={pageNumber}
@@ -428,6 +435,8 @@ const PdfHighlighter = ({
       />
     );
   };
+
+  console.log("Highlighter re-rendered", highlights.length);
 
   return (
     <div onPointerDown={handleMouseDown}>

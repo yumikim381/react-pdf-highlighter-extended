@@ -244,7 +244,6 @@ const PdfHighlighter = ({
   };
 
   const scrollTo = (highlight: Highlight) => {
-    console.log("scrollTo", highlights.length);
     const { boundingRect, usePdfCoordinates } = highlight.position;
     const pageNumber = boundingRect.pageNumber;
 
@@ -436,7 +435,7 @@ const PdfHighlighter = ({
     );
   };
 
-  console.log("Highlighter re-rendered", highlights.length);
+  console.log("Pdf Highlighter re-rendered!");
 
   return (
     <div onPointerDown={handleMouseDown}>

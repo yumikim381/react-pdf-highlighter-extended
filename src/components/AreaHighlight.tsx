@@ -1,12 +1,12 @@
 import React, { CSSProperties } from "react";
 
-import { Rnd } from "react-rnd";
 import { getPageFromElement } from "../lib/pdfjs-dom";
 
 import "../style/AreaHighlight.css";
 import "../style/Highlight.css";
 
 import type { LTWHP, ViewportHighlight } from "../types";
+import { Rnd } from "react-rnd";
 
 interface AreaHighlightProps {
   highlight: ViewportHighlight;
@@ -57,11 +57,9 @@ const AreaHighlight = ({
 
           onChange(boundingRect);
         }}
-        position={{
+        default={{
           x: highlight.position.boundingRect.left,
           y: highlight.position.boundingRect.top,
-        }}
-        size={{
           width: highlight.position.boundingRect.width,
           height: highlight.position.boundingRect.height,
         }}

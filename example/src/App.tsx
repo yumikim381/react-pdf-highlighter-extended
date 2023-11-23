@@ -57,13 +57,7 @@ const App = () => {
   };
 
   const scrollToHighlightFromHash = () => {
-    if (!document.location.hash) {
-      console.log("No hash!");
-      return;
-    }
-
     const highlight = getHighlightById(parseIdFromHash());
-    console.log("Scroll to highlight, ", highlight, highlights.length);
 
     if (highlight && scrollToRef.current) {
       scrollToRef.current(highlight);
@@ -71,7 +65,6 @@ const App = () => {
   };
 
   useEffect(() => {
-    console.log("scrollToHighlightFromHash updated!", highlights.length);
     window.addEventListener("hashchange", scrollToHighlightFromHash);
 
     return () => {
@@ -91,17 +84,18 @@ const App = () => {
   ) => {
     console.log("Updating highlight", id, position, content);
 
+    // DOESN'T RENDER FAST ENOUGH!!!
+
     setHighlights(
-      highlights.map((highlight) => {
-        return highlight.id === id
+      highlights.map((highlight) =>
+        highlight.id === id
           ? {
-              comment: highlight.comment,
-              id: id,
+              ...highlight,
               position: { ...highlight.position, ...position },
               content: { ...highlight.content, ...content },
             }
-          : highlight;
-      })
+          : highlight
+      )
     );
   };
 
@@ -118,7 +112,10 @@ const App = () => {
   // console.log(randomValue);
 
   return (
-    <div className="App" style={{ display: "flex", height: "100vh" }}>
+    <div
+      className="App"
+      style={{ display: "flex", height: "100vh", backgroundColor: "#333" }}
+    >
       <Sidebar
         highlights={highlights}
         resetHighlights={resetHighlights}

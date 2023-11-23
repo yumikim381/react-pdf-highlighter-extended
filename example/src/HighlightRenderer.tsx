@@ -47,23 +47,22 @@ const HighlightRenderer = ({ updateHighlight }: HighlightRendererProps) => {
     />
   );
 
-  return (
-    <MonitoredHighlightContainer
-      popupContent={<HighlightPopup comment={highlight.comment} />}
-      onMouseOver={(popupContent) => {
-        const popupTip: HighlightTip = {
-          highlight,
-          content: popupContent,
-        };
-        setTip(popupTip);
-      }}
-      onMouseOut={() => {
-        hideTip();
-      }}
-      key={key}
-      children={component}
-    />
-  );
+  return component;
+  // <MonitoredHighlightContainer
+  //   popupContent={<HighlightPopup comment={highlight.comment} />}
+  //   onMouseOver={(popupContent) => {
+  //     const popupTip: HighlightTip = {
+  //       highlight,
+  //       content: popupContent,
+  //     };
+  //     setTip(popupTip);
+  //   }}
+  //   onMouseOut={() => {
+  //     hideTip();
+  //   }}
+  //   key={key}
+  //   children={component}
+  // />
 };
 
 export default HighlightRenderer;

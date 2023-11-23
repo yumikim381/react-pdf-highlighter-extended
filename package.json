@@ -37,7 +37,7 @@
   "dependencies": {
     "lodash.debounce": "^4.0.8",
     "pdfjs-dist": "3.8.162",
-    "react-rnd": "^10.1.10"
+    "react-rnd": "^10.4.1"
   },
   "repository": {
     "type": "git",

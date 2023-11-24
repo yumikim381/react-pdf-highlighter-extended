@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import { ReactElement, ReactNode } from "react";
 import { Root } from "react-dom/client";
 
 export type LTWH = {
@@ -81,6 +81,12 @@ export type HighlightBindings = {
 export type HighlightTip = {
   highlight: ViewportHighlight;
   content: ReactElement | ((highlight: ViewportHighlight) => ReactElement);
+};
+
+// TODO: DOCUMENT
+export type Tip = {
+  position: ViewportPosition;
+  content: ReactNode;
 };
 
 /**

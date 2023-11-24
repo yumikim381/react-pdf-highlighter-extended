@@ -6,8 +6,10 @@ import {
   HighlightTip,
   MonitoredHighlightContainer,
   TextHighlight,
+  Tip,
   ViewportHighlight,
-  useHighlightContext,
+  useTipViewerUtils,
+  useHighlightUtils,
 } from "./react-pdf-highlighter";
 
 interface HighlightRendererProps {
@@ -29,13 +31,14 @@ const HighlightRenderer = ({
   const {
     highlight,
     key,
-    setTip,
-    hideTip,
+    isSelectionInProgress,
     viewportToScaled,
     screenshot,
     isScrolledTo,
     highlightBindings,
-  } = useHighlightContext();
+  } = useHighlightUtils();
+
+  const { setTip } = useTipViewerUtils();
 
   const isTextHighlight = !Boolean(
     highlight.content && highlight.content.image
@@ -71,14 +74,16 @@ const HighlightRenderer = ({
     <MonitoredHighlightContainer
       popupContent={<HighlightPopup comment={highlight.comment} />}
       onMouseOver={(popupContent) => {
-        const popupTip: HighlightTip = {
-          highlight,
+        if (isSelectionInProgress()) return;
+
+        const popupTip: Tip = {
+          position: highlight.position,
           content: popupContent,
         };
         setTip(popupTip);
       }}
       onMouseOut={() => {
-        hideTip();
+        setTip(null);
       }}
       key={key}
       children={component}

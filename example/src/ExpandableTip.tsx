@@ -1,7 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useSelectionTipContext } from "../../src/contexts/SelectionTipContext";
-import { Comment, GhostHighlight } from "./react-pdf-highlighter";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  Comment,
+  GhostHighlight,
+  useTipContainerUtils,
+  useTipViewerUtils,
+  useSelectionUtils,
+} from "./react-pdf-highlighter";
 import "./style/ExpandableTip.css";
+import CommentForm from "./CommentForm";
 
 interface ExpandableTipProps {
   addHighlight: (highlight: GhostHighlight, comment: Comment) => void;
@@ -9,19 +15,20 @@ interface ExpandableTipProps {
 
 const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
   const [compact, setCompact] = useState(true);
-  const [input, setInput] = useState<string | null>(null);
 
   const {
     selectionPosition,
     selectionContent,
-    hideTipAndGhostHighlight,
+    removeGhostHighlight,
     makeGhostHighlight,
-    updatePosition,
-  } = useSelectionTipContext();
+  } = useSelectionUtils();
 
-  useEffect(() => {
-    updatePosition();
-  }, [compact]);
+  const { setTip } = useTipViewerUtils();
+  const { updatePosition } = useTipContainerUtils();
+
+  // callback ref allows us to update the position of the tip
+  // before it renders, preventing any flickering.
+  const updatePositionRef = useCallback(updatePosition, []);
 
   return (
     <div className="Tip">
@@ -32,37 +39,25 @@ const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
             setCompact(false);
             makeGhostHighlight();
           }}
+          ref={updatePositionRef}
         >
           Add highlight
         </div>
       ) : (
-        <form
-          className="Tip__card"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const comment = { text: input ?? "" };
+        <CommentForm
+          placeHolder="Your comment..."
+          callbackRef={updatePositionRef}
+          onSubmit={(input) => {
+            const comment = { text: input };
             addHighlight(
               { content: selectionContent, position: selectionPosition },
               comment
             );
 
-            hideTipAndGhostHighlight();
+            removeGhostHighlight();
+            setTip(null);
           }}
-        >
-          <div>
-            <textarea
-              placeholder="Your comment..."
-              autoFocus
-              onChange={(event) => {
-                console.log(event.target.value);
-                setInput(event.target.value);
-              }}
-            />
-          </div>
-          <div>
-            <input type="submit" value="Save" />
-          </div>
-        </form>
+        />
       )}
     </div>
   );

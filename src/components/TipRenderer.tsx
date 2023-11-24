@@ -2,10 +2,9 @@ import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 import React, { ReactElement } from "react";
 import { ViewportPosition } from "src/types";
 import TipContainer from "./TipContainer";
+import { useTipViewerUtils } from "../contexts/TipContext";
 
 interface TipRendererProps {
-  tipPosition: ViewportPosition | null;
-  tipChildren: ReactElement | null;
   viewer: PDFViewer;
 }
 
@@ -14,14 +13,12 @@ interface TipRendererProps {
  * component inside of a PdfHighlighter component. Its existence is highly dependent on a
  * PdfHighlighter, but it is independently written to help declutter the PdfHighlighter.
  */
-const TipRenderer = ({
-  tipPosition,
-  tipChildren,
-  viewer,
-}: TipRendererProps) => {
-  if (!tipPosition || !tipChildren) return null;
+const TipRenderer = ({ viewer }: TipRendererProps) => {
+  const tipViewerUtils = useTipViewerUtils();
+  if (!tipViewerUtils.currentTip) return null;
 
-  const { boundingRect } = tipPosition;
+  const { position, content } = tipViewerUtils.currentTip;
+  const { boundingRect } = position;
   const pageNumber = boundingRect.pageNumber;
   const pageNode = viewer.getPageView(pageNumber - 1).div; // Account for 1 indexing of pdf documents
   const pageBoundingClientRect = pageNode.getBoundingClientRect();
@@ -50,7 +47,7 @@ const TipRenderer = ({
           boundingRect.top + pageNode.offsetTop + boundingRect.height,
       }}
     >
-      {tipChildren}
+      {content}
     </TipContainer>
   );
 };

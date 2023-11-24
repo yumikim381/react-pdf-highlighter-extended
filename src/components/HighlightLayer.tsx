@@ -23,23 +23,10 @@ interface HighlightLayerProps {
 
   /** ID of the highlight the parent PDF Highlighter is trying to autoscroll to. */
   scrolledToHighlightId: string | null;
-  hideTipAndGhostHighlight: () => void;
   viewer: PDFViewer;
 
-  /**
-   * Callback to display a tip for an existing Highlight (i.e., a popup).
-   * Should be managed by the HighlightRenderer.
-   *
-   * @param tip - Currently considered highlight tip
-   */
-  showHighlightTip: (tip: HighlightTip) => void;
-
-  /**
-   * Callback to update what tip should be shown for an existing highlight.
-   *
-   * @param tip - Currently considered highlight tip
-   */
-  setHighlightTip: (tip: HighlightTip) => void;
+  // TODO: DOC
+  isSelectionInProgress: () => boolean;
 
   /**
    * Group of DOM refs for all the highlights on this layer.
@@ -65,10 +52,8 @@ const HighlightLayer = ({
   highlightsByPage,
   pageNumber,
   scrolledToHighlightId,
-  hideTipAndGhostHighlight,
   viewer,
-  showHighlightTip,
-  setHighlightTip,
+  isSelectionInProgress,
   highlightBindings,
   children,
 }: HighlightLayerProps) => {
@@ -90,11 +75,7 @@ const HighlightLayer = ({
         const highlightUtils: HighlightUtils = {
           highlight: viewportHighlight,
           key: index,
-          setTip: (tip: HighlightTip) => {
-            setHighlightTip(tip);
-            showHighlightTip(tip);
-          },
-          hideTip: hideTipAndGhostHighlight,
+          isSelectionInProgress,
           viewportToScaled: (rect: LTWHP) => {
             const viewport = viewer.getPageView(
               (rect.pageNumber || pageNumber) - 1 // Convert to 0 index

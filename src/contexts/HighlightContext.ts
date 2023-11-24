@@ -15,8 +15,7 @@ import {
 export type HighlightUtils = {
   highlight: ViewportHighlight;
   key: number;
-  setTip: (tip: HighlightTip) => void;
-  hideTip: () => void;
+  isSelectionInProgress: () => boolean;
 
   /**
    * Convert a Viewport rectangle to a scaled rectangle. Can be used
@@ -41,11 +40,11 @@ export const HighlightContext = createContext<HighlightUtils | undefined>(
   undefined
 );
 
-export const useHighlightContext = () => {
+export const useHighlightUtils = () => {
   const highlightUtils = useContext(HighlightContext);
 
   if (highlightUtils === undefined) {
-    throw new Error("useHighlightContext must be used with a PdfHighlighter!");
+    throw new Error("useHighlightUtils must be used with a PdfHighlighter!");
   }
 
   return highlightUtils;

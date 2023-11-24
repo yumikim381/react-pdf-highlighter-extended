@@ -3,16 +3,15 @@ import TextHighlight from "./components/TextHighlight";
 import MonitoredHighlightContainer from "./components/MonitoredHighlightContainer";
 import AreaHighlight from "./components/AreaHighlight";
 import PdfLoader from "./components/PdfLoader";
+import { HighlightUtils, useHighlightUtils } from "./contexts/HighlightContext";
+import { SelectionUtils, useSelectionUtils } from "./contexts/SelectionContext";
+
 import {
-  HighlightUtils,
-  useHighlightContext,
-} from "./contexts/HighlightContext";
-import {
-  SelectionUtils,
+  TipViewerUtils,
+  useTipViewerUtils,
   TipContainerUtils,
-  SelectionTipUtils,
-  useSelectionTipContext,
-} from "./contexts/SelectionTipContext";
+  useTipContainerUtils,
+} from "./contexts/TipContext";
 
 export {
   PdfHighlighter,
@@ -20,14 +19,16 @@ export {
   TextHighlight,
   MonitoredHighlightContainer,
   AreaHighlight,
-  useHighlightContext,
-  useSelectionTipContext,
+  useHighlightUtils,
+  useSelectionUtils,
+  useTipViewerUtils,
+  useTipContainerUtils,
 };
 
 export type {
   HighlightUtils,
   SelectionUtils,
   TipContainerUtils,
-  SelectionTipUtils,
+  TipViewerUtils,
 };
 export * from "./types";

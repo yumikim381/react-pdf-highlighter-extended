@@ -1,7 +1,7 @@
-import React, { ReactElement, useEffect, useRef, useState } from "react";
+import React, { ReactNode, useCallback, useRef, useState } from "react";
 
+import { TipContainerContext } from "../contexts/TipContext";
 import type { LTWHP } from "../types";
-import { TipContainerContext } from "../contexts/SelectionTipContext";
 
 const clamp = (value: number, left: number, right: number) =>
   Math.min(Math.max(value, left), right);
@@ -15,7 +15,7 @@ interface TipPosition {
 }
 
 interface TipContainerProps {
-  children: ReactElement;
+  children: ReactNode;
   position: TipPosition;
   scrollTop: number;
   pageBoundingRect: LTWHP;
@@ -44,15 +44,15 @@ const TipContainer = ({
     setWidth(offsetWidth);
   };
 
-  // We can only get width and height after mount
-  // So we have to run updatePosition then to make the tip visible.
-  useEffect(() => {
-    updatePosition();
+  const updatePositionRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) {
+      nodeRef.current = node;
+      updatePosition();
+    }
   }, []);
 
   const shouldMove =
     position.highlightTop - height - VERTICAL_PADDING < scrollTop; // should move below highlight?
-  const isStyleCalculationInProgress = width === 0 && height === 0; // Fixes flickering
   const top = shouldMove
     ? position.highlightBottom + 5
     : position.highlightTop - height - 5;
@@ -68,11 +68,10 @@ const TipContainer = ({
       <div
         className="PdfHighlighter__tip-container"
         style={{
-          visibility: isStyleCalculationInProgress ? "hidden" : "visible",
           top,
           left,
         }}
-        ref={nodeRef}
+        ref={updatePositionRef}
       >
         {children}
       </div>

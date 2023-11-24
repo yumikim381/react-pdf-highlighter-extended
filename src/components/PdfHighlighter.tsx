@@ -20,9 +20,9 @@ import React, {
 } from "react";
 import { createRoot } from "react-dom/client";
 import {
+  SelectionContext,
   SelectionUtils,
-  TipHighlighterContext,
-} from "../contexts/SelectionTipContext";
+} from "../contexts/SelectionContext";
 import { scaledToViewport, viewportPositionToScaled } from "../lib/coordinates";
 import getBoundingRect from "../lib/get-bounding-rect";
 import getClientRects from "../lib/get-client-rects";
@@ -34,18 +34,20 @@ import {
   getWindow,
   isHTMLElement,
 } from "../lib/pdfjs-dom";
-import type {
-  Content,
-  GhostHighlight,
-  Highlight,
-  HighlightBindings,
-  HighlightTip,
-  PdfScaleValue,
-  ViewportPosition,
+import {
+  Tip,
+  type Content,
+  type GhostHighlight,
+  type Highlight,
+  type HighlightBindings,
+  type HighlightTip,
+  type PdfScaleValue,
+  type ViewportPosition,
 } from "../types";
 import HighlightLayer from "./HighlightLayer";
 import MouseSelectionRenderer from "./MouseSelectionRenderer";
 import TipRenderer from "./TipRenderer";
+import { TipViewerContext, TipViewerUtils } from "../contexts/TipContext";
 
 const SCROLL_MARGIN = 10;
 const TIP_WAIT = 500; // Debounce wait time in milliseconds for a selection changing and a tip being displayed
@@ -141,9 +143,11 @@ const PdfHighlighter = ({
   const scrolledToHighlightIdRef = useRef<string | null>(null); // Reference to the ID of the highlight autoscrolled to
   const isAreaSelectionInProgressRef = useRef(false);
 
-  const [_tip, setHighlightTip] = useState<HighlightTip | null>(null); // Tips only for existing highligts
-  const [tipPosition, setTipPosition] = useState<ViewportPosition | null>(null); // Any kind of tip
-  const [tipChildren, setTipChildren] = useState<ReactElement | null>(null); // Any kind of tip
+  // const [_tip, setHighlightTip] = useState<HighlightTip | null>(null); // Tips only for existing highligts
+  // const [tipPosition, setTipPosition] = useState<ViewportPosition | null>(null); // Any kind of tip
+  // const [tipChildren, setTipChildren] = useState<ReactElement | null>(null); // Any kind of tip
+
+  const [currentTip, setTip] = useState<Tip | null>(null);
 
   // These should only change when a document loads/unloads
   const eventBusRef = useRef<EventBus>(new EventBus());
@@ -216,30 +220,22 @@ const PdfHighlighter = ({
     };
   }, [selectionTip, highlights, onSelectionFinished]);
 
-  const showHighlightTip = (tip: HighlightTip) => {
-    if (
-      !isCollapsedRef.current || // Selection has no text in it
-      ghostHighlightRef.current || // There's already a ghostHighlight and expanded tip
+  const isTextSelectionEmpty = () => {
+    return isCollapsedRef.current || !rangeRef.current;
+  };
+
+  const isSelectionInProgress = () => {
+    return (
+      !isTextSelectionEmpty() ||
+      Boolean(ghostHighlightRef.current) ||
       isAreaSelectionInProgressRef.current
-    )
-      return;
-    setTipPosition(tip.highlight.position);
-
-    if (typeof tip.content === "function") {
-      setTipChildren(tip.content(tip.highlight));
-    } else {
-      // content is a plain ReactElement
-      setTipChildren(tip.content);
-    }
+    );
   };
 
-  const hideTipAndGhostHighlight = () => {
-    setTipPosition(null);
-    setTipChildren(null);
+  const removeGhostHighlight = () => {
     ghostHighlightRef.current = null;
-    setHighlightTip(null);
     renderHighlightLayers();
-  };
+  }
 
   const scrollTo = (highlight: Highlight) => {
     const { boundingRect, usePdfCoordinates } = highlight.position;
@@ -322,7 +318,8 @@ const PdfHighlighter = ({
       return;
     }
 
-    hideTipAndGhostHighlight();
+    setTip(null);
+    removeGhostHighlight();
   };
 
   const handleKeyDown = (event: KeyboardEvent) => {
@@ -362,7 +359,7 @@ const PdfHighlighter = ({
     const selectionUtils: SelectionUtils = {
       selectionPosition: scaledPosition,
       selectionContent: content,
-      hideTipAndGhostHighlight,
+      removeGhostHighlight,
       makeGhostHighlight: () => {
         ghostHighlightRef.current = {
           content: content,
@@ -375,13 +372,14 @@ const PdfHighlighter = ({
     if (onSelectionFinished) onSelectionFinished(selectionUtils);
 
     if (selectionTip) {
-      setTipPosition(viewportPosition);
-      setTipChildren(
-        <TipHighlighterContext.Provider
-          value={selectionUtils}
-          children={selectionTip}
-        />
-      );
+      const newTip: Tip = {
+        position: viewportPosition,
+        content: <SelectionContext.Provider value={selectionUtils}>
+          {selectionTip}
+        </SelectionContext.Provider>,
+      }
+
+      setTip(newTip)
     }
   };
 
@@ -435,20 +433,20 @@ const PdfHighlighter = ({
     if (!viewerRef.current) return;
 
     highlightBindings.reactRoot.render(
+      <TipViewerContext.Provider value={{currentTip, setTip}}>
       <HighlightLayer
         highlightsByPage={groupHighlightsByPage([
           ...highlights,
           ghostHighlightRef.current,
         ])}
         pageNumber={pageNumber}
+        isSelectionInProgress={isSelectionInProgress}
         scrolledToHighlightId={scrolledToHighlightIdRef.current}
-        hideTipAndGhostHighlight={hideTipAndGhostHighlight}
         viewer={viewerRef.current}
-        showHighlightTip={showHighlightTip}
-        setHighlightTip={setHighlightTip}
         highlightBindings={highlightBindings}
         children={children}
       />
+      </TipViewerContext.Provider>
     );
   };
 
@@ -461,12 +459,9 @@ const PdfHighlighter = ({
         style={style}
       >
         <div className="pdfViewer" />
+        <TipViewerContext.Provider value={{currentTip, setTip}}>
         {isViewerReady && (
-          <TipRenderer
-            tipPosition={tipPosition}
-            tipChildren={tipChildren}
-            viewer={viewerRef.current!}
-          />
+          <TipRenderer viewer={viewerRef.current!}/>
         )}
         {isViewerReady && enableAreaSelection && (
           <MouseSelectionRenderer
@@ -485,7 +480,7 @@ const PdfHighlighter = ({
               const selectionUtils: SelectionUtils = {
                 selectionPosition: scaledPosition,
                 selectionContent: { image },
-                hideTipAndGhostHighlight,
+                removeGhostHighlight,
                 makeGhostHighlight: () => {
                   ghostHighlightRef.current = {
                     position: scaledPosition,
@@ -499,17 +494,19 @@ const PdfHighlighter = ({
               if (onSelectionFinished) onSelectionFinished(selectionUtils);
 
               if (selectionTip) {
-                setTipPosition(viewportPosition);
-                setTipChildren(
-                  <TipHighlighterContext.Provider
-                    value={selectionUtils}
-                    children={selectionTip}
-                  />
-                );
+                const newTip: Tip = {
+                  position: viewportPosition,
+                  content: <SelectionContext.Provider value={selectionUtils}>
+                    {selectionTip}
+                  </SelectionContext.Provider>,
+                }
+
+                setTip(newTip)
               }
             }}
           />
         )}
+        </TipViewerContext.Provider>
       </div>
     </>
   );

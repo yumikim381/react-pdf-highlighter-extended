@@ -55,7 +55,7 @@ interface PdfHighlighterProps {
    * Event is called only once whenever the user changes scroll after
    * the autoscroll function, scrollTo, has been called.
    */
-  onScrollAway: () => void;
+  onScrollAway?: () => void;
 
   /**
    * Provides a reference function, scrollTo,
@@ -243,7 +243,8 @@ const PdfHighlighter = ({
     const pageNumber = boundingRect.pageNumber;
 
     // Remove scroll listener in case user auto-scrolls in succession.
-    viewerRef.current!.container.removeEventListener("scroll", handleScroll);
+    onScrollAway &&
+      viewerRef.current!.container.removeEventListener("scroll", handleScroll);
 
     const pageViewport = viewerRef.current!.getPageView(
       pageNumber - 1
@@ -268,9 +269,10 @@ const PdfHighlighter = ({
 
     // wait for scrolling to finish
     setTimeout(() => {
-      viewerRef.current!.container.addEventListener("scroll", handleScroll, {
-        once: true,
-      });
+      onScrollAway &&
+        viewerRef.current!.container.addEventListener("scroll", handleScroll, {
+          once: true,
+        });
     }, 100);
   };
 
@@ -305,7 +307,7 @@ const PdfHighlighter = ({
   };
 
   const handleScroll = () => {
-    onScrollAway();
+    onScrollAway!();
     scrolledToHighlightIdRef.current = null;
     renderHighlightLayers();
   };

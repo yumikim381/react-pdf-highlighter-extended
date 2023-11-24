@@ -5,6 +5,7 @@
   color: #fff; /* White text color */
   padding: 8px 16px; /* Adjusted padding for better spacing */
   border-radius: 4px; /* Slightly increased border radius */
+  font-size: larger;
 }
 
 .Tip__card {

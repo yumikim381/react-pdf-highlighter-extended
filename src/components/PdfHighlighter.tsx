@@ -46,7 +46,7 @@ import MouseSelectionRenderer from "./MouseSelectionRenderer";
 import TipRenderer from "./TipRenderer";
 
 const SCROLL_MARGIN = 10;
-const TIP_WAIT = 500; // Debounce wait time in milliseconds for a selection changing and a tip being displayed
+const TIP_WAIT = 250; // Debounce wait time in milliseconds for a selection changing and a tip being displayed
 
 interface PdfHighlighterProps {
   highlights: Array<Highlight>;

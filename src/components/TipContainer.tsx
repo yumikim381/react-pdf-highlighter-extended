@@ -58,12 +58,12 @@ const TipContainer = ({
     : position.highlightTop - height - 5;
 
   // Forces tip to stay within the left edge of the pdf viewer componenet
-  // and the right
+  // and the right edge of the page. Not a perfect clamp, but functional enough.
   const left = clamp(
     position.left - width / 2,
     0,
     pageBoundingRect.left + pageBoundingRect.width - width
-  ); // Force tip into page bounds
+  );
 
   return (
     <TipContainerContext.Provider value={{ updatePosition }}>
@@ -71,7 +71,9 @@ const TipContainer = ({
         className="PdfHighlighter__tip-container"
         style={{
           top,
-          left: left,
+          left,
+          height: "max-content",
+          width: "max-content",
         }}
         ref={updatePositionRef}
       >

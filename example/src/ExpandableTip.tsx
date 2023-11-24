@@ -33,7 +33,7 @@ const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
   return (
     <div className="Tip">
       {compact ? (
-        <div
+        <button
           className="Tip__compact"
           onClick={() => {
             setCompact(false);
@@ -42,7 +42,7 @@ const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
           ref={updatePositionRef}
         >
           Add highlight
-        </div>
+        </button>
       ) : (
         <CommentForm
           placeHolder="Your comment..."

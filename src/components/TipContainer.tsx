@@ -56,6 +56,7 @@ const TipContainer = ({
   const top = shouldMove
     ? position.highlightBottom + 5
     : position.highlightTop - height - 5;
+
   const left = clamp(
     position.left - width / 2,
     0,

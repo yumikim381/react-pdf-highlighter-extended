@@ -205,7 +205,7 @@ const PdfHighlighter = ({
     doc.addEventListener("keydown", handleKeyDown);
 
     scrollRef(scrollTo);
-    // renderHighlightLayers();
+    renderHighlightLayers();
 
     return () => {
       eventBusRef.current.off("pagesinit", handleDocumentReady);

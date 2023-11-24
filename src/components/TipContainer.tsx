@@ -57,10 +57,12 @@ const TipContainer = ({
     ? position.highlightBottom + 5
     : position.highlightTop - height - 5;
 
+  // Forces tip to stay within the left edge of the pdf viewer componenet
+  // and the right
   const left = clamp(
     position.left - width / 2,
     0,
-    pageBoundingRect.width - width
+    pageBoundingRect.left + pageBoundingRect.width - width
   ); // Force tip into page bounds
 
   return (
@@ -69,7 +71,7 @@ const TipContainer = ({
         className="PdfHighlighter__tip-container"
         style={{
           top,
-          left,
+          left: left,
         }}
         ref={updatePositionRef}
       >

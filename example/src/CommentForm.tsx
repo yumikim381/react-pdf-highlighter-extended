@@ -27,7 +27,6 @@ const CommentForm = ({
           placeholder={placeHolder}
           autoFocus
           onChange={(event) => {
-            console.log(event.target.value);
             setInput(event.target.value);
           }}
         />

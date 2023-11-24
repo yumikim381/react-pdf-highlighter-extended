@@ -144,10 +144,6 @@ const PdfHighlighter = ({
   const isAreaSelectionInProgressRef = useRef(false);
   const isEditInProgressRef = useRef(false);
 
-  // const [_tip, setHighlightTip] = useState<HighlightTip | null>(null); // Tips only for existing highligts
-  // const [tipPosition, setTipPosition] = useState<ViewportPosition | null>(null); // Any kind of tip
-  // const [tipChildren, setTipChildren] = useState<ReactElement | null>(null); // Any kind of tip
-
   const [currentTip, setTip] = useState<Tip | null>(null);
 
   // These should only change when a document loads/unloads

@@ -5,6 +5,10 @@ import AreaHighlight from "./components/AreaHighlight";
 import PdfLoader from "./components/PdfLoader";
 import { HighlightUtils, useHighlightUtils } from "./contexts/HighlightContext";
 import { SelectionUtils, useSelectionUtils } from "./contexts/SelectionContext";
+import {
+  viewportPositionToScaled,
+  scaledPositionToViewport,
+} from "./lib/coordinates";
 
 import {
   TipViewerUtils,
@@ -23,6 +27,8 @@ export {
   useSelectionUtils,
   useTipViewerUtils,
   useTipContainerUtils,
+  viewportPositionToScaled,
+  scaledPositionToViewport,
 };
 
 export type {

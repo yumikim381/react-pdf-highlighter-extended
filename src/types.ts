@@ -77,12 +77,6 @@ export type HighlightBindings = {
   textLayer: HTMLElement;
 };
 
-/** Tip for only existing highlights */
-export type HighlightTip = {
-  highlight: ViewportHighlight;
-  content: ReactElement | ((highlight: ViewportHighlight) => ReactElement);
-};
-
 // TODO: DOCUMENT
 export type Tip = {
   position: ViewportPosition;

@@ -27,6 +27,9 @@ interface AreaHighlightProps {
 
   onContextMenu?: (event: MouseEvent<HTMLDivElement>) => void;
 
+  // TODO: DOC!
+  onEditStart?: () => void;
+
   style?: CSSProperties;
 }
 
@@ -39,6 +42,7 @@ const AreaHighlight = ({
   isScrolledTo,
   bounds,
   onContextMenu,
+  onEditStart,
   style,
 }: AreaHighlightProps) => {
   const highlightClass = isScrolledTo ? "AreaHighlight--scrolledTo" : "";
@@ -70,6 +74,8 @@ const AreaHighlight = ({
 
           onChange(boundingRect);
         }}
+        onDragStart={onEditStart}
+        onResizeStart={onEditStart}
         default={{
           x: highlight.position.boundingRect.left,
           y: highlight.position.boundingRect.top,

@@ -8,15 +8,20 @@ import {
   Content,
   GhostHighlight,
   Highlight,
+  Tip,
   PdfHighlighter,
   PdfLoader,
   ScaledPosition,
+  TipViewerUtils,
   ViewportHighlight,
+  viewportPositionToScaled,
 } from "./react-pdf-highlighter";
 import "./style/App.css";
 import { testHighlights as _testHighlights } from "./test-highlights";
 import ContextMenu, { ContextMenuProps } from "./ContextMenu";
 import Toolbar from "./Toolbar";
+import CommentForm from "./CommentForm";
+import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 
 const TEST_HIGHLIGHTS = _testHighlights;
 const PRIMARY_PDF_URL = "https://arxiv.org/pdf/1708.08021.pdf";
@@ -42,6 +47,8 @@ const App = () => {
   const scrollToRef = useRef<((highlight: Highlight) => void) | undefined>(
     undefined
   );
+  const tipViewerUtilsRef = useRef<TipViewerUtils | undefined>(undefined);
+  const viewerRef = useRef<PDFViewer | undefined>(undefined);
 
   const [contextMenu, setContextMenu] = useState<ContextMenuProps | null>(null);
   const [pdfScaleValue, setPdfScaleValue] = useState<number | undefined>(
@@ -72,8 +79,55 @@ const App = () => {
       xPos: event.clientX,
       yPos: event.clientY,
       deleteHighlight: () => deleteHighlight(highlight),
-      editComment: () => console.log("Edit comment!"),
+      editComment: () => editComment(highlight),
     });
+  };
+
+  const editHighlight = (idToUpdate: string, newHighlight: Highlight) => {
+    // Find the index of the highlight with the specified id
+    const indexToUpdate = highlights.findIndex(
+      (highlight) => highlight.id === idToUpdate
+    );
+
+    // If the highlight with the specified id is found, create a new list with the updated comment
+    if (indexToUpdate !== -1) {
+      const updatedHighlights = [...highlights];
+      updatedHighlights[indexToUpdate] = newHighlight;
+      return updatedHighlights;
+    }
+
+    // If the highlight with the specified id is not found, return the original list
+    return highlights;
+  };
+
+  const editComment = (highlight: ViewportHighlight) => {
+    if (!tipViewerUtilsRef.current) return;
+
+    const editCommentTip: Tip = {
+      position: highlight.position,
+      content: (
+        <CommentForm
+          placeHolder={highlight.comment.text}
+          onSubmit={(input) => {
+            console.log("Editing highlight", highlight);
+            const newHighlight: Highlight = {
+              ...highlight,
+              position: viewportPositionToScaled(
+                highlight.position,
+                viewerRef.current!
+              ),
+              comment: { text: input },
+            };
+            setHighlights(editHighlight(highlight.id, newHighlight));
+            tipViewerUtilsRef.current!.setTip(null);
+            tipViewerUtilsRef.current!.isEditInProgressRef.current = false;
+          }}
+        ></CommentForm>
+      ),
+    };
+
+    tipViewerUtilsRef.current.setTip(editCommentTip);
+    tipViewerUtilsRef.current.isEditInProgressRef.current = true;
   };
 
   const resetHighlights = () => {
@@ -112,7 +166,7 @@ const App = () => {
     setHighlights([{ ...highlight, comment, id: getNextId() }, ...highlights]);
   };
 
-  const deleteHighlight = (highlight: ViewportHighlight) => {
+  const deleteHighlight = (highlight: ViewportHighlight | Highlight) => {
     console.log("Deleting highlight", highlight);
     setHighlights(highlights.filter((h) => h.id != highlight.id));
   };
@@ -162,8 +216,14 @@ const App = () => {
               pdfDocument={pdfDocument}
               enableAreaSelection={(event) => event.altKey}
               onScrollAway={resetHash}
-              scrollRef={(scrollTo) => {
-                scrollToRef.current = scrollTo;
+              scrollRef={(_scrollTo) => {
+                scrollToRef.current = _scrollTo;
+              }}
+              tipViewerUtilsRef={(_tipViewerUtils) => {
+                tipViewerUtilsRef.current = _tipViewerUtils;
+              }}
+              pdfViewerRef={(_pdfViewer) => {
+                viewerRef.current = _pdfViewer;
               }}
               pdfScaleValue={pdfScaleValue}
               selectionTip={<ExpandableTip addHighlight={addHighlight} />}

@@ -1,11 +1,10 @@
 import { createContext, useContext } from "react";
 import {
+  HighlightBindings,
   LTWH,
   LTWHP,
   Scaled,
-  HighlightTip,
   ViewportHighlight,
-  HighlightBindings,
 } from "src/types";
 
 /**

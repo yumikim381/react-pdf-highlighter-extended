@@ -1,17 +1,16 @@
+import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 import React, { ReactElement } from "react";
+import { HighlightContext, HighlightUtils } from "../contexts/HighlightContext";
 import { scaledPositionToViewport, viewportToScaled } from "../lib/coordinates";
 import screenshot from "../lib/screenshot";
 import {
   GhostHighlight,
   Highlight,
+  HighlightBindings,
   LTWH,
   LTWHP,
-  HighlightTip,
   ViewportHighlight,
-  HighlightBindings,
 } from "../types";
-import { HighlightContext, HighlightUtils } from "../contexts/HighlightContext";
-import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 
 const EMPTY_ID = "empty-id";
 

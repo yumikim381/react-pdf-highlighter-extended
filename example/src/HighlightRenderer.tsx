@@ -3,7 +3,6 @@ import HighlightPopup from "./HighlightPopup";
 import {
   AreaHighlight,
   Highlight,
-  HighlightTip,
   MonitoredHighlightContainer,
   TextHighlight,
   Tip,
@@ -38,7 +37,7 @@ const HighlightRenderer = ({
     highlightBindings,
   } = useHighlightUtils();
 
-  const { setTip } = useTipViewerUtils();
+  const { setTip, isEditInProgressRef } = useTipViewerUtils();
 
   const isTextHighlight = !Boolean(
     highlight.content && highlight.content.image
@@ -62,11 +61,14 @@ const HighlightRenderer = ({
           { boundingRect: viewportToScaled(boundingRect) },
           { image: screenshot(boundingRect) }
         );
+
+        isEditInProgressRef.current = false;
       }}
       bounds={highlightBindings.textLayer}
       onContextMenu={(event) =>
         onContextMenu && onContextMenu(event, highlight)
       }
+      onEditStart={() => (isEditInProgressRef.current = true)}
     />
   );
 

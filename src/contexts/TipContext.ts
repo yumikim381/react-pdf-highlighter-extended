@@ -6,6 +6,7 @@ import { Tip } from "../types";
 export type TipViewerUtils = {
   currentTip: Tip | null;
   setTip: React.Dispatch<React.SetStateAction<Tip | null>>;
+  isEditInProgressRef: React.MutableRefObject<boolean>;
 };
 
 export type TipContainerUtils = {

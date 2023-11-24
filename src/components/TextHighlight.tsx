@@ -1,6 +1,5 @@
-import React, { CSSProperties } from "react";
+import React, { CSSProperties, MouseEvent } from "react";
 
-import "../style/Highlight.css";
 import "../style/TextHighlight.css";
 
 import type { ViewportPosition } from "../types.js";
@@ -13,6 +12,10 @@ interface TextHighlightProps {
 
   /** Indicates whether the component is autoscrolled into view. */
   isScrolledTo: boolean;
+
+  // TODO: DOC
+  onContextMenu?: (event: MouseEvent<HTMLDivElement>) => void;
+
   style?: CSSProperties;
 }
 
@@ -25,13 +28,17 @@ const TextHighlight = ({
   onMouseOver,
   onMouseOut,
   isScrolledTo,
+  onContextMenu,
   style,
 }: TextHighlightProps) => {
   const highlightClass = isScrolledTo ? "TextHighlight--scrolledTo" : "";
   const { rects } = position;
 
   return (
-    <div className={`TextHighlight ${highlightClass}`}>
+    <div
+      className={`TextHighlight ${highlightClass}`}
+      onContextMenu={onContextMenu}
+    >
       <div className="TextHighlight__parts">
         {rects.map((rect, index) => (
           <div

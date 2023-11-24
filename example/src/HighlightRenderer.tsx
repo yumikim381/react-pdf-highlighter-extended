@@ -1,10 +1,12 @@
-import React from "react";
+import React, { MouseEvent } from "react";
 import HighlightPopup from "./HighlightPopup";
 import {
   AreaHighlight,
+  Highlight,
   HighlightTip,
   MonitoredHighlightContainer,
   TextHighlight,
+  ViewportHighlight,
   useHighlightContext,
 } from "./react-pdf-highlighter";
 
@@ -14,9 +16,16 @@ interface HighlightRendererProps {
     position: Object,
     content: Object
   ) => void;
+  onContextMenu?: (
+    event: MouseEvent<HTMLDivElement>,
+    highlight: ViewportHighlight
+  ) => void;
 }
 
-const HighlightRenderer = ({ updateHighlight }: HighlightRendererProps) => {
+const HighlightRenderer = ({
+  updateHighlight,
+  onContextMenu,
+}: HighlightRendererProps) => {
   const {
     highlight,
     key,
@@ -33,7 +42,13 @@ const HighlightRenderer = ({ updateHighlight }: HighlightRendererProps) => {
   );
 
   const component = isTextHighlight ? (
-    <TextHighlight isScrolledTo={isScrolledTo} position={highlight.position} />
+    <TextHighlight
+      isScrolledTo={isScrolledTo}
+      position={highlight.position}
+      onContextMenu={(event) =>
+        onContextMenu && onContextMenu(event, highlight)
+      }
+    />
   ) : (
     <AreaHighlight
       isScrolledTo={isScrolledTo}
@@ -46,6 +61,9 @@ const HighlightRenderer = ({ updateHighlight }: HighlightRendererProps) => {
         );
       }}
       bounds={highlightBindings.textLayer}
+      onContextMenu={(event) =>
+        onContextMenu && onContextMenu(event, highlight)
+      }
     />
   );
 

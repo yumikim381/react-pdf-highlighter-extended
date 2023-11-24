@@ -1,5 +1,5 @@
 import { PDFDocumentProxy } from "pdfjs-dist";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, MouseEvent } from "react";
 import ExpandableTip from "./ExpandableTip";
 import HighlightRenderer from "./HighlightRenderer";
 import Sidebar from "./Sidebar";
@@ -11,9 +11,12 @@ import {
   PdfHighlighter,
   PdfLoader,
   ScaledPosition,
+  ViewportHighlight,
 } from "./react-pdf-highlighter";
 import "./style/App.css";
 import { testHighlights as _testHighlights } from "./test-highlights";
+import ContextMenu, { ContextMenuProps } from "./ContextMenu";
+import Toolbar from "./Toolbar";
 
 const TEST_HIGHLIGHTS = _testHighlights;
 const PRIMARY_PDF_URL = "https://arxiv.org/pdf/1708.08021.pdf";
@@ -39,6 +42,39 @@ const App = () => {
   const scrollToRef = useRef<((highlight: Highlight) => void) | undefined>(
     undefined
   );
+
+  const [contextMenu, setContextMenu] = useState<ContextMenuProps | null>(null);
+  const [pdfScaleValue, setPdfScaleValue] = useState<number | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    const handleClick = () => {
+      if (contextMenu) {
+        setContextMenu(null);
+      }
+    };
+
+    document.addEventListener("click", handleClick);
+
+    return () => {
+      document.removeEventListener("click", handleClick);
+    };
+  }, [contextMenu]);
+
+  const handleContextMenu = (
+    event: MouseEvent<HTMLDivElement>,
+    highlight: ViewportHighlight
+  ) => {
+    event.preventDefault();
+
+    setContextMenu({
+      xPos: event.clientX,
+      yPos: event.clientY,
+      deleteHighlight: () => deleteHighlight(highlight),
+      editComment: () => console.log("Edit comment!"),
+    });
+  };
 
   const resetHighlights = () => {
     setHighlights([]);
@@ -76,6 +112,11 @@ const App = () => {
     setHighlights([{ ...highlight, comment, id: getNextId() }, ...highlights]);
   };
 
+  const deleteHighlight = (highlight: ViewportHighlight) => {
+    console.log("Deleting highlight", highlight);
+    setHighlights(highlights.filter((h) => h.id != highlight.id));
+  };
+
   const updateHighlight = (
     id: string,
     position: Partial<ScaledPosition>,
@@ -97,10 +138,7 @@ const App = () => {
   };
 
   return (
-    <div
-      className="App"
-      style={{ display: "flex", height: "100vh", backgroundColor: "#333" }}
-    >
+    <div className="App" style={{ display: "flex", height: "100vh" }}>
       <Sidebar
         highlights={highlights}
         resetHighlights={resetHighlights}
@@ -111,8 +149,13 @@ const App = () => {
           height: "100vh",
           width: "75vw",
           position: "relative",
+          flexGrow: 1,
         }}
       >
+        <Toolbar
+          setPdfScaleValue={(value) => setPdfScaleValue(value)}
+          url={url}
+        />
         <PdfLoader url={url}>
           {(pdfDocument: PDFDocumentProxy) => (
             <PdfHighlighter
@@ -122,14 +165,22 @@ const App = () => {
               scrollRef={(scrollTo) => {
                 scrollToRef.current = scrollTo;
               }}
+              pdfScaleValue={pdfScaleValue}
               selectionTip={<ExpandableTip addHighlight={addHighlight} />}
               highlights={highlights}
+              style={{
+                height: "calc(100% - 45px)",
+              }}
             >
-              <HighlightRenderer updateHighlight={updateHighlight} />
+              <HighlightRenderer
+                updateHighlight={updateHighlight}
+                onContextMenu={handleContextMenu}
+              />
             </PdfHighlighter>
           )}
         </PdfLoader>
       </div>
+      {contextMenu && <ContextMenu {...contextMenu} />}
     </div>
   );
 };

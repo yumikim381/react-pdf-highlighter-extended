@@ -9,6 +9,8 @@ interface ExpandableTipProps {
 
 const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
   const [compact, setCompact] = useState(true);
+  const [input, setInput] = useState<string | null>(null);
+
   const {
     selectionPosition,
     selectionContent,
@@ -34,9 +36,11 @@ const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
           Add highlight
         </div>
       ) : (
-        <button
-          onClick={() => {
-            const comment = { text: "comment" };
+        <form
+          className="Tip__card"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const comment = { text: input ?? "" };
             addHighlight(
               { content: selectionContent, position: selectionPosition },
               comment
@@ -44,10 +48,21 @@ const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
 
             hideTipAndGhostHighlight();
           }}
-          style={{ padding: "20px" }}
         >
-          This is a button!
-        </button>
+          <div>
+            <textarea
+              placeholder="Your comment..."
+              autoFocus
+              onChange={(event) => {
+                console.log(event.target.value);
+                setInput(event.target.value);
+              }}
+            />
+          </div>
+          <div>
+            <input type="submit" value="Save" />
+          </div>
+        </form>
       )}
     </div>
   );

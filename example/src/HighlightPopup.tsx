@@ -1,6 +1,8 @@
 import React from "react";
 import type { Comment } from "./react-pdf-highlighter";
 
+import "./style/HighlightPopup.css";
+
 interface HighlightPopupProps {
   comment: Comment;
 }

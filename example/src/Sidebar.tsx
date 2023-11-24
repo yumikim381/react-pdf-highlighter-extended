@@ -1,5 +1,6 @@
 import React from "react";
 import type { Highlight } from "./react-pdf-highlighter";
+import "./style/Sidebar.css";
 
 interface SidebarProps {
   highlights: Array<Highlight>;
@@ -51,19 +52,23 @@ const Sidebar = ({
             >
               <div>
                 <strong>{highlight.comment.text}</strong>
-                {highlight.content.text ? (
+                {highlight.content.text && (
                   <blockquote style={{ marginTop: "0.5rem" }}>
                     {`${highlight.content.text.slice(0, 90).trim()}…`}
                   </blockquote>
-                ) : null}
-                {highlight.content.image ? (
+                )}
+                {highlight.content.image && (
                   <div
-                    className="highlight__image"
+                    className="highlight__image__container"
                     style={{ marginTop: "0.5rem" }}
                   >
-                    <img src={highlight.content.image} alt={"Screenshot"} />
+                    <img
+                      src={highlight.content.image}
+                      alt={"Screenshot"}
+                      className="highlight__image"
+                    />
                   </div>
-                ) : null}
+                )}
               </div>
               <div className="highlight__location">
                 Page {highlight.position.boundingRect.pageNumber}
@@ -72,12 +77,16 @@ const Sidebar = ({
           ))}
         </ul>
       )}
-      <div style={{ padding: "1rem" }}>
-        <button onClick={toggleDocument}>Toggle PDF document</button>
+      <div style={{ padding: "0.5rem" }}>
+        <button onClick={toggleDocument} className="sidebar__toggle">
+          Toggle PDF document
+        </button>
       </div>
       {highlights && highlights.length > 0 && (
-        <div style={{ padding: "1rem" }}>
-          <button onClick={resetHighlights}>Reset highlights</button>
+        <div style={{ padding: "0.5rem" }}>
+          <button onClick={resetHighlights} className="sidebar__reset">
+            Reset highlights
+          </button>
         </div>
       )}
     </div>

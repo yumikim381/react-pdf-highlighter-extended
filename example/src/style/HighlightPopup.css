@@ -1,0 +1,30 @@
+.Highlight__popup {
+    background-color: #2c3e50; /* Mantine-inspired background color */
+    border: 1px solid rgba(255, 255, 255, 0.15); /* Lighter border color */
+    color: #fff; /* White text color */
+    padding: 1rem; /* Increased padding for better spacing */
+    border-radius: 4px; /* Slightly increased border radius */
+    max-width: 300px;
+    max-height: 200px; /* Increased max-height for more content space */
+    overflow-y: auto; /* Use auto for scroll only when needed */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle box shadow */
+}
+
+/* Style the scrollbar */
+.Highlight__popup::-webkit-scrollbar {
+    width: 8px;
+}
+
+.Highlight__popup::-webkit-scrollbar-thumb {
+    background-color: #4b6270; /* Mantine-inspired thumb color */
+    border-radius: 5px;
+}
+
+.Highlight__popup::-webkit-scrollbar-thumb:hover {
+    background-color: #576c7a; /* Darker color on hover */
+}
+
+.Highlight__popup::-webkit-scrollbar-track {
+    background-color: #2c3e50; /* Mantine-inspired track color */
+    border-radius: 5px;
+}

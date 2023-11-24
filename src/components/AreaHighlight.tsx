@@ -1,9 +1,8 @@
-import React, { CSSProperties } from "react";
+import React, { CSSProperties, MouseEvent } from "react";
 
 import { getPageFromElement } from "../lib/pdfjs-dom";
 
 import "../style/AreaHighlight.css";
-import "../style/Highlight.css";
 
 import type { LTWHP, ViewportHighlight } from "../types";
 import { Rnd } from "react-rnd";
@@ -25,6 +24,9 @@ interface AreaHighlightProps {
    * moving the highlight off the viewer/page.
    */
   bounds?: string | Element;
+
+  onContextMenu?: (event: MouseEvent<HTMLDivElement>) => void;
+
   style?: CSSProperties;
 }
 
@@ -36,12 +38,16 @@ const AreaHighlight = ({
   onChange,
   isScrolledTo,
   bounds,
+  onContextMenu,
   style,
 }: AreaHighlightProps) => {
   const highlightClass = isScrolledTo ? "AreaHighlight--scrolledTo" : "";
 
   return (
-    <div className={`AreaHighlight ${highlightClass}`}>
+    <div
+      className={`AreaHighlight ${highlightClass}`}
+      onContextMenu={onContextMenu}
+    >
       <Rnd
         className="AreaHighlight__part"
         onDragStop={(_, data) => {

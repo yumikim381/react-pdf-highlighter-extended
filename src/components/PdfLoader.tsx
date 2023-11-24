@@ -95,17 +95,11 @@ const PdfLoader = ({
     };
   }, [url]);
 
-  return (
-    <div>
-      {error
-        ? errorMessage
-        : loadingProgress
-        ? beforeLoad(loadingProgress)
-        : pdfDocument
-        ? children(pdfDocument)
-        : null}
-    </div>
-  );
+  return error
+    ? errorMessage
+    : loadingProgress
+    ? beforeLoad(loadingProgress)
+    : pdfDocument && children(pdfDocument);
 };
 
 export default PdfLoader;

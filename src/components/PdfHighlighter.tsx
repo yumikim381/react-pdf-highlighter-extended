@@ -396,6 +396,7 @@ const PdfHighlighter = ({
       "Render highlight layers called!",
       viewerRef.current?.currentScaleValue
     );
+
     for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
       const highlightBindings = highlightBindingsRef.current[pageNumber];
 
@@ -426,12 +427,6 @@ const PdfHighlighter = ({
     }
   };
 
-  const tipViewerUtils = { currentTip, setTip, isEditInProgressRef };
-
-  scrollRef && scrollRef(scrollTo);
-  tipViewerUtilsRef && tipViewerUtilsRef(tipViewerUtils);
-  pdfViewerRef && viewerRef.current && pdfViewerRef(viewerRef.current);
-
   const renderHighlightLayer = (
     highlightBindings: HighlightBindings,
     pageNumber: number
@@ -455,6 +450,12 @@ const PdfHighlighter = ({
       </TipViewerContext.Provider>
     );
   };
+
+  const tipViewerUtils = { currentTip, setTip, isEditInProgressRef };
+
+  scrollRef && scrollRef(scrollTo);
+  tipViewerUtilsRef && tipViewerUtilsRef(tipViewerUtils);
+  pdfViewerRef && viewerRef.current && pdfViewerRef(viewerRef.current);
 
   return (
     <>

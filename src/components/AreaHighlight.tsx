@@ -1,4 +1,4 @@
-import React, { CSSProperties, MouseEvent } from "react";
+import React, { CSSProperties, MouseEvent, useEffect } from "react";
 
 import { getPageFromElement } from "../lib/pdfjs-dom";
 
@@ -47,6 +47,11 @@ const AreaHighlight = ({
 }: AreaHighlightProps) => {
   const highlightClass = isScrolledTo ? "AreaHighlight--scrolledTo" : "";
 
+  // Generate key based on position. This forces a remount (and a defaultpos update) whenever highlight position changes (e.g., when updated, scale changes, etc.)
+  // We don't use position as state because when updating Rnd this would happen and cause flickering
+  // User moves Rnd -> Rnd records new pos -> Rnd jumps back -> highlight updates -> Rnd re-renders at new pos
+  const key = `${highlight.position.boundingRect.width}${highlight.position.boundingRect.height}${highlight.position.boundingRect.left}${highlight.position.boundingRect.top}`;
+
   return (
     <div
       className={`AreaHighlight ${highlightClass}`}
@@ -82,6 +87,7 @@ const AreaHighlight = ({
           width: highlight.position.boundingRect.width,
           height: highlight.position.boundingRect.height,
         }}
+        key={key}
         bounds={bounds}
         // Prevevent any event clicks as clicking is already used for movement
         onClick={(event: Event) => {

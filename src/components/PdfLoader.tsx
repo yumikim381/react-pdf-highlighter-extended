@@ -2,10 +2,14 @@ import React, { ReactNode, useEffect, useState } from "react";
 
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist/legacy/build/pdf";
 import type { PDFDocumentProxy, OnProgressParameters } from "pdfjs-dist";
+import {
+  DocumentInitParameters,
+  TypedArray,
+} from "pdfjs-dist/types/src/display/api";
 
 interface PdfLoaderProps {
-  /** URL for the PDF document. */
-  url: string;
+  // TODO: DOC
+  document: string | URL | TypedArray | ArrayBuffer | DocumentInitParameters;
 
   /**
    * Callback function to render content before the PDF document is loaded.
@@ -21,10 +25,8 @@ interface PdfLoaderProps {
   children: (pdfDocument: PDFDocumentProxy) => ReactNode;
   onError?: (error: Error) => void;
 
-  /** These options will be applied to all PdfLoader componenets. See `GlobalWorkerOptionsType`. */
+  /** This will be applied to all PdfLoader instances */
   workerSrc?: string;
-  cMapUrl?: string;
-  cMapPacked?: boolean;
 }
 
 const DEFAULT_BEFORE_LOAD = (progress: OnProgressParameters) => (
@@ -48,14 +50,12 @@ const DEFAULT_WORKER_SRC =
  * A component for loading a PDF document and passing it to a child.
  */
 const PdfLoader = ({
-  url,
+  document,
   beforeLoad = DEFAULT_BEFORE_LOAD,
   errorMessage = DEFAULT_ERROR_MESSAGE,
   children,
   onError = DEFAULT_ON_ERROR,
   workerSrc = DEFAULT_WORKER_SRC,
-  cMapUrl,
-  cMapPacked,
 }: PdfLoaderProps) => {
   const [pdfDocument, setPdfDocument] = useState<PDFDocumentProxy | null>(null);
   const [error, setError] = useState<Error | null>(null);
@@ -66,11 +66,7 @@ const PdfLoader = ({
   useEffect(() => {
     GlobalWorkerOptions.workerSrc = workerSrc;
 
-    const pdfLoadingTask = getDocument({
-      url,
-      cMapUrl,
-      cMapPacked,
-    });
+    const pdfLoadingTask = getDocument(document);
 
     pdfLoadingTask.promise
       .then((pdfDocument: PDFDocumentProxy) => {
@@ -93,7 +89,7 @@ const PdfLoader = ({
         pdfDocument.destroy();
       }
     };
-  }, [url]);
+  }, [document]);
 
   return error
     ? errorMessage

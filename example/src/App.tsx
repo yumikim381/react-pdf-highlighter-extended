@@ -210,7 +210,7 @@ const App = () => {
           setPdfScaleValue={(value) => setPdfScaleValue(value)}
           url={url}
         />
-        <PdfLoader url={url}>
+        <PdfLoader document={url}>
           {(pdfDocument: PDFDocumentProxy) => (
             <PdfHighlighter
               pdfDocument={pdfDocument}

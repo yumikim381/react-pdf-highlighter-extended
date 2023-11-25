@@ -48,6 +48,12 @@ import TipRenderer from "./TipRenderer";
 const SCROLL_MARGIN = 10;
 const TIP_WAIT = 250; // Debounce wait time in milliseconds for a selection changing and a tip being displayed
 
+type TextSelection = {
+  range: Range | null;
+  selection: Selection | null;
+  text: string;
+};
+
 interface PdfHighlighterProps {
   highlights: Array<Highlight>;
 
@@ -138,8 +144,11 @@ const PdfHighlighter = ({
     {}
   ); // Reference to highlight bindings per page
   const ghostHighlightRef = useRef<GhostHighlight | null>(null); // Reference to in-progress highlight (after "Add Highlight is selected")
-  const isCollapsedRef = useRef(true); // Reference to whether the selection is collapsed (i.e., no text in it)
-  const rangeRef = useRef<Range | null>(null); // Reference to nodes in the selection
+  const textSelectionRef = useRef<TextSelection>({
+    selection: null,
+    range: null,
+    text: "",
+  });
   const scrolledToHighlightIdRef = useRef<string | null>(null); // Reference to the ID of the highlight autoscrolled to
   const isAreaSelectionInProgressRef = useRef(false);
   const isEditInProgressRef = useRef(false);
@@ -217,7 +226,12 @@ const PdfHighlighter = ({
   }, [selectionTip, highlights, onSelectionFinished]);
 
   const isTextSelectionEmpty = () => {
-    return isCollapsedRef.current || !rangeRef.current;
+    return (
+      !textSelectionRef.current ||
+      textSelectionRef.current.selection?.isCollapsed ||
+      !textSelectionRef.current.range ||
+      !textSelectionRef.current.text
+    );
   };
 
   const isSelectionInProgress = () => {
@@ -280,25 +294,23 @@ const PdfHighlighter = ({
     const container = containerNodeRef.current;
     const selection = getWindow(container).getSelection();
 
-    if (!selection) return;
+    if (!container || !selection || selection.isCollapsed) return;
 
-    const newRange = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-
-    if (selection.isCollapsed) {
-      isCollapsedRef.current = true;
-      return;
-    }
+    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
 
     if (
-      !newRange ||
-      !container ||
-      !container.contains(newRange.commonAncestorContainer) // Sanity check the selected text is in the container
+      !range ||
+      !container.contains(range.commonAncestorContainer) // Check the selected text is in the document, not the tip
     ) {
       return;
     }
 
-    isCollapsedRef.current = false;
-    rangeRef.current = newRange;
+    textSelectionRef.current = {
+      selection,
+      range,
+      text: selection.toString().split("\n").join(" "), // Make all line breaks spaces
+    };
+
     debouncedAfterSelection();
   };
 
@@ -328,16 +340,18 @@ const PdfHighlighter = ({
   };
 
   const afterSelection = () => {
-    if (!rangeRef.current || isCollapsedRef.current) {
+    const { selection, range, text } = textSelectionRef.current;
+
+    if (!range || selection?.isCollapsed) {
       return;
     }
 
-    const pages = getPagesFromRange(rangeRef.current);
+    const pages = getPagesFromRange(range);
     if (!pages || pages.length === 0) {
       return;
     }
 
-    const rects = getClientRects(rangeRef.current, pages);
+    const rects = getClientRects(range, pages);
     if (rects.length === 0) {
       return;
     }
@@ -348,7 +362,7 @@ const PdfHighlighter = ({
       rects,
     };
 
-    const content: Content = { text: rangeRef.current.toString() };
+    const content: Content = { text };
     const scaledPosition = viewportPositionToScaled(
       viewportPosition,
       viewerRef.current!

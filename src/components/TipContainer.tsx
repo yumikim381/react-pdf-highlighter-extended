@@ -44,6 +44,7 @@ const TipContainer = ({
     setWidth(offsetWidth);
   };
 
+  // TODO: useLayoutEffect instead!!
   const updatePositionRef = useCallback((node: HTMLDivElement | null) => {
     if (node) {
       nodeRef.current = node;

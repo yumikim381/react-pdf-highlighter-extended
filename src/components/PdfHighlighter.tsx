@@ -14,6 +14,7 @@ import React, {
   CSSProperties,
   PointerEventHandler,
   ReactElement,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -47,6 +48,8 @@ import TipRenderer from "./TipRenderer";
 
 const SCROLL_MARGIN = 10;
 const TIP_WAIT = 250; // Debounce wait time in milliseconds for a selection changing and a tip being displayed
+const DEFAULT_SCALE_VALUE = "auto";
+const DEFAULT_TEXT_SELECTION_COLOR = "rgba(153,193,218,255)";
 
 type TextSelection = {
   range: Range | null;
@@ -143,13 +146,13 @@ const PdfHighlighter = ({
   tipViewerUtilsRef,
   pdfViewerRef,
   pdfDocument,
-  pdfScaleValue = "auto",
+  pdfScaleValue = DEFAULT_SCALE_VALUE,
   onSelectionFinished,
   selectionTip,
   enableAreaSelection,
   mouseSelectionStyle,
   children,
-  textSelectionColor = "rgba(153,193,218,255)",
+  textSelectionColor = DEFAULT_TEXT_SELECTION_COLOR,
   style,
 }: PdfHighlighterProps) => {
   const containerNodeRef = useRef<HTMLDivElement | null>(null);
@@ -160,7 +163,7 @@ const PdfHighlighter = ({
   const highlightBindingsRef = useRef<{ [page: number]: HighlightBindings }>(
     {}
   ); // Reference to highlight bindings per page
-  const ghostHighlightRef = useRef<GhostHighlight | null>(null); // Reference to in-progress highlight (after "Add Highlight is selected")
+  const ghostHighlightRef = useRef<GhostHighlight | null>(null); // Reference to in-progress/temporary highlight
   const textSelectionRef = useRef<TextSelection>({
     selection: null,
     range: null,
@@ -169,8 +172,7 @@ const PdfHighlighter = ({
   const scrolledToHighlightIdRef = useRef<string | null>(null); // Reference to the ID of the highlight autoscrolled to
   const isAreaSelectionInProgressRef = useRef(false);
   const isEditInProgressRef = useRef(false);
-
-  const [currentTip, setTip] = useState<Tip | null>(null);
+  const [tip, setTip] = useState<Tip | null>(null);
 
   // These should only change when a document loads/unloads
   const eventBusRef = useRef<EventBus>(new EventBus());
@@ -182,7 +184,6 @@ const PdfHighlighter = ({
   );
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const viewerRef = useRef<PDFViewer | null>(null);
-  const [isViewerReady, setViewerReady] = useState(false);
 
   const findOrCreateHighlightLayer = (textLayer: HTMLElement) => {
     return findOrCreateContainerLayer(
@@ -190,6 +191,31 @@ const PdfHighlighter = ({
       "PdfHighlighter__highlight-layer"
     );
   };
+
+  // Intiialise listeners
+  // Going before PDF Viewer init prevents unncessary re-renders at loadtime
+  useEffect(() => {
+    resizeObserverRef.current = new ResizeObserver(handleScaleValue);
+    const doc = containerNodeRef.current?.ownerDocument;
+    if (!doc || !containerNodeRef.current) return;
+
+    resizeObserverRef.current.observe(containerNodeRef.current);
+
+    eventBusRef.current.on("textlayerrendered", renderHighlightLayers);
+    eventBusRef.current.on("pagesinit", handleScaleValue);
+    doc.addEventListener("selectionchange", handleSelectionChange);
+    doc.addEventListener("keydown", handleKeyDown);
+
+    renderHighlightLayers();
+
+    return () => {
+      eventBusRef.current.off("pagesinit", handleScaleValue);
+      eventBusRef.current.off("textlayerrendered", renderHighlightLayers);
+      doc.removeEventListener("selectionchange", handleSelectionChange);
+      doc.removeEventListener("keydown", handleKeyDown);
+      resizeObserverRef.current?.disconnect();
+    };
+  }, [selectionTip, highlights, onSelectionFinished]);
 
   // Initialise PDF Viewer
   useEffect(() => {
@@ -210,37 +236,7 @@ const PdfHighlighter = ({
     linkServiceRef.current.setDocument(pdfDocument);
     linkServiceRef.current.setViewer(viewerRef.current);
     viewerRef.current.setDocument(pdfDocument);
-
-    setViewerReady(true);
-
-    return () => {
-      setViewerReady(false);
-    };
   }, []);
-
-  // Intiialise listeners
-  useEffect(() => {
-    resizeObserverRef.current = new ResizeObserver(handleScaleValue);
-    const doc = containerNodeRef.current?.ownerDocument;
-    if (!doc || !containerNodeRef.current) return;
-
-    resizeObserverRef.current.observe(containerNodeRef.current);
-
-    eventBusRef.current.on("textlayerrendered", renderHighlightLayers);
-    eventBusRef.current.on("pagesinit", handleDocumentReady);
-    doc.addEventListener("selectionchange", handleSelectionChange);
-    doc.addEventListener("keydown", handleKeyDown);
-
-    renderHighlightLayers();
-
-    return () => {
-      eventBusRef.current.off("pagesinit", handleDocumentReady);
-      eventBusRef.current.off("textlayerrendered", renderHighlightLayers);
-      doc.removeEventListener("selectionchange", handleSelectionChange);
-      doc.removeEventListener("keydown", handleKeyDown);
-      resizeObserverRef.current?.disconnect();
-    };
-  }, [selectionTip, highlights, onSelectionFinished]);
 
   const isTextSelectionEmpty = () => {
     return (
@@ -277,8 +273,6 @@ const PdfHighlighter = ({
       pageNumber - 1
     ).viewport;
 
-    console.log(pageViewport);
-
     viewerRef.current!.scrollPageIntoView({
       pageNumber,
       destArray: [
@@ -305,8 +299,10 @@ const PdfHighlighter = ({
     }, 100);
   };
 
-  const handleDocumentReady = () => {
-    handleScaleValue();
+  const handleScroll = () => {
+    onScrollAway!();
+    scrolledToHighlightIdRef.current = null;
+    renderHighlightLayers();
   };
 
   const handleSelectionChange = () => {
@@ -330,35 +326,10 @@ const PdfHighlighter = ({
       text: selection.toString().split("\n").join(" "), // Make all line breaks spaces
     };
 
-    debouncedAfterSelection();
+    debouncedHandleAfterSelection();
   };
 
-  const handleScroll = () => {
-    onScrollAway!();
-    scrolledToHighlightIdRef.current = null;
-    renderHighlightLayers();
-  };
-
-  const handleMouseDown: PointerEventHandler = (event) => {
-    if (
-      !isHTMLElement(event.target) ||
-      asElement(event.target).closest(".PdfHighlighter__tip-container") // Ignore selections on tip container
-    ) {
-      return;
-    }
-
-    setTip(null);
-    removeGhostHighlight();
-  };
-
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.code === "Escape") {
-      // hideTipAndGhostHighlight();
-      renderHighlightLayers();
-    }
-  };
-
-  const afterSelection = () => {
+  const handleAfterSelection = () => {
     const { selection, range, text } = textSelectionRef.current;
 
     if (!range || selection?.isCollapsed) {
@@ -416,7 +387,29 @@ const PdfHighlighter = ({
     }
   };
 
-  const debouncedAfterSelection = debounce(afterSelection, TIP_WAIT);
+  const debouncedHandleAfterSelection = debounce(
+    handleAfterSelection,
+    TIP_WAIT
+  );
+
+  const handleMouseDown: PointerEventHandler = (event) => {
+    if (
+      !isHTMLElement(event.target) ||
+      asElement(event.target).closest(".PdfHighlighter__tip-container") // Ignore selections on tip container
+    ) {
+      return;
+    }
+
+    setTip(null);
+    removeGhostHighlight();
+  };
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.code === "Escape") {
+      // hideTipAndGhostHighlight();
+      renderHighlightLayers();
+    }
+  };
 
   const handleScaleValue = () => {
     if (viewerRef.current) {
@@ -425,10 +418,7 @@ const PdfHighlighter = ({
   };
 
   const renderHighlightLayers = () => {
-    console.log(
-      "Render highlight layers called!",
-      viewerRef.current?.currentScaleValue
-    );
+    if (!viewerRef.current) return;
 
     for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
       const highlightBindings = highlightBindingsRef.current[pageNumber];
@@ -484,11 +474,24 @@ const PdfHighlighter = ({
     );
   };
 
-  const tipViewerUtils = { currentTip, setTip, isEditInProgressRef };
+  const tipViewerUtils: TipViewerUtils = {
+    currentTip: tip,
+    setTip: (tip) => setTip(tip),
+    toggleEditInProgress: (flag) => {
+      if (flag !== undefined) {
+        isEditInProgressRef.current = flag;
+      } else {
+        isEditInProgressRef.current = !isEditInProgressRef.current;
+      }
+    },
+    isEditInProgress: () => isEditInProgressRef.current,
+  };
 
   scrollRef && scrollRef(scrollTo);
   tipViewerUtilsRef && tipViewerUtilsRef(tipViewerUtils);
   pdfViewerRef && viewerRef.current && pdfViewerRef(viewerRef.current);
+
+  console.log("pdf highlighter rendered!");
 
   return (
     <>
@@ -507,10 +510,10 @@ const PdfHighlighter = ({
         `}
         </style>
         <TipViewerContext.Provider value={tipViewerUtils}>
-          {isViewerReady && <TipRenderer viewer={viewerRef.current!} />}
-          {isViewerReady && enableAreaSelection && (
+          {viewerRef.current && <TipRenderer viewer={viewerRef.current} />}
+          {viewerRef.current && enableAreaSelection && (
             <MouseSelectionRenderer
-              viewer={viewerRef.current!}
+              viewer={viewerRef.current}
               onChange={(isVisible) =>
                 (isAreaSelectionInProgressRef.current = isVisible)
               }
@@ -536,7 +539,7 @@ const PdfHighlighter = ({
                   },
                 };
 
-                if (onSelectionFinished) onSelectionFinished(selectionUtils);
+                onSelectionFinished && onSelectionFinished(selectionUtils);
 
                 if (selectionTip) {
                   const newTip: Tip = {

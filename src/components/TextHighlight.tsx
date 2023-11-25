@@ -9,13 +9,9 @@ interface TextHighlightProps {
   onClick?: () => void;
   onMouseOver?: () => void;
   onMouseOut?: () => void;
-
   /** Indicates whether the component is autoscrolled into view. */
   isScrolledTo: boolean;
-
-  // TODO: DOC
   onContextMenu?: (event: MouseEvent<HTMLDivElement>) => void;
-
   style?: CSSProperties;
 }
 

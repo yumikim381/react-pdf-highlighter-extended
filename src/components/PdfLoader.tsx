@@ -8,24 +8,28 @@ import {
 } from "pdfjs-dist/types/src/display/api";
 
 interface PdfLoaderProps {
-  // TODO: DOC
+  /**
+   * The document to be loaded by PDF.js.
+   * If you need to pass HTTP headers, auth parameters,
+   * or other pdf settings, do it through here.
+   */
   document: string | URL | TypedArray | ArrayBuffer | DocumentInitParameters;
-
   /**
    * Callback function to render content before the PDF document is loaded.
    * @param progress - PDF.js progress status.
    */
   beforeLoad?: (progress: OnProgressParameters) => ReactNode;
   errorMessage?: ReactNode;
-
   /**
    * Child components to use/render the loaded PDF document.
    * @param pdfDocument - The loaded PDF document.
    */
   children: (pdfDocument: PDFDocumentProxy) => ReactNode;
   onError?: (error: Error) => void;
-
-  /** This will be applied to all PdfLoader instances */
+  /**
+   * NOTE: This will be applied to all PdfLoader instances.
+   * If you want to only apply a source to this instance, use the document parameters.
+   */
   workerSrc?: string;
 }
 

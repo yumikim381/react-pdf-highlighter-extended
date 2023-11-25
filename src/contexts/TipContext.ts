@@ -5,8 +5,9 @@ import { Tip } from "../types";
 
 export type TipViewerUtils = {
   currentTip: Tip | null;
-  setTip: React.Dispatch<React.SetStateAction<Tip | null>>;
-  isEditInProgressRef: React.MutableRefObject<boolean>;
+  setTip: (tip: Tip | null) => void;
+  toggleEditInProgress: (flag?: boolean) => void;
+  isEditInProgress: () => boolean;
 };
 
 export type TipContainerUtils = {

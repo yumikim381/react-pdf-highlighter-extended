@@ -1,8 +1,7 @@
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
-import React, { ReactElement } from "react";
-import { ViewportPosition } from "src/types";
-import TipContainer from "./TipContainer";
+import React from "react";
 import { useTipViewerUtils } from "../contexts/TipContext";
+import TipContainer from "./TipContainer";
 
 interface TipRendererProps {
   viewer: PDFViewer;

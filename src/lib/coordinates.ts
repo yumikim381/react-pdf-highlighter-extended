@@ -107,7 +107,6 @@ export const scaledPositionToViewport = (
 ): ViewportPosition => {
   const pageNumber = boundingRect.pageNumber;
   const viewport = viewer.getPageView(pageNumber - 1).viewport; // Account for 1 indexing of PDF documents
-  console.log(viewport);
   const scale = (obj: Scaled) =>
     scaledToViewport(obj, viewport, usePdfCoordinates);
 

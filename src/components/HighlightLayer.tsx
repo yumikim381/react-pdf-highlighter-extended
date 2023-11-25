@@ -16,23 +16,18 @@ const EMPTY_ID = "empty-id";
 
 interface HighlightLayerProps {
   highlightsByPage: { [pageNumber: number]: Array<Highlight | GhostHighlight> };
-
   /** The page number of the PDF document to highlight (1 indexed). */
   pageNumber: number;
-
   /** ID of the highlight the parent PDF Highlighter is trying to autoscroll to. */
-  scrolledToHighlightId: string | null;
+  scrolledToHighlightId?: string | null;
   viewer: PDFViewer;
-
-  // TODO: DOC
+  /** Whether there is currently a mouse selection or text selection in the same pdf viewer  */
   isSelectionInProgress: () => boolean;
-
   /**
    * Group of DOM refs for all the highlights on this layer.
    * See the type comment for more explanation.
    */
   highlightBindings: HighlightBindings;
-
   /**
    * This should be a HighlightRenderer of some sorts. It will be given
    * appropriate context for a single highlight which it can then use to
@@ -57,6 +52,7 @@ const HighlightLayer = ({
   children,
 }: HighlightLayerProps) => {
   const currentHighlights = highlightsByPage[pageNumber] || [];
+
   return (
     <div>
       {currentHighlights.map((highlight, index) => {

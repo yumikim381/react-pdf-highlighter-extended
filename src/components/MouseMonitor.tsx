@@ -16,14 +16,14 @@ const MouseMonitor = ({
   paddingY,
   children,
 }: MouseMonitorProps) => {
-  const container = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const onMouseMove = (event: MouseEvent) => {
-    if (!container.current) return;
+    if (!containerRef.current) return;
 
     const { clientX, clientY } = event;
     const { left, top, width, height } =
-      container.current.getBoundingClientRect();
+      containerRef.current.getBoundingClientRect();
 
     const inBoundsX =
       clientX > left - paddingX && clientX < left + width + paddingX;
@@ -36,7 +36,7 @@ const MouseMonitor = ({
   };
 
   useEffect(() => {
-    // TODO: Maybe optimise/throttle?
+    // TODO: Maybe optimise or throttle?
     document.addEventListener("mousemove", onMouseMove);
 
     return () => {
@@ -44,7 +44,7 @@ const MouseMonitor = ({
     };
   });
 
-  return <div ref={container}>{children}</div>;
+  return <div ref={containerRef}>{children}</div>;
 };
 
 export default MouseMonitor;

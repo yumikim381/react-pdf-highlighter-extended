@@ -8,10 +8,8 @@ import { LTWH, LTWHP, ScaledPosition, ViewportPosition } from "src/types";
 
 interface MouseSelectionRendererProps {
   viewer: PDFViewer;
-
   /** Callback passed to MouseSelection. See doc there. */
   onChange: (isVisible: boolean) => void;
-
   /**
    * Callback after a valid mouse selection has been made inside of a PdfHighlighter.
    *
@@ -20,13 +18,12 @@ interface MouseSelectionRendererProps {
    * @param image - PNG data url of a screenshot of the mouse selection.
    * @param resetSelection - Callback to reset current selection. See MouseSelection.
    */
-  afterSelection: (
+  onAfterSelection: (
     viewportPosition: ViewportPosition,
     scaledPosition: ScaledPosition,
     image: string,
     resetSelection: () => void
   ) => void;
-
   /**
    * Function to determine whether MouseSelection should start based on the initial click event.
    * Checks for whether the click occurred inside the PdfHighlighter and on a valid element are already made.
@@ -46,7 +43,7 @@ interface MouseSelectionRendererProps {
 const MouseSelectionRenderer = ({
   viewer,
   onChange,
-  afterSelection,
+  onAfterSelection,
   enableAreaSelection,
   style,
 }: MouseSelectionRendererProps) => {
@@ -84,7 +81,7 @@ const MouseSelectionRenderer = ({
       viewer
     );
 
-    afterSelection(viewportPosition, scaledPosition, image, resetSelection);
+    onAfterSelection(viewportPosition, scaledPosition, image, resetSelection);
   };
 
   return (

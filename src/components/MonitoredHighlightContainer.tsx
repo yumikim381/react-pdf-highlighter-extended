@@ -9,19 +9,16 @@ interface MonitoredHighlightContainerProps {
    * @param monitoredPopupContent - The content to display in a popup.
    */
   onMouseOver: (monitoredPopupContent: ReactElement) => void;
-
   /**
    * The content to display in a popup. NOTE: This will not render the popupContent,
    * but it will monitor mouse activity over it
    */
   popupContent: ReactElement;
-
   /**
    * A callback function to execute when the mouse completely moves out from both the popupContent
    * and highlight (children).
    */
   onMouseOut: () => void;
-
   /**
    * Container children. Ideally, should be highlight components of some sort.
    */
@@ -39,13 +36,13 @@ const MonitoredHighlightContainer = ({
   onMouseOut,
   children,
 }: MonitoredHighlightContainerProps) => {
-  const mouseIn = useRef(false); // Whether the mouse is over the child (highlight)
+  const mouseInRef = useRef(false); // Whether the mouse is over the child (highlight)
 
   // Create a mouse monitor for the popup content
   const monitorContent = (
     <MouseMonitor
       onMoveAway={() => {
-        if (mouseIn.current) {
+        if (mouseInRef.current) {
           return;
         }
 
@@ -61,11 +58,11 @@ const MonitoredHighlightContainer = ({
   return (
     <div
       onMouseOver={() => {
-        mouseIn.current = true;
+        mouseInRef.current = true;
         onMouseOver(monitorContent);
       }}
       onMouseOut={() => {
-        mouseIn.current = false;
+        mouseInRef.current = false;
       }}
     >
       {children}

@@ -1,35 +1,32 @@
-import React, { CSSProperties, MouseEvent, useEffect } from "react";
+import React, { CSSProperties, MouseEvent } from "react";
 
 import { getPageFromElement } from "../lib/pdfjs-dom";
 
 import "../style/AreaHighlight.css";
 
-import type { LTWHP, ViewportHighlight } from "../types";
 import { Rnd } from "react-rnd";
+import type { LTWHP, ViewportHighlight } from "../types";
 
 interface AreaHighlightProps {
   highlight: ViewportHighlight;
-
   /**
-   * A callback function for when the highlight area is either moved or resized.
+   * A callback function for when the highlight area is either finished
+   * being moved or resized.
    * @param rect - The updated highlight area.
    */
-  onChange: (rect: LTWHP) => void;
-
+  onChange?: (rect: LTWHP) => void;
   /** Whether the component is autoscrolled into view. */
-  isScrolledTo: boolean;
-
+  isScrolledTo?: boolean;
   /**
    * react-rnd bounds on the highlight area. This is useful for preventing the user
    * moving the highlight off the viewer/page.
    */
   bounds?: string | Element;
-
   onContextMenu?: (event: MouseEvent<HTMLDivElement>) => void;
-
-  // TODO: DOC!
+  /**
+   * Event called whenever the user tries to move or resize the AreaHighlight.
+   */
   onEditStart?: () => void;
-
   style?: CSSProperties;
 }
 
@@ -47,8 +44,9 @@ const AreaHighlight = ({
 }: AreaHighlightProps) => {
   const highlightClass = isScrolledTo ? "AreaHighlight--scrolledTo" : "";
 
-  // Generate key based on position. This forces a remount (and a defaultpos update) whenever highlight position changes (e.g., when updated, scale changes, etc.)
-  // We don't use position as state because when updating Rnd this would happen and cause flickering
+  // Generate key based on position. This forces a remount (and a defaultpos update)
+  // whenever highlight position changes (e.g., when updated, scale changes, etc.)
+  // We don't use position as state because when updating Rnd this would happen and cause flickering:
   // User moves Rnd -> Rnd records new pos -> Rnd jumps back -> highlight updates -> Rnd re-renders at new pos
   const key = `${highlight.position.boundingRect.width}${highlight.position.boundingRect.height}${highlight.position.boundingRect.left}${highlight.position.boundingRect.top}`;
 
@@ -66,7 +64,7 @@ const AreaHighlight = ({
             left: data.x,
           };
 
-          onChange(boundingRect);
+          onChange && onChange(boundingRect);
         }}
         onResizeStop={(_mouseEvent, _direction, ref, _delta, position) => {
           const boundingRect: LTWHP = {
@@ -77,7 +75,7 @@ const AreaHighlight = ({
             pageNumber: getPageFromElement(ref)?.number || -1,
           };
 
-          onChange(boundingRect);
+          onChange && onChange(boundingRect);
         }}
         onDragStart={onEditStart}
         onResizeStart={onEditStart}

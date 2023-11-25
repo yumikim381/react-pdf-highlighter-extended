@@ -5,10 +5,10 @@ import "../style/MouseSelection.css";
 
 import type { LTWH } from "../types.js";
 
-interface Coords {
+type Coords = {
   x: number;
   y: number;
-}
+};
 
 const getBoundingRect = (start: Coords, end: Coords): LTWH => {
   return {
@@ -20,6 +20,8 @@ const getBoundingRect = (start: Coords, end: Coords): LTWH => {
   };
 };
 
+// It's impossible to screenshot or open a context menu on a rect with 0 area
+// So we need to prevent their render.
 const shouldRender = (boundingRect: LTWH) => {
   return boundingRect.width >= 1 && boundingRect.height >= 1;
 };
@@ -40,7 +42,6 @@ interface MouseSelectionProps {
     resetSelection: () => void
   ) => void;
   onDragStart: () => void;
-
   /**
    * Callback whenever a mouse selection ends. This will be called
    * whenever a selection resets and thus even when the selection is
@@ -49,7 +50,6 @@ interface MouseSelectionProps {
    */
   onDragEnd: () => void;
   shouldStart: (event: MouseEvent) => boolean;
-
   /**
    * Callback whenever the mouse selection area changes.
    *
@@ -156,9 +156,7 @@ const MouseSelection = ({
     container.addEventListener("mousedown", handleMouseDown);
 
     const { ownerDocument: doc } = container;
-    if (doc.body) {
-      doc.body.addEventListener("mouseup", handleMouseUp);
-    }
+    if (doc.body) doc.body.addEventListener("mouseup", handleMouseUp);
 
     return () => {
       container.removeEventListener("mousemove", handleMouseMove);

@@ -1,8 +1,10 @@
-// "viewport" rectangle is { top, left, width, height }
-
-// "scaled" means that data structure stores (0, 1) coordinates.
-// for clarity reasons I decided not to store actual (0, 1) coordinates, but
-// provide width and height, so user can compute ratio himself if needed
+/**
+ * "viewport" rectangle is { top, left, width, height }
+ * "scaled" means that data structure stores (0, 1) coordinates.
+ *  for clarity reasons I decided not to store actual (0, 1) coordinates, but
+ *  provide width and height, so user can compute ratio himself if needed
+ * - Artem Tyurin <artem.tyurin@gmail.com>
+ */
 
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 import type {
@@ -105,6 +107,7 @@ export const scaledPositionToViewport = (
 ): ViewportPosition => {
   const pageNumber = boundingRect.pageNumber;
   const viewport = viewer.getPageView(pageNumber - 1).viewport; // Account for 1 indexing of PDF documents
+  console.log(viewport);
   const scale = (obj: Scaled) =>
     scaledToViewport(obj, viewport, usePdfCoordinates);
 

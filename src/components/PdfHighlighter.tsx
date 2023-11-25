@@ -184,7 +184,7 @@ const PdfHighlighter = ({
       new PDFViewer({
         container: containerNodeRef.current!,
         eventBus: eventBusRef.current,
-        textLayerMode: 2, // EnablePermissions (i.e., don't allow selecting if PDF prevents it)
+        textLayerMode: 2, // Needed to prevent flickering in Chrome. Known issue with PDF.js
         removePageBorders: true,
         linkService: linkServiceRef.current,
         l10n: NullL10n, // No localisation

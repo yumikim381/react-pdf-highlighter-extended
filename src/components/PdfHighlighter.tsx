@@ -56,60 +56,76 @@ type TextSelection = {
 
 interface PdfHighlighterProps {
   highlights: Array<Highlight>;
-
   /**
    * Event is called only once whenever the user changes scroll after
    * the autoscroll function, scrollTo, has been called.
    */
   onScrollAway?: () => void;
-
   /**
-   * Provides a reference function, scrollTo,
+   * Provides a reference to scrollTo,
    * to the parent which it can then use to make the PDF Viewer auto scroll
    * to a given highlight. The highlight context will also be notified of this
    * through the isScrolledTo property to allow for styling.
    *
-   * Runs on every document load and whenever props change.
+   * Runs on every component render.
    *
    * @param scrollTo - Callback the parent component can use to make the PDF Viewer auto scroll to a highlight
    */
   scrollRef?: (scrollTo: (highlight: Highlight) => void) => void;
+  /**
+   * Provides a reference to a TipViewerUtils to the parent. The parent can then
+   * use this to see whatever tip is being displayed in the PdfHighlighter
+   * and to set a custom tip at any point. This custom tip will be provided
+   * TipContext and so can access useTipViewerUtils and useTipContainerUtils hooks.
+   *
+   * Runs on every component render.
+   *
+   * @param tipViewerUtils - Tip Viewer Utilities object.
+   */
   tipViewerUtilsRef?: (tipViewerUtils: TipViewerUtils) => void;
+  /**
+   * Provides a references to the current PDF.js viewer used by the PdfHighlighter.
+   * This ideally shouldn't be used too much, but it allows the user to access
+   * any extra PDF.js functionality or to make viewport calculations if they require.
+   *
+   * Runs on every component render.
+   *
+   * @param pdfViewer - The PDF.js viewer instance employed by the PdfHighligter.
+   */
   pdfViewerRef?: (pdfViewer: PDFViewer) => void;
-
   /** PDF document to view. Designed to be provided by a PdfLoader */
   pdfDocument: PDFDocumentProxy;
   pdfScaleValue?: PdfScaleValue;
-
   /**
    * Event listener for whenever a user finishes making an area selection or has selected text.
    *
    * @param event - Event data and utilities to convert selection into a ghost highlight.
    */
   onSelectionFinished?: (event: SelectionUtils) => void;
-
   /**
    * Optional element that can be displayed as a tip whenever a user makes a selection.
-   * This element will be provided an appropriate SelectionTipContext. See docs there
-   * for more info.
+   * This element will be provided an appropriate SelectionContext and can use
+   * the useSelectionUtils hook.
    */
   selectionTip?: ReactElement;
-
   /**
    * The optional conditional for starting an area selection by mouse.
    * If not provided Area Selection will be disabled.
    */
   enableAreaSelection?: (event: MouseEvent) => boolean;
   mouseSelectionStyle?: CSSProperties;
-
   /**
    * This should be a HighlightRenderer of some sorts. It will be given
    * appropriate context for a single highlight which it can then use to
    * render a TextHighlight, AreaHighlight, etc. in the correct place.
    */
   children: ReactElement;
-
-  // TODO: DOCUMENT
+  textSelectionColor?: string;
+  /**
+   * Style properties for the PdfHighlighter (scrollbar, background, etc.),
+   * NOT the PDF.js viewer it encloses. If you want to edit the latter, use the other style props
+   * like textSelectionColor or overwrite pdf_viewer.css
+   */
   style?: CSSProperties;
 }
 
@@ -133,6 +149,7 @@ const PdfHighlighter = ({
   enableAreaSelection,
   mouseSelectionStyle,
   children,
+  textSelectionColor = "rgba(153,193,218,255)",
   style,
 }: PdfHighlighterProps) => {
   const containerNodeRef = useRef<HTMLDivElement | null>(null);
@@ -259,6 +276,8 @@ const PdfHighlighter = ({
     const pageViewport = viewerRef.current!.getPageView(
       pageNumber - 1
     ).viewport;
+
+    console.log(pageViewport);
 
     viewerRef.current!.scrollPageIntoView({
       pageNumber,
@@ -480,6 +499,13 @@ const PdfHighlighter = ({
         style={style}
       >
         <div className="pdfViewer" />
+        <style>
+          {`
+          .textLayer ::selection {
+            background: ${textSelectionColor};
+          }
+        `}
+        </style>
         <TipViewerContext.Provider value={tipViewerUtils}>
           {isViewerReady && <TipRenderer viewer={viewerRef.current!} />}
           {isViewerReady && enableAreaSelection && (
@@ -490,7 +516,7 @@ const PdfHighlighter = ({
               }
               enableAreaSelection={enableAreaSelection}
               style={mouseSelectionStyle}
-              afterSelection={(
+              onAfterSelection={(
                 viewportPosition,
                 scaledPosition,
                 image,

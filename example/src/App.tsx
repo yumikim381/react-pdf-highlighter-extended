@@ -202,6 +202,7 @@ const App = () => {
         style={{
           height: "100vh",
           width: "75vw",
+          overflow: "hidden",
           position: "relative",
           flexGrow: 1,
         }}
@@ -229,7 +230,7 @@ const App = () => {
               selectionTip={<ExpandableTip addHighlight={addHighlight} />}
               highlights={highlights}
               style={{
-                height: "calc(100% - 46px)",
+                height: "calc(100% - 45px)",
               }}
             >
               <HighlightRenderer

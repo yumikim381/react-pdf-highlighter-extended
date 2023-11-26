@@ -66,7 +66,7 @@ const PdfLoader = ({
   const [loadingProgress, setLoadingProgress] =
     useState<OnProgressParameters | null>(null);
 
-  // Intitialise document with every url change
+  // Intitialise document
   useEffect(() => {
     GlobalWorkerOptions.workerSrc = workerSrc;
 

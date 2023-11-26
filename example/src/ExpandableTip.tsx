@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 import {
   Comment,
   GhostHighlight,
@@ -26,9 +31,9 @@ const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
   const { setTip } = useTipViewerUtils();
   const { updatePosition } = useTipContainerUtils();
 
-  // callback ref allows us to update the position of the tip
-  // before it renders, preventing any flickering.
-  const updatePositionRef = useCallback(updatePosition, []);
+  useLayoutEffect(() => {
+    updatePosition();
+  }, [compact]);
 
   return (
     <div className="Tip">
@@ -39,14 +44,12 @@ const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
             setCompact(false);
             makeGhostHighlight();
           }}
-          ref={updatePositionRef}
         >
           Add highlight
         </button>
       ) : (
         <CommentForm
           placeHolder="Your comment..."
-          callbackRef={updatePositionRef}
           onSubmit={(input) => {
             const comment = { text: input };
             addHighlight(

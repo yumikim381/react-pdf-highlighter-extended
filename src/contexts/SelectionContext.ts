@@ -8,13 +8,11 @@ import { Content, ScaledPosition } from "src/types";
 export type SelectionUtils = {
   selectionPosition: ScaledPosition;
   selectionContent: Content;
-
   /**
    * Cancel any ghost highlight.
    * The selected area will stay selected until the user clicks away.
    */
   removeGhostHighlight: () => void;
-
   /**
    * Convert the selected area into a temporary "locked" highlight.
    * This is useful if the user needs to fill a form after selecting an area

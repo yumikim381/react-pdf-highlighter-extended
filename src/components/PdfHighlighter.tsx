@@ -14,7 +14,6 @@ import React, {
   CSSProperties,
   PointerEventHandler,
   ReactElement,
-  useCallback,
   useEffect,
   useRef,
   useState,
@@ -34,12 +33,12 @@ import {
   isHTMLElement,
 } from "../lib/pdfjs-dom";
 import {
-  Tip,
   Content,
   GhostHighlight,
   Highlight,
   HighlightBindings,
   PdfScaleValue,
+  Tip,
   ViewportPosition,
 } from "../types";
 import HighlightLayer from "./HighlightLayer";
@@ -192,7 +191,7 @@ const PdfHighlighter = ({
     );
   };
 
-  // Intiialise listeners
+  // Init listeners
   // Going before PDF Viewer init prevents unncessary re-renders at loadtime
   useEffect(() => {
     resizeObserverRef.current = new ResizeObserver(handleScaleValue);

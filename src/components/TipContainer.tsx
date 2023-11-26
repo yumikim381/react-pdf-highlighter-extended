@@ -1,4 +1,10 @@
-import React, { ReactNode, useCallback, useRef, useState } from "react";
+import React, {
+  ReactNode,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { TipContainerContext } from "../contexts/TipContext";
 import type { LTWHP } from "../types";
@@ -8,15 +14,25 @@ const clamp = (value: number, left: number, right: number) =>
 
 const VERTICAL_PADDING = 5;
 
-interface TipPosition {
+type TipPosition = {
+  /** Distance from the top of the viewport to the top of a highlight */
   highlightTop: number;
+  /** Distance from the top of the viewport to the bottom of a highlight */
   highlightBottom: number;
+  /**
+   * Distance from the left edge of the container to the
+   * middle of the tip (i.e., middle of a highlight)
+   */
   left: number;
-}
+};
 
 interface TipContainerProps {
   children: ReactNode;
   position: TipPosition;
+  /**
+   * How much the container's content has been scrolled vertically. Pass the scrollTop of
+   * the PDF.js viewer's container.
+   */
   scrollTop: number;
   pageBoundingRect: LTWHP;
 }
@@ -44,12 +60,8 @@ const TipContainer = ({
     setWidth(offsetWidth);
   };
 
-  // TODO: useLayoutEffect instead!!
-  const updatePositionRef = useCallback((node: HTMLDivElement | null) => {
-    if (node) {
-      nodeRef.current = node;
-      updatePosition();
-    }
+  useLayoutEffect(() => {
+    updatePosition();
   }, []);
 
   const shouldMove =
@@ -76,7 +88,7 @@ const TipContainer = ({
           height: "max-content",
           width: "max-content",
         }}
-        ref={updatePositionRef}
+        ref={nodeRef}
       >
         {children}
       </div>

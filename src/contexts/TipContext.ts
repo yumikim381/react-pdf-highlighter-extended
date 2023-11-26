@@ -1,16 +1,32 @@
 import { createContext, useContext } from "react";
 import { Tip } from "../types";
 
-// TODO: DOC!!!
-
+/**
+ * A set of utilities for displaying a tip inside of a PdfHighlighter component.
+ */
 export type TipViewerUtils = {
   currentTip: Tip | null;
   setTip: (tip: Tip | null) => void;
+  /**
+   * If enabled, automatic tips/popups inside of a PdfHighlighter will be disabled.
+   * Additional niceties will also be provided to prevent new highlights being made.
+   */
   toggleEditInProgress: (flag?: boolean) => void;
+  /**
+   * Whether an AreaHighlight is being moved/resized, or a manual highlight edit has
+   * been toggled.
+   */
   isEditInProgress: () => boolean;
 };
 
+/**
+ * A set of utilities to be used inside a tip displayed within a PdfHighlighter component.
+ */
 export type TipContainerUtils = {
+  /**
+   * Recorrect a tip's position to account for its size.
+   * Useful if your tip resizes at any point.
+   */
   updatePosition: () => void;
 };
 

@@ -15,19 +15,15 @@ export type HighlightUtils = {
   highlight: ViewportHighlight;
   key: number;
   isSelectionInProgress: () => boolean;
-
   /**
    * Convert a Viewport rectangle to a scaled rectangle. Can be used
    * for storing and updating area selection highlights, for example.
    */
   viewportToScaled: (rect: LTWHP) => Scaled;
-
   /** Capture a PNG data url of a viewport rectangle */
   screenshot: (position: LTWH) => string;
-
   /** Whether the highlight has been autoscrolled to. */
   isScrolledTo: boolean;
-
   /**
    * All the DOM refs for the highlights shared on the same page
    * as `highlight`

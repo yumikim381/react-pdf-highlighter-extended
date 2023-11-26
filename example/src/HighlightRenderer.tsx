@@ -37,7 +37,7 @@ const HighlightRenderer = ({
     highlightBindings,
   } = useHighlightUtils();
 
-  const { setTip, isEditInProgressRef } = useTipViewerUtils();
+  const { setTip, toggleEditInProgress } = useTipViewerUtils();
 
   const isTextHighlight = !Boolean(
     highlight.content && highlight.content.image
@@ -62,13 +62,13 @@ const HighlightRenderer = ({
           { image: screenshot(boundingRect) }
         );
 
-        isEditInProgressRef.current = false;
+        toggleEditInProgress(false);
       }}
       bounds={highlightBindings.textLayer}
       onContextMenu={(event) =>
         onContextMenu && onContextMenu(event, highlight)
       }
-      onEditStart={() => (isEditInProgressRef.current = true)}
+      onEditStart={() => toggleEditInProgress(true)}
     />
   );
 

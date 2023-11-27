@@ -20,7 +20,8 @@ const Sidebar = ({
   resetHighlights,
 }: SidebarProps) => {
   return (
-    <div className="sidebar" style={{ width: "25vw" }}>
+    <div className="sidebar" style={{ width: "25vw", maxWidth: "500px" }}>
+      {/* Description section */}
       <div className="description" style={{ padding: "1rem" }}>
         <h2 style={{ marginBottom: "1rem" }}>
           react-pdf-highlighter {APP_VERSION}
@@ -34,12 +35,13 @@ const Sidebar = ({
 
         <p>
           <small>
-            To create area highlight hold ⌥ Option key (Alt), then click and
+            To create an area highlight hold ⌥ Option key (Alt), then click and
             drag.
           </small>
         </p>
       </div>
 
+      {/* Highlights list */}
       {highlights && (
         <ul className="sidebar__highlights">
           {highlights.map((highlight, index) => (
@@ -51,12 +53,15 @@ const Sidebar = ({
               }}
             >
               <div>
+                {/* Highlight comment and text */}
                 <strong>{highlight.comment.text}</strong>
                 {highlight.content.text && (
                   <blockquote style={{ marginTop: "0.5rem" }}>
                     {`${highlight.content.text.slice(0, 90).trim()}…`}
                   </blockquote>
                 )}
+
+                {/* Highlight image */}
                 {highlight.content.image && (
                   <div
                     className="highlight__image__container"
@@ -70,6 +75,8 @@ const Sidebar = ({
                   </div>
                 )}
               </div>
+
+              {/* Highlight page number */}
               <div className="highlight__location">
                 Page {highlight.position.boundingRect.pageNumber}
               </div>
@@ -77,11 +84,13 @@ const Sidebar = ({
           ))}
         </ul>
       )}
+
       <div style={{ padding: "0.5rem" }}>
         <button onClick={toggleDocument} className="sidebar__toggle">
           Toggle PDF document
         </button>
       </div>
+
       {highlights && highlights.length > 0 && (
         <div style={{ padding: "0.5rem" }}>
           <button onClick={resetHighlights} className="sidebar__reset">

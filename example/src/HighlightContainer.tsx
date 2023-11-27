@@ -2,6 +2,7 @@ import React, { MouseEvent } from "react";
 import HighlightPopup from "./HighlightPopup";
 import {
   AreaHighlight,
+  Highlight,
   MonitoredHighlightContainer,
   TextHighlight,
   Tip,
@@ -11,11 +12,7 @@ import {
 } from "./react-pdf-highlighter";
 
 interface HighlightContainerProps {
-  updateHighlight: (
-    highlightId: string,
-    position: Object,
-    content: Object
-  ) => void;
+  editHighlight: (idToUpdate: string, edit: Partial<Highlight>) => void;
   onContextMenu?: (
     event: MouseEvent<HTMLDivElement>,
     highlight: ViewportHighlight
@@ -23,7 +20,7 @@ interface HighlightContainerProps {
 }
 
 const HighlightContainer = ({
-  updateHighlight,
+  editHighlight,
   onContextMenu,
 }: HighlightContainerProps) => {
   const {
@@ -55,12 +52,17 @@ const HighlightContainer = ({
       isScrolledTo={isScrolledTo}
       highlight={highlight}
       onChange={(boundingRect) => {
-        updateHighlight(
-          highlight.id,
-          { boundingRect: viewportToScaled(boundingRect) },
-          { image: screenshot(boundingRect) }
-        );
+        const edit = {
+          position: {
+            boundingRect: viewportToScaled(boundingRect),
+            rects: [],
+          },
+          content: {
+            image: screenshot(boundingRect),
+          },
+        };
 
+        editHighlight(highlight.id, edit);
         toggleEditInProgress(false);
       }}
       bounds={highlightBindings.textLayer}

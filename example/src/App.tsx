@@ -1,27 +1,22 @@
-import { PDFDocumentProxy } from "pdfjs-dist";
-import React, { useEffect, useRef, useState, MouseEvent } from "react";
+import React, { MouseEvent, useEffect, useRef, useState } from "react";
+import CommentForm from "./CommentForm";
+import ContextMenu, { ContextMenuProps } from "./ContextMenu";
 import ExpandableTip from "./ExpandableTip";
 import HighlightContainer from "./HighlightContainer";
 import Sidebar from "./Sidebar";
+import Toolbar from "./Toolbar";
 import {
   Comment,
-  Content,
   GhostHighlight,
   Highlight,
-  Tip,
   PdfHighlighter,
   PdfLoader,
-  ScaledPosition,
+  Tip,
   TipViewerUtils,
   ViewportHighlight,
-  viewportPositionToScaled,
 } from "./react-pdf-highlighter";
 import "./style/App.css";
 import { testHighlights as _testHighlights } from "./test-highlights";
-import ContextMenu, { ContextMenuProps } from "./ContextMenu";
-import Toolbar from "./Toolbar";
-import CommentForm from "./CommentForm";
-import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 
 const TEST_HIGHLIGHTS = _testHighlights;
 const PRIMARY_PDF_URL = "https://arxiv.org/pdf/1708.08021.pdf";
@@ -49,12 +44,20 @@ const App = () => {
     undefined
   );
 
+  // Refs for PdfHighlighter utilities
   const scrollToRef = useRef<((highlight: Highlight) => void) | undefined>(
     undefined
   );
   const tipViewerUtilsRef = useRef<TipViewerUtils | undefined>(undefined);
-  const viewerRef = useRef<PDFViewer | undefined>(undefined);
 
+  const toggleDocument = () => {
+    const urls = [PRIMARY_PDF_URL, SECONDARY_PDF_URL, LONG_LOADING_PDF_URL];
+    currentPdfIndexRef.current = (currentPdfIndexRef.current + 1) % urls.length;
+    setUrl(urls[currentPdfIndexRef.current]);
+    setHighlights(TEST_HIGHLIGHTS[urls[currentPdfIndexRef.current]] ?? []);
+  };
+
+  // Click listeners for context menu
   useEffect(() => {
     const handleClick = () => {
       if (contextMenu) {
@@ -83,12 +86,34 @@ const App = () => {
     });
   };
 
-  const editHighlight = (idToUpdate: string, newHighlight: Highlight) => {
-    return highlights.map((highlight) =>
-      highlight.id === idToUpdate ? newHighlight : highlight
+  const addHighlight = (highlight: GhostHighlight, comment: Comment) => {
+    console.log("Saving highlight", highlight);
+    setHighlights([{ ...highlight, comment, id: getNextId() }, ...highlights]);
+  };
+
+  const deleteHighlight = (highlight: ViewportHighlight | Highlight) => {
+    console.log("Deleting highlight", highlight);
+    setHighlights(highlights.filter((h) => h.id != highlight.id));
+  };
+
+  const editHighlight = (idToUpdate: string, edit: Partial<Highlight>) => {
+    console.log(`Editing highlight ${idToUpdate} with `, edit);
+    setHighlights(
+      highlights.map((highlight) =>
+        highlight.id === idToUpdate ? { ...highlight, ...edit } : highlight
+      )
     );
   };
 
+  const resetHighlights = () => {
+    setHighlights([]);
+  };
+
+  const getHighlightById = (id: string) => {
+    return highlights.find((highlight) => highlight.id === id);
+  };
+
+  // Open comment tip and update highlight with new user input
   const editComment = (highlight: ViewportHighlight) => {
     if (!tipViewerUtilsRef.current) return;
 
@@ -98,16 +123,7 @@ const App = () => {
         <CommentForm
           placeHolder={highlight.comment.text}
           onSubmit={(input) => {
-            console.log("Editing highlight", highlight);
-            const newHighlight: Highlight = {
-              ...highlight,
-              position: viewportPositionToScaled(
-                highlight.position,
-                viewerRef.current!
-              ),
-              comment: { text: input },
-            };
-            setHighlights(editHighlight(highlight.id, newHighlight));
+            editHighlight(highlight.id, { comment: { text: input } });
             tipViewerUtilsRef.current!.setTip(null);
             tipViewerUtilsRef.current!.toggleEditInProgress(false);
           }}
@@ -119,21 +135,7 @@ const App = () => {
     tipViewerUtilsRef.current.toggleEditInProgress(true);
   };
 
-  const resetHighlights = () => {
-    setHighlights([]);
-  };
-
-  const toggleDocument = () => {
-    const urls = [PRIMARY_PDF_URL, SECONDARY_PDF_URL, LONG_LOADING_PDF_URL];
-    currentPdfIndexRef.current = (currentPdfIndexRef.current + 1) % urls.length;
-    setUrl(urls[currentPdfIndexRef.current]);
-    setHighlights(TEST_HIGHLIGHTS[urls[currentPdfIndexRef.current]] ?? []);
-  };
-
-  const getHighlightById = (id: string) => {
-    return highlights.find((highlight) => highlight.id === id);
-  };
-
+  // Scroll to highlight based on hash in the URL
   const scrollToHighlightFromHash = () => {
     const highlight = getHighlightById(parseIdFromHash());
 
@@ -142,6 +144,7 @@ const App = () => {
     }
   };
 
+  // Hash listeners for autoscrolling to highlights
   useEffect(() => {
     window.addEventListener("hashchange", scrollToHighlightFromHash);
 
@@ -149,36 +152,6 @@ const App = () => {
       window.removeEventListener("hashchange", scrollToHighlightFromHash);
     };
   }, [scrollToHighlightFromHash]);
-
-  const addHighlight = (highlight: GhostHighlight, comment: Comment) => {
-    console.log("Saving highlight", highlight);
-    setHighlights([{ ...highlight, comment, id: getNextId() }, ...highlights]);
-  };
-
-  const deleteHighlight = (highlight: ViewportHighlight | Highlight) => {
-    console.log("Deleting highlight", highlight);
-    setHighlights(highlights.filter((h) => h.id != highlight.id));
-  };
-
-  const updateHighlight = (
-    id: string,
-    position: Partial<ScaledPosition>,
-    content: Partial<Content>
-  ) => {
-    console.log("Updating highlight", id, position, content);
-
-    setHighlights(
-      highlights.map((highlight) =>
-        highlight.id === id
-          ? {
-              ...highlight,
-              position: { ...highlight.position, ...position },
-              content: { ...highlight.content, ...content },
-            }
-          : highlight
-      )
-    );
-  };
 
   return (
     <div className="App" style={{ display: "flex", height: "100vh" }}>
@@ -201,35 +174,30 @@ const App = () => {
           url={url}
         />
         <PdfLoader document={url}>
-          {(pdfDocument: PDFDocumentProxy) => (
-            <PdfHighlighter
-              pdfDocument={pdfDocument}
-              enableAreaSelection={(event) => event.altKey}
-              onScrollAway={resetHash}
-              scrollRef={(_scrollTo) => {
-                scrollToRef.current = _scrollTo;
-              }}
-              tipViewerUtilsRef={(_tipViewerUtils) => {
-                tipViewerUtilsRef.current = _tipViewerUtils;
-              }}
-              pdfViewerRef={(_pdfViewer) => {
-                viewerRef.current = _pdfViewer;
-              }}
-              pdfScaleValue={pdfScaleValue}
-              selectionTip={<ExpandableTip addHighlight={addHighlight} />}
-              highlights={highlights}
-              style={{
-                height: "calc(100% - 45px)",
-              }}
-            >
-              <HighlightContainer
-                updateHighlight={updateHighlight}
-                onContextMenu={handleContextMenu}
-              />
-            </PdfHighlighter>
-          )}
+          <PdfHighlighter
+            enableAreaSelection={(event) => event.altKey}
+            onScrollAway={resetHash}
+            scrollRef={(_scrollTo) => {
+              scrollToRef.current = _scrollTo;
+            }}
+            tipViewerUtilsRef={(_tipViewerUtils) => {
+              tipViewerUtilsRef.current = _tipViewerUtils;
+            }}
+            pdfScaleValue={pdfScaleValue}
+            selectionTip={<ExpandableTip addHighlight={addHighlight} />}
+            highlights={highlights}
+            style={{
+              height: "calc(100% - 45px)",
+            }}
+          >
+            <HighlightContainer
+              editHighlight={editHighlight}
+              onContextMenu={handleContextMenu}
+            />
+          </PdfHighlighter>
         </PdfLoader>
       </div>
+
       {contextMenu && <ContextMenu {...contextMenu} />}
     </div>
   );

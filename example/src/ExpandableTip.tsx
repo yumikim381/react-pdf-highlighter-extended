@@ -1,18 +1,13 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from "react";
+import React, { useLayoutEffect, useState } from "react";
+import CommentForm from "./CommentForm";
 import {
   Comment,
   GhostHighlight,
+  useSelectionUtils,
   useTipContainerUtils,
   useTipViewerUtils,
-  useSelectionUtils,
 } from "./react-pdf-highlighter";
 import "./style/ExpandableTip.css";
-import CommentForm from "./CommentForm";
 
 interface ExpandableTipProps {
   addHighlight: (highlight: GhostHighlight, comment: Comment) => void;

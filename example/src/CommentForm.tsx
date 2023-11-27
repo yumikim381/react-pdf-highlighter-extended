@@ -2,21 +2,15 @@ import React, { useState } from "react";
 
 interface CommentFormProps {
   onSubmit: (input: string) => void;
-  callbackRef?: (node: HTMLFormElement) => void;
   placeHolder?: string;
 }
 
-const CommentForm = ({
-  onSubmit,
-  callbackRef,
-  placeHolder,
-}: CommentFormProps) => {
+const CommentForm = ({ onSubmit, placeHolder }: CommentFormProps) => {
   const [input, setInput] = useState<string>("");
 
   return (
     <form
       className="Tip__card"
-      ref={callbackRef}
       onSubmit={(event) => {
         event.preventDefault();
         onSubmit(input);

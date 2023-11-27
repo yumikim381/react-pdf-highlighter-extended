@@ -14,6 +14,7 @@ import React, {
   PointerEventHandler,
   ReactElement,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -190,7 +191,6 @@ const PdfHighlighter = ({
   };
 
   // Init listeners
-  // Going before PDF Viewer init prevents unncessary re-renders at loadtime
   useEffect(() => {
     resizeObserverRef.current = new ResizeObserver(handleScaleValue);
     const doc = containerNodeRef.current?.ownerDocument;
@@ -215,7 +215,7 @@ const PdfHighlighter = ({
   }, [selectionTip, highlights, onSelectionFinished]);
 
   // Initialise PDF Viewer
-  useEffect(() => {
+  useLayoutEffect(() => {
     const doc = containerNodeRef.current?.ownerDocument;
     if (!doc || !containerNodeRef.current) return;
 

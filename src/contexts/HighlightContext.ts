@@ -9,7 +9,7 @@ import {
 
 /**
  * A set of utilities for existing highlights designed to be used
- * by a highlight renderer.
+ * by a highlight container.
  */
 export type HighlightUtils = {
   highlight: ViewportHighlight;

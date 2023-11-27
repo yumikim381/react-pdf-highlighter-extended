@@ -2,16 +2,15 @@ import React, { MouseEvent } from "react";
 import HighlightPopup from "./HighlightPopup";
 import {
   AreaHighlight,
-  Highlight,
   MonitoredHighlightContainer,
   TextHighlight,
   Tip,
   ViewportHighlight,
-  useTipViewerUtils,
   useHighlightUtils,
+  useTipViewerUtils,
 } from "./react-pdf-highlighter";
 
-interface HighlightRendererProps {
+interface HighlightContainerProps {
   updateHighlight: (
     highlightId: string,
     position: Object,
@@ -23,10 +22,10 @@ interface HighlightRendererProps {
   ) => void;
 }
 
-const HighlightRenderer = ({
+const HighlightContainer = ({
   updateHighlight,
   onContextMenu,
-}: HighlightRendererProps) => {
+}: HighlightContainerProps) => {
   const {
     highlight,
     key,
@@ -93,4 +92,4 @@ const HighlightRenderer = ({
   );
 };
 
-export default HighlightRenderer;
+export default HighlightContainer;

@@ -1,7 +1,7 @@
 import { PDFDocumentProxy } from "pdfjs-dist";
 import React, { useEffect, useRef, useState, MouseEvent } from "react";
 import ExpandableTip from "./ExpandableTip";
-import HighlightRenderer from "./HighlightRenderer";
+import HighlightContainer from "./HighlightContainer";
 import Sidebar from "./Sidebar";
 import {
   Comment,
@@ -26,7 +26,7 @@ import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 const TEST_HIGHLIGHTS = _testHighlights;
 const PRIMARY_PDF_URL = "https://arxiv.org/pdf/1708.08021.pdf";
 const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480.pdf";
-const LARGE_PDF_URL = "https://arxiv.org/pdf/2210.04048.pdf";
+const LONG_LOADING_PDF_URL = "https://arxiv.org/pdf/2210.04048.pdf";
 
 const getNextId = () => String(Math.random()).slice(2);
 
@@ -44,16 +44,16 @@ const App = () => {
     TEST_HIGHLIGHTS[PRIMARY_PDF_URL] ?? []
   );
   const currentPdfIndexRef = useRef(0);
+  const [contextMenu, setContextMenu] = useState<ContextMenuProps | null>(null);
+  const [pdfScaleValue, setPdfScaleValue] = useState<number | undefined>(
+    undefined
+  );
+
   const scrollToRef = useRef<((highlight: Highlight) => void) | undefined>(
     undefined
   );
   const tipViewerUtilsRef = useRef<TipViewerUtils | undefined>(undefined);
   const viewerRef = useRef<PDFViewer | undefined>(undefined);
-
-  const [contextMenu, setContextMenu] = useState<ContextMenuProps | null>(null);
-  const [pdfScaleValue, setPdfScaleValue] = useState<number | undefined>(
-    undefined
-  );
 
   useEffect(() => {
     const handleClick = () => {
@@ -84,20 +84,9 @@ const App = () => {
   };
 
   const editHighlight = (idToUpdate: string, newHighlight: Highlight) => {
-    // Find the index of the highlight with the specified id
-    const indexToUpdate = highlights.findIndex(
-      (highlight) => highlight.id === idToUpdate
+    return highlights.map((highlight) =>
+      highlight.id === idToUpdate ? newHighlight : highlight
     );
-
-    // If the highlight with the specified id is found, create a new list with the updated comment
-    if (indexToUpdate !== -1) {
-      const updatedHighlights = [...highlights];
-      updatedHighlights[indexToUpdate] = newHighlight;
-      return updatedHighlights;
-    }
-
-    // If the highlight with the specified id is not found, return the original list
-    return highlights;
   };
 
   const editComment = (highlight: ViewportHighlight) => {
@@ -120,14 +109,14 @@ const App = () => {
             };
             setHighlights(editHighlight(highlight.id, newHighlight));
             tipViewerUtilsRef.current!.setTip(null);
-            tipViewerUtilsRef.current!.isEditInProgressRef.current = false;
+            tipViewerUtilsRef.current!.toggleEditInProgress(false);
           }}
         ></CommentForm>
       ),
     };
 
     tipViewerUtilsRef.current.setTip(editCommentTip);
-    tipViewerUtilsRef.current.isEditInProgressRef.current = true;
+    tipViewerUtilsRef.current.toggleEditInProgress(true);
   };
 
   const resetHighlights = () => {
@@ -135,7 +124,7 @@ const App = () => {
   };
 
   const toggleDocument = () => {
-    const urls = [PRIMARY_PDF_URL, SECONDARY_PDF_URL, LARGE_PDF_URL];
+    const urls = [PRIMARY_PDF_URL, SECONDARY_PDF_URL, LONG_LOADING_PDF_URL];
     currentPdfIndexRef.current = (currentPdfIndexRef.current + 1) % urls.length;
     setUrl(urls[currentPdfIndexRef.current]);
     setHighlights(TEST_HIGHLIGHTS[urls[currentPdfIndexRef.current]] ?? []);
@@ -233,7 +222,7 @@ const App = () => {
                 height: "calc(100% - 45px)",
               }}
             >
-              <HighlightRenderer
+              <HighlightContainer
                 updateHighlight={updateHighlight}
                 onContextMenu={handleContextMenu}
               />

@@ -29,7 +29,7 @@ interface HighlightLayerProps {
    */
   highlightBindings: HighlightBindings;
   /**
-   * This should be a HighlightRenderer of some sorts. It will be given
+   * This should be a HighlightContainer of some sorts. It will be given
    * appropriate context for a single highlight which it can then use to
    * render a TextHighlight, AreaHighlight, etc. in the correct place.
    */
@@ -39,7 +39,7 @@ interface HighlightLayerProps {
 /**
  * An internal component that holds all the highlights and ghost highlights
  * for a single page of a PDF document.
- * It should be given a HighlightRenderer as a child and all children will be wrapped
+ * It should be given a HighlightContainer as a child and all children will be wrapped
  * in the correct HighlightContext. Its rendering should be managed by the PdfHighlighter.
  */
 const HighlightLayer = ({

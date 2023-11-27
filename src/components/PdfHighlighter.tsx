@@ -44,6 +44,7 @@ import {
 import HighlightLayer from "./HighlightLayer";
 import MouseSelectionRenderer from "./MouseSelectionRenderer";
 import TipRenderer from "./TipRenderer";
+import { usePdfDocument } from "../contexts/PdfLoaderContext";
 
 const SCROLL_MARGIN = 10;
 const TIP_WAIT = 250; // Debounce wait time in milliseconds for a selection changing and a tip being displayed
@@ -95,8 +96,6 @@ interface PdfHighlighterProps {
    * @param pdfViewer - The PDF.js viewer instance employed by the PdfHighligter.
    */
   pdfViewerRef?: (pdfViewer: PDFViewer) => void;
-  /** PDF document to view. Designed to be provided by a PdfLoader */
-  pdfDocument: PDFDocumentProxy;
   pdfScaleValue?: PdfScaleValue;
   /**
    * Event listener for whenever a user finishes making an area selection or has selected text.
@@ -144,7 +143,6 @@ const PdfHighlighter = ({
   scrollRef,
   tipViewerUtilsRef,
   pdfViewerRef,
-  pdfDocument,
   pdfScaleValue = DEFAULT_SCALE_VALUE,
   onSelectionFinished,
   selectionTip,
@@ -155,6 +153,7 @@ const PdfHighlighter = ({
   style,
 }: PdfHighlighterProps) => {
   const containerNodeRef = useRef<HTMLDivElement | null>(null);
+  const pdfDocument = usePdfDocument();
 
   // These are all refs because
   // 1. We need to use their updated states immediately
@@ -489,8 +488,6 @@ const PdfHighlighter = ({
   scrollRef && scrollRef(scrollTo);
   tipViewerUtilsRef && tipViewerUtilsRef(tipViewerUtils);
   pdfViewerRef && viewerRef.current && pdfViewerRef(viewerRef.current);
-
-  console.log("pdf highlighter rendered!");
 
   return (
     <>

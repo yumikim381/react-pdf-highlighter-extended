@@ -6,6 +6,7 @@ import {
   DocumentInitParameters,
   TypedArray,
 } from "pdfjs-dist/types/src/display/api";
+import { PdfLoaderContext } from "../contexts/PdfLoaderContext";
 
 interface PdfLoaderProps {
   /**
@@ -24,7 +25,7 @@ interface PdfLoaderProps {
    * Child components to use/render the loaded PDF document.
    * @param pdfDocument - The loaded PDF document.
    */
-  children: (pdfDocument: PDFDocumentProxy) => ReactNode;
+  children: ReactNode;
   onError?: (error: Error) => void;
   /**
    * NOTE: This will be applied to all PdfLoader instances.
@@ -99,7 +100,9 @@ const PdfLoader = ({
     ? errorMessage
     : loadingProgress
     ? beforeLoad(loadingProgress)
-    : pdfDocument && children(pdfDocument);
+    : pdfDocument && (
+        <PdfLoaderContext.Provider value={pdfDocument} children={children} />
+      );
 };
 
 export default PdfLoader;

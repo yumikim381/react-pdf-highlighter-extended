@@ -5,7 +5,6 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Style the scrollbar */
 .highlight__image__container::-webkit-scrollbar,
 .sidebar::-webkit-scrollbar {
     width: 10px;
@@ -109,8 +108,7 @@ blockquote:after {
     background-color: #f44336;
 }
 
-.sidebar__toggle:hover,
-.sidebar__reset:hover {
+.sidebar__toggle:hover {
     background-color: #1565c0;
     border-color: #1565c0;
 }

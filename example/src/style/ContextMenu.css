@@ -28,9 +28,9 @@
   }
   
   .context-menu button:last-child {
-    color: #f44336; /* Material Design Red 500 */
+    color: #f44336;
   }
   
   .context-menu button:last-child:hover {
-    background-color: #ffebee; /* Material Design Red 50 */
+    background-color: #ffebee;
   }

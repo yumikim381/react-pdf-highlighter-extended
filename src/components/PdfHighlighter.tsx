@@ -3,7 +3,6 @@ import "../style/PdfHighlighter.css";
 import "../style/pdf_viewer.css";
 
 import debounce from "lodash.debounce";
-import type { PDFDocumentProxy } from "pdfjs-dist";
 import {
   EventBus,
   NullL10n,
@@ -19,6 +18,7 @@ import React, {
   useState,
 } from "react";
 import { createRoot } from "react-dom/client";
+import { usePdfDocument } from "../contexts/PdfLoaderContext";
 import { SelectionContext, SelectionUtils } from "../contexts/SelectionContext";
 import { TipViewerContext, TipViewerUtils } from "../contexts/TipContext";
 import { scaledToViewport, viewportPositionToScaled } from "../lib/coordinates";
@@ -44,7 +44,6 @@ import {
 import HighlightLayer from "./HighlightLayer";
 import MouseSelectionRenderer from "./MouseSelectionRenderer";
 import TipRenderer from "./TipRenderer";
-import { usePdfDocument } from "../contexts/PdfLoaderContext";
 
 const SCROLL_MARGIN = 10;
 const TIP_WAIT = 250; // Debounce wait time in milliseconds for a selection changing and a tip being displayed

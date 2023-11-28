@@ -79,7 +79,6 @@ const HighlightContainer = ({
       onMouseOver={(popupContent) => {
         if (isSelectionInProgress()) return;
 
-        console.log("Mouse in!");
         const popupTip: Tip = {
           position: highlight.position,
           content: popupContent,

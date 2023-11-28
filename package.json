@@ -1,18 +1,25 @@
 {
-  "name": "react-pdf-highlighter",
+  "name": "react-pdf-highlighter-extended",
   "version": "6.1.0",
-  "description": "Set of React components for PDF annotation",
-  "author": "Artem Tyurin <artem.tyurin@gmail.com>",
+  "description": "Set of modern React components for PDF highlighting",
+  "author": "Daniel Arnould <daniel.s.arnould@gmail.com>",
   "license": "MIT",
-  "contributes": {
+  "contributors": [
+    {
     "name": "Daniel Arnould",
     "email": "daniel.s.arnould@gmail.com"
-  },
+    },
+    {
+      "name": "Artem Tyurin",
+      "email": "artem.tyurin@gmail.com"
+    }
+  ],
   "keywords": [
     "pdf",
     "highlight",
     "annotator",
-    "react-component"
+    "react-component",
+    "react"
   ],
   "files": [
     "dist"

@@ -1,81 +1,102 @@
-![Node CI](https://github.com/agentcooper/react-pdf-highlighter/workflows/Node%20CI/badge.svg)
+# react-pdf-highlighter-extended
 
-## react-pdf-highlighter
+`react-pdf-highlighter-extended` is a [React](https://reactjs.org/) library that provides a highly customisable annotation experience for PDF documents on the web, with text and rectangular highlights both supported. It leverages [PDF.js](https://github.com/mozilla/pdf.js) as its viewer. The highlight data format is also independent of the viewport, making it suitable for saving on a server.
 
-`react-pdf-highlighter` is a [React](https://reactjs.org/) library that provides annotation experience for PDF documents on web. It is built on top of PDF.js by Mozilla. Text and rectangular highlights are supported. Highlight
-data format is independent of the viewport, making it suitable for saving on the
-server.
+This originally started as a fork of [`react-pdf-highlighter`](https://github.com/agentcooper/react-pdf-highlighter) but so much has been refactored and redesigned that it would be a burden to pull it to the original repo. Some of these changes include: addition of `HighlightUtils`, `TipViewerUtils`, `TipContainerUtils`, and `SelectionUtils`; zoom support; exposed styling on all components; and various bugfixes. Efforts will be made to try to ensure feature parity with the original repo, but there are no guarantees that syntax and usage will be the same.
 
-### Example
+## Table of Contents
 
-For online example check https://agentcooper.github.io/react-pdf-highlighter/.
+- [Example](#example)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [PdfLoader](#pdfloader)
+    - [Example loading document with `string`](#example-loading-document-with-string)
+    - [Example loading document with `DocumentInitParameters`](#example-loading-document-with-documentinitparameters)
+  - [PdfHighlighter](#pdfhighlighter)
+    - [Example](#example-1)
+  - [User-defined HighlightContainer](#user-defined-highlightcontainer)
+    - [Example](#example-2)
+    - [Example with `MonitoredHighlightContainer`](#example-with-monitoredhighlightcontainer)
+    - [Example with categories](#example-with-categories)
+  - [Tips](#tips)
+    - [TipViewerUtils](#tipviewerutils)
+    - [SelectionTip](#selectiontip)
+    - [TipContainerUtils](#tipcontainerutils)
+- [Contribute](#contribute)
+- [Todo](#todo)
+
+## Example
+
+For a live demo check https://danielarnould.github.io/react-pdf-highlighter-extended/.
 
 To run the example app locally:
 
 ```
+git clone https://github.com/DanielArnould/react-pdf-highlighter-extended.git
 npm install
-npm start
+npm run dev
 ```
-
-Create React App example is available in [`./create-react-app-example`](https://github.com/agentcooper/react-pdf-highlighter/tree/main/create-react-app-example). Make sure to run `npm install` there as well.
 
 ## Installation
 
-`npm install react-pdf-highlighter --save`
+`npm install react-pdf-highlighter-extended --save`
 
 ## Usage
 
 Here are some simple usage examples of this library to help you get started with your application. Please note that these examples and explanations are not exhaustive and many additional props are not shown. To see more extensive usage, have a look at the example app or refer to the library's docstrings.
+
 ### PdfLoader
+
 The PdfLoader creates a safe container to load PDF documents with PDF.js
 
 #### Example loading document with `string`
 
-``` javascript
+```javascript
 const url = "https://arxiv.org/pdf/1708.08021.pdf";
 
 <PdfLoader document={url}>
-    {/* PdfHighlighter component goes here */}
-</PdfLoader>
+  {/* PdfHighlighter component goes here */}
+</PdfLoader>;
 ```
 
 #### Example loading document with `DocumentInitParameters`
 
 You can also pass any extra parameters to the PdfLoader document that are accepted by PDF.js. For example, you could use this to specify HTTP headers for retrieving your document.
 
-``` javascript
+```javascript
 const pdfDocument: Partial<DocumentInitParameters> = {
-url: "https://arxiv.org/pdf/1708.08021.pdf",
-httpHeaders: {
-    "Authorization": "Bearer JWT_TOKEN_HERE"
-},
-password: "PDF_PASSWORD_HERE"
+  url: "https://arxiv.org/pdf/1708.08021.pdf",
+  httpHeaders: {
+      "Authorization": "Bearer JWT_TOKEN_HERE"
+  },
+  password: "PDF_PASSWORD_HERE"
 }
 
 <PdfLoader document={pdfDocument}>
-{/* PdfHighlighter component goes here */}
+  {/* PdfHighlighter component goes here */}
 </PdfLoader>
 ```
 
 ### PdfHighlighter
+
 The PdfHighlighter provides a PDF.js viewer along with various helpful event listeners and niceties for creating a fully-fledged and robust highlighter. It does **NOT** render any highlights on its own, but it expects a user-defined Highlight Container as its child, which will be given context for individual highlights. Please also note for styling that the PDF.js viewer renders its pages with `absolute` positioning.
 
-#### Example 
+#### Example
 
-``` javascript
+```javascript
 const myPdfHighlighter = () => {
-    const [highlights, setHighlights] = useState<Array<Highlight>>([]);
-    const scrollToRef = useRef<((highlight: Highlight) => void) | undefined>(
-    undefined
-    );
+  const [highlights, setHighlights] = useState<Array<Highlight>>([]);
+  const scrollToRef = useRef<((highlight: Highlight) => void) | undefined>(
+  undefined
+  );
 
-    const handleScrollAway = () => {
-        // Event handler for whenever the
-        // user scrolls away from an autoscrolled highlight (e.g., reset a url hash, change a ref, etc.)
-    }
+  const handleScrollAway = () => {
+      // Event handler for whenever the
+      // user scrolls away from an autoscrolled highlight (e.g., reset a url hash, change a ref, etc.)
+  }
 
-    return (
-    <PdfLoader document={url}>
+  return (
+  <PdfLoader document={url}>
     <PdfHighlighter
         selectionTip={<ExpandableTip />}  // Component will render as a tip upon any selection
         highlights={highlights}
@@ -87,15 +108,17 @@ const myPdfHighlighter = () => {
     >
         {/* User-defined HighlightContainer component goes here */}
     </PdfHighlighter>
-    </PdfLoader>
-    )
+  </PdfLoader>
+  )
 }
 ```
 
 ### User-defined HighlightContainer
+
 You must create your own Highlight Container which will be rendered as needed for each highlight inside the PdfHighlighter. This container will receive highlighting utilities through the `useHighlightUtils` hook. This library also provides two ready-to-use componenets, `TextHighlight` and `AreaHighlight`, which you can place inside your container to easily render some standard highlight styles.
 
-#### Example 
+#### Example
+
 ```javascript
 interface MyHighlightContainerProps {
   editHighlight: (idToUpdate: string, edit: Partial<Highlight>) => void; // This could update highlights in the parent
@@ -195,7 +218,8 @@ const MyHighlightContainer = ({
 #### Example with categories
 
 The power of a user-defined highlight container is that you can customise your highlight rendering as much as you want. For example, every highlight has a `Comment` attribute which can hold an optional `data` attribute. In your application, you could configure this to store a "category" property with some highlights
-``` javascript
+
+```javascript
 const comment: Comment {
     text: "Comment text",
     data: {
@@ -203,55 +227,55 @@ const comment: Comment {
     }
 }
 ```
+
 You could then use this in your HighlightContainer to render highlights with different colors depending on their category.
-``` javascript
-  // Same logic as above examples
 
-  const category = highlight.comment.data?.category;
-  let highlightColor = "rgba(199,227,114,1)"
+```javascript
+// Same logic as above examples
 
-  if (category === "red") {
-    highlightColor = "rgba(239,90,104,1)";
-  } else if (category === "blue") {
-    highlightColor = "rgba(154,208,220,1)";
-  }
+const category = highlight.comment.data?.category;
+let highlightColor = "rgba(199,227,114,1)";
 
-  const component = isTextHighlight ? (
-    <TextHighlight
-      highlight={highlight}
-      style={{background: highlightColor}}
-    />
-  ) : (
-    <AreaHighlight
-      highlight={highlight}
-      style={{
-        background: highlightColor
-      }}
-    />
-  );
+if (category === "red") {
+  highlightColor = "rgba(239,90,104,1)";
+} else if (category === "blue") {
+  highlightColor = "rgba(154,208,220,1)";
+}
 
-  // Same return as above examples
+const component = isTextHighlight ? (
+  <TextHighlight highlight={highlight} style={{ background: highlightColor }} />
+) : (
+  <AreaHighlight
+    highlight={highlight}
+    style={{
+      background: highlightColor,
+    }}
+  />
+);
+
+// Same return as above examples
 ```
 
 ### Tips
+
 #### TipViewerUtils
+
 Throughout your application you can access a PdfHighlighter's `TipViewerUtils`. Within any component inside a PdfHighlighter, this can be done with the `useTipViewerUtils` hook. If you want to access it outside the PdfHighlighter, you can use the `tipViewerUtilsRef` prop to create a dynamic reference to the latest set of tip utilities.
 
-``` javascript
+```javascript
 <PdfLoader document={url}>
-    <PdfHighlighter
+  <PdfHighlighter
     tipViewerUtilsRef={(_tipViewerUtils) => {
-        tipViewerUtilsRef.current = _tipViewerUtils;
+      tipViewerUtilsRef.current = _tipViewerUtils;
     }}
     highlights={highlights}
-    >
-    </PdfHighlighter>
+  ></PdfHighlighter>
 </PdfLoader>
 ```
 
 These allow you to customise the behaviour of tips inside the viewer. For example, you might use it to display a confirmation tip when deleting a highlight from a context menu, or you might use it to prevent other tips being shown when editing a highlight.
 
-``` javascript
+```javascript
 export type TipViewerUtils = {
   /**
    * The current tip displayed in the viewer
@@ -274,10 +298,12 @@ export type TipViewerUtils = {
   isEditInProgress: () => boolean;
 };
 ```
+
 #### SelectionTip
+
 Very often you might want to display a tip above the user's text or mouse selection in a document. To achieve this, you can simply pass your own user-defined selection tip to the `selectionTip` prop in the PdfHighlighter. This componenet will also give you access to the `useSelectionUtils` hook which gives you some common functionalities regarding user selections.
 
-``` javascript
+```javascript
 export type SelectionUtils = {
   /**
    * The platform-agnostic position of the user's current selection
@@ -301,7 +327,7 @@ export type SelectionUtils = {
 };
 ```
 
-``` javascript
+```javascript
 const MySelectionTip = () => {
   const {
     selectionPosition,
@@ -312,18 +338,17 @@ const MySelectionTip = () => {
 
   return (
     <div className="Tip">
-      <button onClick={makeGhostHighlight}>
-        Convert to Ghost Highlight
-      </button>
+      <button onClick={makeGhostHighlight}>Convert to Ghost Highlight</button>
     </div>
   );
 };
 ```
 
 #### TipContainerUtils
+
 Any componenet set as a tip inside of the PdfHighlighter will get access to the `useTipContainerUtils` hook. A helpful feature of this is that it allows you to update a tip's positioning based on its size. This could be used, for example, to make sure a selection tip which expands after a button has been clicked stays above the user's selection.
 
-``` javascript
+```javascript
 const MySelectionTip = () => {
   const [compact, setCompact] = useState(true);
 
@@ -352,9 +377,7 @@ const MySelectionTip = () => {
           Expand Tip
         </button>
       ) : (
-        <div style={{padding: "50px"}}>
-          Expanded content
-        </div>
+        <div style={{ padding: "50px" }}>Expanded content</div>
       )}
     </div>
   );
@@ -367,6 +390,10 @@ If you have a bug to report, please add it as an issue with clear steps to repro
 
 If you have a feature request, please add it as an issue or make a pull request. If you do wish to make a pull request, consider checking whether your feature has already been implemented or tested in the original react-pdf-highlighter.
 
+## Todo
 
-
-
+- [ ] Add selection copying
+- [ ] Add multi-page mouse selection support
+- [ ] Add search
+- [ ] Add rotation
+- [ ] Update PDF.js

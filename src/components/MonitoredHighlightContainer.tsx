@@ -58,6 +58,7 @@ const MonitoredHighlightContainer = ({
   return (
     <div
       onMouseOver={() => {
+        console.log("Mouse over on the highlight container");
         mouseInRef.current = true;
         onMouseOver(monitorContent);
       }}

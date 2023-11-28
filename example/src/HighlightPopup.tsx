@@ -1,5 +1,5 @@
 import React from "react";
-import type { Comment } from "./react-pdf-highlighter";
+import type { Comment } from "./react-pdf-highlighter-extended";
 
 import "./style/HighlightPopup.css";
 

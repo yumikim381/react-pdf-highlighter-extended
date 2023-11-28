@@ -14,7 +14,7 @@ import {
   Tip,
   TipViewerUtils,
   ViewportHighlight,
-} from "./react-pdf-highlighter";
+} from "./react-pdf-highlighter-extended";
 import "./style/App.css";
 import { testHighlights as _testHighlights } from "./test-highlights";
 
@@ -36,17 +36,17 @@ const resetHash = () => {
 const App = () => {
   const [url, setUrl] = useState(PRIMARY_PDF_URL);
   const [highlights, setHighlights] = useState<Array<Highlight>>(
-    TEST_HIGHLIGHTS[PRIMARY_PDF_URL] ?? []
+    TEST_HIGHLIGHTS[PRIMARY_PDF_URL] ?? [],
   );
   const currentPdfIndexRef = useRef(0);
   const [contextMenu, setContextMenu] = useState<ContextMenuProps | null>(null);
   const [pdfScaleValue, setPdfScaleValue] = useState<number | undefined>(
-    undefined
+    undefined,
   );
 
   // Refs for PdfHighlighter utilities
   const scrollToRef = useRef<((highlight: Highlight) => void) | undefined>(
-    undefined
+    undefined,
   );
   const tipViewerUtilsRef = useRef<TipViewerUtils | undefined>(undefined);
 
@@ -74,7 +74,7 @@ const App = () => {
 
   const handleContextMenu = (
     event: MouseEvent<HTMLDivElement>,
-    highlight: ViewportHighlight
+    highlight: ViewportHighlight,
   ) => {
     event.preventDefault();
 
@@ -100,8 +100,8 @@ const App = () => {
     console.log(`Editing highlight ${idToUpdate} with `, edit);
     setHighlights(
       highlights.map((highlight) =>
-        highlight.id === idToUpdate ? { ...highlight, ...edit } : highlight
-      )
+        highlight.id === idToUpdate ? { ...highlight, ...edit } : highlight,
+      ),
     );
   };
 

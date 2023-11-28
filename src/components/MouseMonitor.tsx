@@ -42,7 +42,7 @@ const MouseMonitor = ({
     return () => {
       document.removeEventListener("mousemove", onMouseMove);
     };
-  });
+  }, []);
 
   return <div ref={containerRef}>{children}</div>;
 };

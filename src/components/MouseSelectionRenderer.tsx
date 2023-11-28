@@ -22,7 +22,7 @@ interface MouseSelectionRendererProps {
     viewportPosition: ViewportPosition,
     scaledPosition: ScaledPosition,
     image: string,
-    resetSelection: () => void
+    resetSelection: () => void,
   ) => void;
   /**
    * Function to determine whether MouseSelection should start based on the initial click event.
@@ -47,8 +47,6 @@ const MouseSelectionRenderer = ({
   enableAreaSelection,
   style,
 }: MouseSelectionRendererProps) => {
-  if (!viewer) return null;
-
   const disableTextSelection = (flag: boolean) => {
     viewer.viewer?.classList.toggle("PdfHighlighter--disable-selection", flag);
   };
@@ -56,7 +54,7 @@ const MouseSelectionRenderer = ({
   const handleSelection = (
     startTarget: HTMLElement,
     boundingRect: LTWH,
-    resetSelection: () => void
+    resetSelection: () => void,
   ) => {
     const page = getPageFromElement(startTarget);
     if (!page) return;
@@ -78,7 +76,7 @@ const MouseSelectionRenderer = ({
     const image = screenshot(
       pageBoundingRect,
       pageBoundingRect.pageNumber,
-      viewer
+      viewer,
     );
 
     onAfterSelection(viewportPosition, scaledPosition, image, resetSelection);

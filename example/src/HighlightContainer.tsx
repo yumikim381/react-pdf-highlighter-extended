@@ -9,7 +9,7 @@ import {
   ViewportHighlight,
   useHighlightUtils,
   useTipViewerUtils,
-} from "./react-pdf-highlighter";
+} from "./react-pdf-highlighter-extended";
 
 interface HighlightContainerProps {
   editHighlight: (idToUpdate: string, edit: Partial<Highlight>) => void;
@@ -79,6 +79,7 @@ const HighlightContainer = ({
       onMouseOver={(popupContent) => {
         if (isSelectionInProgress()) return;
 
+        console.log("Mouse in!");
         const popupTip: Tip = {
           position: highlight.position,
           content: popupContent,

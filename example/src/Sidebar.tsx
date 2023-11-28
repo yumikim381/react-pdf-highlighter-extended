@@ -1,5 +1,5 @@
 import React from "react";
-import type { Highlight } from "./react-pdf-highlighter";
+import type { Highlight } from "./react-pdf-highlighter-extended";
 import "./style/Sidebar.css";
 
 interface SidebarProps {
@@ -24,11 +24,11 @@ const Sidebar = ({
       {/* Description section */}
       <div className="description" style={{ padding: "1rem" }}>
         <h2 style={{ marginBottom: "1rem" }}>
-          react-pdf-highlighter {APP_VERSION}
+          react-pdf-highlighter-extended {APP_VERSION}
         </h2>
 
         <p style={{ fontSize: "0.7rem" }}>
-          <a href="https://github.com/agentcooper/react-pdf-highlighter">
+          <a href="https://github.com/DanielArnould/react-pdf-highlighter-extended">
             Open in GitHub
           </a>
         </p>

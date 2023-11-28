@@ -14,7 +14,6 @@ import React, {
   PointerEventHandler,
   ReactElement,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -171,6 +170,7 @@ const PdfHighlighter = ({
   const isAreaSelectionInProgressRef = useRef(false);
   const isEditInProgressRef = useRef(false);
   const [tip, setTip] = useState<Tip | null>(null);
+  const [isViewerReady, setIsViewerReady] = useState(false);
 
   // These should only change when a document loads/unloads
   const eventBusRef = useRef<EventBus>(new EventBus());
@@ -215,7 +215,7 @@ const PdfHighlighter = ({
   }, [selectionTip, highlights, onSelectionFinished]);
 
   // Initialise PDF Viewer
-  useLayoutEffect(() => {
+  useEffect(() => {
     const doc = containerNodeRef.current?.ownerDocument;
     if (!doc || !containerNodeRef.current) return;
 
@@ -233,6 +233,7 @@ const PdfHighlighter = ({
     linkServiceRef.current.setDocument(pdfDocument);
     linkServiceRef.current.setViewer(viewerRef.current);
     viewerRef.current.setDocument(pdfDocument);
+    setIsViewerReady(true);
   }, []);
 
   const isTextSelectionEmpty = () => {
@@ -403,8 +404,8 @@ const PdfHighlighter = ({
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.code === "Escape") {
-      // hideTipAndGhostHighlight();
-      renderHighlightLayers();
+      removeGhostHighlight();
+      setTip(null);
     }
   };
 
@@ -505,10 +506,10 @@ const PdfHighlighter = ({
         `}
         </style>
         <TipViewerContext.Provider value={tipViewerUtils}>
-          {viewerRef.current && <TipRenderer viewer={viewerRef.current} />}
-          {viewerRef.current && enableAreaSelection && (
+          {isViewerReady && <TipRenderer viewer={viewerRef.current!} />}
+          {isViewerReady && enableAreaSelection && (
             <MouseSelectionRenderer
-              viewer={viewerRef.current}
+              viewer={viewerRef.current!}
               onChange={(isVisible) =>
                 (isAreaSelectionInProgressRef.current = isVisible)
               }

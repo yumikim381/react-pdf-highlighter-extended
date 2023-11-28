@@ -6,7 +6,7 @@ import {
   useSelectionUtils,
   useTipContainerUtils,
   useTipViewerUtils,
-} from "./react-pdf-highlighter";
+} from "./react-pdf-highlighter-extended";
 import "./style/ExpandableTip.css";
 
 interface ExpandableTipProps {
@@ -49,7 +49,7 @@ const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
             const comment = { text: input };
             addHighlight(
               { content: selectionContent, position: selectionPosition },
-              comment
+              comment,
             );
 
             removeGhostHighlight();

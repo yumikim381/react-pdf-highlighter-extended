@@ -1,10 +1,4 @@
-import React, {
-  ReactNode,
-  useCallback,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { ReactNode, useLayoutEffect, useRef, useState } from "react";
 
 import { TipContainerContext } from "../contexts/TipContext";
 import type { LTWHP } from "../types";
@@ -75,7 +69,7 @@ const TipContainer = ({
   const left = clamp(
     position.left - width / 2,
     0,
-    pageBoundingRect.left + pageBoundingRect.width - width
+    pageBoundingRect.left + pageBoundingRect.width - width,
   );
 
   return (

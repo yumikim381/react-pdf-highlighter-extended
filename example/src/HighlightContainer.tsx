@@ -15,7 +15,7 @@ interface HighlightContainerProps {
   editHighlight: (idToUpdate: string, edit: Partial<Highlight>) => void;
   onContextMenu?: (
     event: MouseEvent<HTMLDivElement>,
-    highlight: ViewportHighlight
+    highlight: ViewportHighlight,
   ) => void;
 }
 
@@ -36,13 +36,13 @@ const HighlightContainer = ({
   const { setTip, toggleEditInProgress } = useTipViewerUtils();
 
   const isTextHighlight = !Boolean(
-    highlight.content && highlight.content.image
+    highlight.content && highlight.content.image,
   );
 
   const component = isTextHighlight ? (
     <TextHighlight
       isScrolledTo={isScrolledTo}
-      position={highlight.position}
+      highlight={highlight}
       onContextMenu={(event) =>
         onContextMenu && onContextMenu(event, highlight)
       }

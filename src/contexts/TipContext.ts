@@ -5,7 +5,14 @@ import { Tip } from "../types";
  * A set of utilities for displaying a tip inside of a PdfHighlighter component.
  */
 export type TipViewerUtils = {
+  /**
+   * The current tip displayed in the viewer
+   */
   currentTip: Tip | null;
+  /**
+   * Set a tip manually to be displayed in the PDF viewer or
+   * set to `null` to hide any existing tip.
+   */
   setTip: (tip: Tip | null) => void;
   /**
    * If enabled, automatic tips/popups inside of a PdfHighlighter will be disabled.

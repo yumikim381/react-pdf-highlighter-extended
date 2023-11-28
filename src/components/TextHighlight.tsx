@@ -2,10 +2,10 @@ import React, { CSSProperties, MouseEvent } from "react";
 
 import "../style/TextHighlight.css";
 
-import type { ViewportPosition } from "../types.js";
+import type { ViewportHighlight } from "../types.js";
 
 interface TextHighlightProps {
-  position: ViewportPosition;
+  highlight: ViewportHighlight;
   onClick?: () => void;
   onMouseOver?: () => void;
   onMouseOut?: () => void;
@@ -19,7 +19,7 @@ interface TextHighlightProps {
  * A component for displaying a highlighted text area
  */
 const TextHighlight = ({
-  position,
+  highlight,
   onClick,
   onMouseOver,
   onMouseOut,
@@ -28,7 +28,7 @@ const TextHighlight = ({
   style,
 }: TextHighlightProps) => {
   const highlightClass = isScrolledTo ? "TextHighlight--scrolledTo" : "";
-  const { rects } = position;
+  const { rects } = highlight.position;
 
   return (
     <div

@@ -159,7 +159,7 @@ const PdfHighlighter = ({
   // 1. We need to use their updated states immediately
   // 2. HighlightLayers are manually rendered per page and thus unaffected by state
   const highlightBindingsRef = useRef<{ [page: number]: HighlightBindings }>(
-    {}
+    {},
   ); // Reference to highlight bindings per page
   const ghostHighlightRef = useRef<GhostHighlight | null>(null); // Reference to in-progress/temporary highlight
   const textSelectionRef = useRef<TextSelection>({
@@ -178,7 +178,7 @@ const PdfHighlighter = ({
     new PDFLinkService({
       eventBus: eventBusRef.current,
       externalLinkTarget: 2,
-    })
+    }),
   );
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const viewerRef = useRef<PDFViewer | null>(null);
@@ -186,7 +186,7 @@ const PdfHighlighter = ({
   const findOrCreateHighlightLayer = (textLayer: HTMLElement) => {
     return findOrCreateContainerLayer(
       textLayer,
-      "PdfHighlighter__highlight-layer"
+      "PdfHighlighter__highlight-layer",
     );
   };
 
@@ -267,7 +267,7 @@ const PdfHighlighter = ({
       viewerRef.current!.container.removeEventListener("scroll", handleScroll);
 
     const pageViewport = viewerRef.current!.getPageView(
-      pageNumber - 1
+      pageNumber - 1,
     ).viewport;
 
     viewerRef.current!.scrollPageIntoView({
@@ -278,7 +278,7 @@ const PdfHighlighter = ({
         ...pageViewport.convertToPdfPoint(
           0, // Default x coord
           scaledToViewport(boundingRect, pageViewport, usePdfCoordinates).top -
-            SCROLL_MARGIN
+            SCROLL_MARGIN,
         ),
         0, // Default z coord
       ],
@@ -352,7 +352,7 @@ const PdfHighlighter = ({
     const content: Content = { text };
     const scaledPosition = viewportPositionToScaled(
       viewportPosition,
-      viewerRef.current!
+      viewerRef.current!,
     );
 
     const selectionUtils: SelectionUtils = {
@@ -386,7 +386,7 @@ const PdfHighlighter = ({
 
   const debouncedHandleAfterSelection = debounce(
     handleAfterSelection,
-    TIP_WAIT
+    TIP_WAIT,
   );
 
   const handleMouseDown: PointerEventHandler = (event) => {
@@ -440,7 +440,7 @@ const PdfHighlighter = ({
 
           renderHighlightLayer(
             highlightBindingsRef.current[pageNumber],
-            pageNumber
+            pageNumber,
           );
         }
       }
@@ -449,7 +449,7 @@ const PdfHighlighter = ({
 
   const renderHighlightLayer = (
     highlightBindings: HighlightBindings,
-    pageNumber: number
+    pageNumber: number,
   ) => {
     if (!viewerRef.current) return;
 
@@ -467,7 +467,7 @@ const PdfHighlighter = ({
           highlightBindings={highlightBindings}
           children={children}
         />
-      </TipViewerContext.Provider>
+      </TipViewerContext.Provider>,
     );
   };
 
@@ -518,7 +518,7 @@ const PdfHighlighter = ({
                 viewportPosition,
                 scaledPosition,
                 image,
-                resetSelection
+                resetSelection,
               ) => {
                 const selectionUtils: SelectionUtils = {
                   selectionPosition: scaledPosition,

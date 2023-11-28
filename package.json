@@ -4,6 +4,10 @@
   "description": "Set of React components for PDF annotation",
   "author": "Artem Tyurin <artem.tyurin@gmail.com>",
   "license": "MIT",
+  "contributes": {
+    "name": "Daniel Arnould",
+    "email": "daniel.s.arnould@gmail.com"
+  },
   "keywords": [
     "pdf",
     "highlight",

@@ -1,9 +1,8 @@
 import { PDFDocumentProxy } from "pdfjs-dist";
 import { createContext, useContext } from "react";
-import { Content, ScaledPosition } from "src/types";
 
 export const PdfLoaderContext = createContext<PDFDocumentProxy | undefined>(
-  undefined
+  undefined,
 );
 
 export const usePdfDocument = () => {
@@ -11,7 +10,7 @@ export const usePdfDocument = () => {
 
   if (pdfDocument === undefined) {
     throw new Error(
-      "usePdfDocument must be used within a correctly configured PdfLoader component!"
+      "usePdfDocument must be used within a correctly configured PdfLoader component!",
     );
   }
 

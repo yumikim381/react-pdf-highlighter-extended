@@ -5,6 +5,7 @@ import { asElement, getPageFromElement, isHTMLElement } from "../lib/pdfjs-dom";
 import screenshot from "../lib/screenshot";
 import MouseSelection from "./MouseSelection";
 import { LTWH, LTWHP, ScaledPosition, ViewportPosition } from "src/types";
+import { disableTextSelection } from "../lib/disable-text-selection";
 
 interface MouseSelectionRendererProps {
   viewer: PDFViewer;
@@ -47,10 +48,6 @@ const MouseSelectionRenderer = ({
   enableAreaSelection,
   style,
 }: MouseSelectionRendererProps) => {
-  const disableTextSelection = (flag: boolean) => {
-    viewer.viewer?.classList.toggle("PdfHighlighter--disable-selection", flag);
-  };
-
   const handleSelection = (
     startTarget: HTMLElement,
     boundingRect: LTWH,
@@ -84,8 +81,8 @@ const MouseSelectionRenderer = ({
 
   return (
     <MouseSelection
-      onDragStart={() => disableTextSelection(true)}
-      onDragEnd={() => disableTextSelection(false)}
+      onDragStart={() => disableTextSelection(viewer, true)}
+      onDragEnd={() => disableTextSelection(viewer, false)}
       onChange={onChange}
       shouldStart={(event) =>
         enableAreaSelection(event) &&

@@ -39,7 +39,7 @@ interface MouseSelectionProps {
   onSelection: (
     startTarget: HTMLElement,
     boundingRect: LTWH,
-    resetSelection: () => void
+    resetSelection: () => void,
   ) => void;
   onDragStart: () => void;
   /**
@@ -82,7 +82,7 @@ const MouseSelection = ({
   const startTargetRef = useRef<HTMLElement | null>(null);
 
   const reset = () => {
-    onDragEnd();
+    // onDragEnd(); Not sure why this was ever here??
     setStart(null);
     setEnd(null);
     setLocked(false);

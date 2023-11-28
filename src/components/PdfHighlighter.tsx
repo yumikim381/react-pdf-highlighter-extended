@@ -13,7 +13,7 @@ import React, {
   CSSProperties,
   PointerEventHandler,
   ReactElement,
-  useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -22,6 +22,7 @@ import { usePdfDocument } from "../contexts/PdfLoaderContext";
 import { SelectionContext, SelectionUtils } from "../contexts/SelectionContext";
 import { TipViewerContext, TipViewerUtils } from "../contexts/TipContext";
 import { scaledToViewport, viewportPositionToScaled } from "../lib/coordinates";
+import { disableTextSelection } from "../lib/disable-text-selection";
 import getBoundingRect from "../lib/get-bounding-rect";
 import getClientRects from "../lib/get-client-rects";
 import groupHighlightsByPage from "../lib/group-highlights-by-page";
@@ -191,7 +192,7 @@ const PdfHighlighter = ({
   };
 
   // Init listeners
-  useEffect(() => {
+  useLayoutEffect(() => {
     resizeObserverRef.current = new ResizeObserver(handleScaleValue);
     const doc = containerNodeRef.current?.ownerDocument;
     if (!doc || !containerNodeRef.current) return;
@@ -215,7 +216,7 @@ const PdfHighlighter = ({
   }, [selectionTip, highlights, onSelectionFinished]);
 
   // Initialise PDF Viewer
-  useEffect(() => {
+  useLayoutEffect(() => {
     const doc = containerNodeRef.current?.ownerDocument;
     if (!doc || !containerNodeRef.current) return;
 
@@ -481,6 +482,8 @@ const PdfHighlighter = ({
       } else {
         isEditInProgressRef.current = !isEditInProgressRef.current;
       }
+
+      disableTextSelection(viewerRef.current!, isEditInProgressRef.current);
     },
     isEditInProgress: () => isEditInProgressRef.current,
   };

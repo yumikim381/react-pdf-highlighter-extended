@@ -86,6 +86,8 @@ const PdfLoader = ({
       });
 
     pdfLoadingTask.onProgress = (progress: OnProgressParameters) => {
+      if (progress.loaded >= progress.total)
+        setLoadingProgress(null);
       setLoadingProgress(progress);
     };
 

@@ -1,68 +1,35 @@
 import { createContext, useContext } from "react";
 import { Tip } from "../types";
 
-/**
- * A set of utilities for displaying a tip inside of a PdfHighlighter component.
- */
-export type TipViewerUtils = {
-  /**
+export type TipUtils = {
+    /**
    * The current tip displayed in the viewer
    */
-  currentTip: Tip | null;
-  /**
-   * Set a tip manually to be displayed in the PDF viewer or
-   * set to `null` to hide any existing tip.
-   */
-  setTip: (tip: Tip | null) => void;
-  /**
-   * If enabled, automatic tips/popups inside of a PdfHighlighter will be disabled.
-   * Additional niceties will also be provided to prevent new highlights being made.
-   */
-  toggleEditInProgress: (flag?: boolean) => void;
-  /**
-   * Whether an AreaHighlight is being moved/resized, or a manual highlight edit has
-   * been toggled.
-   */
-  isEditInProgress: () => boolean;
-};
-
-/**
- * A set of utilities to be used inside a tip displayed within a PdfHighlighter component.
- */
-export type TipContainerUtils = {
-  /**
+    currentTip: Tip | null;
+    /**
+     * Set a tip manually to be displayed in the PDF viewer or
+     * set to `null` to hide any existing tip.
+     */
+    setTip: (tip: Tip | null) => void;
+      /**
    * Recorrect a tip's position to account for its size.
    * Useful if your tip resizes at any point.
    */
   updatePosition: () => void;
-};
+}
 
-export const TipViewerContext = createContext<TipViewerUtils | undefined>(
+export const TipContext = createContext<TipUtils | undefined>(
   undefined
 );
 
-export const TipContainerContext = createContext<TipContainerUtils | undefined>(
-  undefined
-);
+export const useTipContext = () => {
+  const tipUtils = useContext(TipContext);
 
-export const useTipViewerUtils = () => {
-  const tipViewerUtils = useContext(TipViewerContext);
-
-  if (tipViewerUtils === undefined) {
-    throw new Error("useTipViewerUtils must be used within a PdfHighlighter!");
-  }
-
-  return tipViewerUtils;
-};
-
-export const useTipContainerUtils = () => {
-  const tipContainerUtils = useContext(TipContainerContext);
-
-  if (tipContainerUtils === undefined) {
+  if (tipUtils === undefined) {
     throw new Error(
-      "useTipContainerUtils must be used within a tip inside of a PdfHighlighter!"
+      "useTipContext must be used within a tip inside of a PdfHighlighter!"
     );
   }
 
-  return tipContainerUtils;
+  return tipUtils;
 };

@@ -3,18 +3,16 @@ import TextHighlight from "./components/TextHighlight";
 import MonitoredHighlightContainer from "./components/MonitoredHighlightContainer";
 import AreaHighlight from "./components/AreaHighlight";
 import PdfLoader from "./components/PdfLoader";
-import { HighlightUtils, useHighlightUtils } from "./contexts/HighlightContext";
-import { SelectionUtils, useSelectionUtils } from "./contexts/SelectionContext";
+import { HighlightContainerUtils, useHighlightContainerContext } from "./contexts/HighlightContext";
+import { SelectionUtils, useSelectionContext } from "./contexts/SelectionContext";
 import {
   viewportPositionToScaled,
   scaledPositionToViewport,
 } from "./lib/coordinates";
 
 import {
-  TipViewerUtils,
-  useTipViewerUtils,
-  TipContainerUtils,
-  useTipContainerUtils,
+  TipUtils,
+  useTipContext
 } from "./contexts/TipContext";
 
 export {
@@ -23,18 +21,16 @@ export {
   TextHighlight,
   MonitoredHighlightContainer,
   AreaHighlight,
-  useHighlightUtils,
-  useSelectionUtils,
-  useTipViewerUtils,
-  useTipContainerUtils,
+  useHighlightContainerContext,
+  useSelectionContext,
+  useTipContext,
   viewportPositionToScaled,
   scaledPositionToViewport,
 };
 
 export type {
-  HighlightUtils,
+  HighlightContainerUtils,
   SelectionUtils,
-  TipContainerUtils,
-  TipViewerUtils,
+  TipUtils
 };
 export * from "./types";

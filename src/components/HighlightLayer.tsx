@@ -1,6 +1,9 @@
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 import React, { ReactElement } from "react";
-import { HighlightContext, HighlightUtils } from "../contexts/HighlightContext";
+import {
+  HighlightContext,
+  HighlightContainerUtils,
+} from "../contexts/HighlightContext";
 import { scaledPositionToViewport, viewportToScaled } from "../lib/coordinates";
 import screenshot from "../lib/screenshot";
 import {
@@ -64,16 +67,16 @@ const HighlightLayer = ({
         };
 
         const isScrolledTo = Boolean(
-          scrolledToHighlightId === viewportHighlight.id
+          scrolledToHighlightId === viewportHighlight.id,
         );
 
-        const highlightUtils: HighlightUtils = {
+        const highlightUtils: HighlightContainerUtils = {
           highlight: viewportHighlight,
           key: index,
           isSelectionInProgress,
           viewportToScaled: (rect: LTWHP) => {
             const viewport = viewer.getPageView(
-              (rect.pageNumber || pageNumber) - 1 // Convert to 0 index
+              (rect.pageNumber || pageNumber) - 1, // Convert to 0 index
             ).viewport;
 
             return viewportToScaled(rect, viewport);

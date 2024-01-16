@@ -11,10 +11,8 @@ import {
  * A set of utilities for existing highlights designed to be used
  * by a highlight container.
  */
-export type HighlightUtils = {
+export type HighlightContainerUtils = {
   highlight: ViewportHighlight;
-  key: number;
-  isSelectionInProgress: () => boolean;
   /**
    * Convert a Viewport rectangle to a scaled rectangle. Can be used
    * for storing and updating area selection highlights, for example.
@@ -31,16 +29,16 @@ export type HighlightUtils = {
   highlightBindings: HighlightBindings;
 };
 
-export const HighlightContext = createContext<HighlightUtils | undefined>(
+export const HighlightContext = createContext<HighlightContainerUtils | undefined>(
   undefined
 );
 
-export const useHighlightUtils = () => {
-  const highlightUtils = useContext(HighlightContext);
+export const useHighlightContainerContext = () => {
+  const highlightContainerUtils = useContext(HighlightContext);
 
-  if (highlightUtils === undefined) {
-    throw new Error("useHighlightUtils must be used with a PdfHighlighter!");
+  if (highlightContainerUtils === undefined) {
+    throw new Error("useHighlightContainerContext must be used with a PdfHighlighter!"); //TODO: CHANGE
   }
 
-  return highlightUtils;
+  return highlightContainerUtils;
 };

@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { Content, ScaledPosition } from "../types";
+import { Content, GhostHighlight, ScaledPosition } from "../types";
 
 /**
  * A set of utilities for managing a selected area,
@@ -8,29 +8,26 @@ import { Content, ScaledPosition } from "../types";
 export type SelectionUtils = {
   selectionPosition: ScaledPosition;
   selectionContent: Content;
-  /**
-   * Cancel any ghost highlight.
-   * The selected area will stay selected until the user clicks away.
-   */
-  removeGhostHighlight: () => void;
+  isSelectionInProgress: () => boolean;
+  clearSelection: () => void;
   /**
    * Convert the selected area into a temporary "locked" highlight.
    * This is useful if the user needs to fill a form after selecting an area
    * before making a highlight.
    */
-  makeGhostHighlight: () => void;
+  makeGhostHighlight: () => GhostHighlight; //TODO: Return GhostHighlightRef
 };
 
 export const SelectionContext = createContext<SelectionUtils | undefined>(
   undefined
 );
 
-export const useSelectionUtils = () => {
+export const useSelectionContext = () => {
   const selectionUtils = useContext(SelectionContext);
 
   if (selectionUtils === undefined) {
     throw new Error(
-      "useSelectionUtils must be used within a selectionTip inside a PdfHighlighter!"
+      "useSelectionContext must be used within a selectionTip inside a PdfHighlighter!"
     );
   }
 

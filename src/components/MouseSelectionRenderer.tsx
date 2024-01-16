@@ -4,7 +4,7 @@ import { viewportPositionToScaled } from "../lib/coordinates";
 import { asElement, getPageFromElement, isHTMLElement } from "../lib/pdfjs-dom";
 import screenshot from "../lib/screenshot";
 import MouseSelection from "./MouseSelection";
-import { LTWH, LTWHP, ScaledPosition, ViewportPosition } from "src/types";
+import { LTWH, LTWHP, ScaledPosition, ViewportPosition } from "../types";
 import { disableTextSelection } from "../lib/disable-text-selection";
 
 interface MouseSelectionRendererProps {

@@ -2,7 +2,7 @@ import React, { CSSProperties, MouseEvent } from "react";
 
 import "../style/TextHighlight.css";
 
-import type { ViewportHighlight } from "../types.js";
+import type { ViewportHighlight } from "../types";
 
 interface TextHighlightProps {
   highlight: ViewportHighlight;

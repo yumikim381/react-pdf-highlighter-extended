@@ -1,4 +1,4 @@
-import { GhostHighlight, Highlight, ViewportHighlight } from "src/types";
+import { GhostHighlight, Highlight, ViewportHighlight } from "../types";
 
 type AllHighlights = Highlight | GhostHighlight | ViewportHighlight;
 

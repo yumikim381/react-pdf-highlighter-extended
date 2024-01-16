@@ -5,7 +5,7 @@ import {
   LTWHP,
   Scaled,
   ViewportHighlight,
-} from "src/types";
+} from "../types";
 
 /**
  * A set of utilities for existing highlights designed to be used

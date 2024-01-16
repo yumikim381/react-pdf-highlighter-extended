@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { Content, ScaledPosition } from "src/types";
+import { Content, ScaledPosition } from "../types";
 
 /**
  * A set of utilities for managing a selected area,

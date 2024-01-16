@@ -3,7 +3,7 @@ import React, { CSSProperties, useEffect, useRef, useState } from "react";
 import { asElement } from "../lib/pdfjs-dom";
 import "../style/MouseSelection.css";
 
-import type { LTWH } from "../types.js";
+import type { LTWH } from "../types";
 
 type Coords = {
   x: number;

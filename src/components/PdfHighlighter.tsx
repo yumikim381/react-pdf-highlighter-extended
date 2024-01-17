@@ -364,7 +364,7 @@ const PdfHighlighter = ({
     }
 
     setTip(null);
-    clearTextSelection();
+    clearTextSelection(); // TODO: Check if clearing text selection only if not clicking on tip breaks anything.
     removeGhostHighlight();
   };
 

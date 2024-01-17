@@ -8,6 +8,7 @@ import {
   Tip,
   ViewportHighlight,
   useHighlightContainerContext,
+  usePdfHighlighterContext,
   useTipContext,
 } from "./react-pdf-highlighter-extended";
 
@@ -30,6 +31,9 @@ const HighlightContainer = ({
     isScrolledTo,
     highlightBindings,
   } = useHighlightContainerContext();
+
+  const { toggleEditInProgress, isEditingOrHighlighting } =
+    usePdfHighlighterContext();
 
   const { setTip } = useTipContext();
 
@@ -61,13 +65,13 @@ const HighlightContainer = ({
         };
 
         editHighlight(highlight.id, edit);
-        // toggleEditInProgress(false); TODO: EDIT
+        toggleEditInProgress(false);
       }}
       bounds={highlightBindings.textLayer}
       onContextMenu={(event) =>
         onContextMenu && onContextMenu(event, highlight)
       }
-      // onEditStart={() => toggleEditInProgress(true)} TODO: EDIT
+      onEditStart={() => toggleEditInProgress(true)}
     />
   );
 
@@ -75,7 +79,7 @@ const HighlightContainer = ({
     <MonitoredHighlightContainer
       popupContent={<HighlightPopup comment={highlight.comment} />}
       onMouseOver={(popupContent) => {
-        // if (isSelectionInProgress()) return; TODO: REDO
+        if (isEditingOrHighlighting()) return;
 
         const popupTip: Tip = {
           position: highlight.position,

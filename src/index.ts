@@ -13,7 +13,7 @@ import {
   TipUtils,
   useTipContext
 } from "./contexts/TipContext";
-import { useSelectionContext } from "./contexts/SelectionContext";
+import { PdfHighlighterUtils, usePdfHighlighterContext } from "./contexts/PdfHighlighterContext";
 
 export {
   PdfHighlighter,
@@ -25,11 +25,12 @@ export {
   useTipContext,
   viewportPositionToScaled,
   scaledPositionToViewport,
-  useSelectionContext
+  usePdfHighlighterContext
 };
 
 export type {
   HighlightContainerUtils,
-  TipUtils
+  TipUtils,
+  PdfHighlighterUtils
 };
 export * from "./types";

@@ -1,9 +1,10 @@
 import { createContext, useContext } from "react";
-import { GhostHighlight } from "../types";
+import { GhostHighlight, PdfSelection } from "../types";
 import { PdfLoaderContext } from "./PdfLoaderContext";
 
 export type PdfHighlighterUtils = {
-    isSelectionInProgress: () => boolean;
+    isEditingOrHighlighting: () => boolean;
+    getCurrentSelection: () => PdfSelection | undefined;
     getGhostHighlight: () => GhostHighlight | undefined;
   /**
    * Cancel any ghost highlight.
@@ -20,6 +21,7 @@ export type PdfHighlighterUtils = {
    * been toggled.
    */
   isEditInProgress: () => boolean;
+  isSelectionInProgress: () => boolean;
 }
 
 export const PdfHighlighterContext = createContext<PdfHighlighterUtils | undefined>(
@@ -27,7 +29,7 @@ export const PdfHighlighterContext = createContext<PdfHighlighterUtils | undefin
 );
 
 export const usePdfHighlighterContext = () => {
-  const pdfHighlighterUtils = useContext(PdfLoaderContext);
+  const pdfHighlighterUtils = useContext(PdfHighlighterContext);
 
   if (pdfHighlighterUtils === undefined) {
     throw new Error(

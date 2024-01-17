@@ -3,7 +3,7 @@ import CommentForm from "./CommentForm";
 import {
   Comment,
   GhostHighlight,
-  useSelectionContext,
+  usePdfHighlighterContext,
   useTipContext,
 } from "./react-pdf-highlighter-extended";
 import "./style/ExpandableTip.css";
@@ -15,8 +15,14 @@ interface ExpandableTipProps {
 const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
   const [compact, setCompact] = useState(true);
 
-  const { position, content, removeGhostHighlight, makeGhostHighlight } =
-    useSelectionContext();
+  const { getCurrentSelection, removeGhostHighlight } =
+    usePdfHighlighterContext();
+
+  const currentSelection = getCurrentSelection();
+
+  console.log(currentSelection);
+
+  const { position, content, makeGhostHighlight } = currentSelection;
 
   const { setTip, updatePosition } = useTipContext();
 

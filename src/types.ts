@@ -75,7 +75,7 @@ export type ViewportHighlight = Omit<Highlight, "position"> & {
 export type GhostHighlight = Omit<Highlight, "id" | "comment">;
 
 export type PdfSelection = GhostHighlight & {
-  removeGhostHighlight: () => void;
+  // removeGhostHighlight: () => void;
   makeGhostHighlight: () => GhostHighlight;
 }
 

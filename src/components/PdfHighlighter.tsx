@@ -89,6 +89,8 @@ interface PdfHighlighterProps {
    * @param event - Event data and utilities to convert selection into a ghost highlight.
    */
   onSelectionFinished?: (PdfSelection: PdfSelection) => void;
+  onCreateGhostHighlight?: (ghostHighlight: GhostHighlight) => void;
+  onRemoveGhostHighlight?: (ghostHighlight: GhostHighlight) => void;
   /**
    * Optional element that can be displayed as a tip whenever a user makes a selection.
    * This element will be provided an appropriate SelectionContext and can use
@@ -130,6 +132,8 @@ const PdfHighlighter = ({
   pdfViewerRef,
   pdfScaleValue = DEFAULT_SCALE_VALUE,
   onSelectionFinished,
+  onCreateGhostHighlight,
+  onRemoveGhostHighlight,
   selectionTip,
   enableAreaSelection,
   mouseSelectionStyle,
@@ -236,6 +240,8 @@ const PdfHighlighter = ({
   };
 
   const removeGhostHighlight = () => {
+    if (onRemoveGhostHighlight && ghostHighlightRef.current)
+      onRemoveGhostHighlight(ghostHighlightRef.current);
     ghostHighlightRef.current = null;
     renderHighlightLayers();
   };
@@ -327,6 +333,8 @@ const PdfHighlighter = ({
           content: content,
           position: scaledPosition,
         };
+        if (onCreateGhostHighlight)
+          onCreateGhostHighlight(ghostHighlightRef.current);
         renderHighlightLayers();
         return ghostHighlightRef.current;
       },
@@ -512,6 +520,8 @@ const PdfHighlighter = ({
                       position: scaledPosition,
                       content: { image },
                     };
+                    if (onCreateGhostHighlight)
+                      onCreateGhostHighlight(ghostHighlightRef.current);
                     resetSelection();
                     renderHighlightLayers();
                     return ghostHighlightRef.current;

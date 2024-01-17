@@ -63,6 +63,10 @@ export type Highlight = {
   id: string;
 };
 
+export type ViewportHighlight = Omit<Highlight, "position"> & {
+  position: ViewportPosition;
+};
+
 /**
  * A temporary highlight. This represents a selected (text/mouse) area
  * that has been turned into a highlight, usually to fill some tip form.
@@ -70,9 +74,10 @@ export type Highlight = {
  */
 export type GhostHighlight = Omit<Highlight, "id" | "comment">;
 
-export type ViewportHighlight = Omit<Highlight, "position"> & {
-  position: ViewportPosition;
-};
+export type PdfSelection = GhostHighlight & {
+  removeGhostHighlight: () => void;
+  makeGhostHighlight: () => GhostHighlight;
+}
 
 /** The viewport of a single page in a PDF.js viewer  */
 export type Viewport = {

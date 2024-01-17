@@ -83,6 +83,7 @@ const MouseSelection = ({
 
   const reset = () => {
     // onDragEnd(); Not sure why this was ever here??
+    // TODO: CLEAR SELCTION REF HERE
     setStart(null);
     setEnd(null);
     setLocked(false);

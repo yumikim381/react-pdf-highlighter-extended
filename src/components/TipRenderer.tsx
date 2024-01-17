@@ -1,6 +1,6 @@
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 import React from "react";
-import { useTipViewerUtils } from "../contexts/TipContext";
+import { useTipContext } from "../contexts/TipContext";
 import TipContainer from "./TipContainer";
 
 interface TipRendererProps {
@@ -13,10 +13,10 @@ interface TipRendererProps {
  * PdfHighlighter, but it is independently written to help declutter the PdfHighlighter.
  */
 const TipRenderer = ({ viewer }: TipRendererProps) => {
-  const tipViewerUtils = useTipViewerUtils();
-  if (!tipViewerUtils.currentTip) return null;
+  const tipUtils = useTipContext();
+  if (!tipUtils.currentTip) return null;
 
-  const { position, content } = tipViewerUtils.currentTip;
+  const { position, content } = tipUtils.currentTip;
   const { boundingRect } = position;
   const pageNumber = boundingRect.pageNumber;
   const pageNode = viewer.getPageView(pageNumber - 1).div; // Account for 1 indexing of pdf documents

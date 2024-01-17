@@ -1,6 +1,6 @@
 import React, { ReactNode, useLayoutEffect, useRef, useState } from "react";
 
-import { TipContainerContext } from "../contexts/TipContext";
+import { useTipContext } from "../contexts/TipContext";
 import type { LTWHP } from "../types";
 
 const clamp = (value: number, left: number, right: number) =>
@@ -45,6 +45,7 @@ const TipContainer = ({
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
   const nodeRef = useRef<HTMLDivElement | null>(null);
+  const tipUtils = useTipContext();
 
   const updatePosition = () => {
     if (!nodeRef.current) return;
@@ -53,6 +54,8 @@ const TipContainer = ({
     setHeight(offsetHeight);
     setWidth(offsetWidth);
   };
+
+  tipUtils.updatePosition = updatePosition;
 
   useLayoutEffect(() => {
     updatePosition();
@@ -73,20 +76,18 @@ const TipContainer = ({
   );
 
   return (
-    <TipContainerContext.Provider value={{ updatePosition }}>
-      <div
-        className="PdfHighlighter__tip-container"
-        style={{
-          top,
-          left,
-          height: "max-content",
-          width: "max-content",
-        }}
-        ref={nodeRef}
-      >
-        {children}
-      </div>
-    </TipContainerContext.Provider>
+    <div
+      className="PdfHighlighter__tip-container"
+      style={{
+        top,
+        left,
+        height: "max-content",
+        width: "max-content",
+      }}
+      ref={nodeRef}
+    >
+      {children}
+    </div>
   );
 };
 

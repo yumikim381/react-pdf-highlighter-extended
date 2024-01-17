@@ -99,10 +99,13 @@ const PdfLoader = ({
   return error
     ? errorMessage
     : loadingProgress
-    ? beforeLoad(loadingProgress)
-    : pdfDocument && (
-        <PdfLoaderContext.Provider value={pdfDocument} children={children} />
-      );
+      ? beforeLoad(loadingProgress)
+      : pdfDocument && (
+          <PdfLoaderContext.Provider
+            value={{ pdfDocument }}
+            children={children}
+          />
+        );
 };
 
 export default PdfLoader;

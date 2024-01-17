@@ -12,7 +12,6 @@ import {
   PdfHighlighter,
   PdfLoader,
   Tip,
-  TipViewerUtils,
   ViewportHighlight,
 } from "./react-pdf-highlighter-extended";
 import "./style/App.css";
@@ -48,7 +47,7 @@ const App = () => {
   const scrollToRef = useRef<((highlight: Highlight) => void) | undefined>(
     undefined,
   );
-  const tipViewerUtilsRef = useRef<TipViewerUtils | undefined>(undefined);
+  // const tipViewerUtilsRef = useRef<TipViewerUtils | undefined>(undefined);
 
   const toggleDocument = () => {
     const urls = [PRIMARY_PDF_URL, SECONDARY_PDF_URL, LONG_LOADING_PDF_URL];
@@ -72,19 +71,19 @@ const App = () => {
     };
   }, [contextMenu]);
 
-  const handleContextMenu = (
-    event: MouseEvent<HTMLDivElement>,
-    highlight: ViewportHighlight,
-  ) => {
-    event.preventDefault();
+  // const handleContextMenu = (
+  //   event: MouseEvent<HTMLDivElement>,
+  //   highlight: ViewportHighlight,
+  // ) => {
+  //   event.preventDefault();
 
-    setContextMenu({
-      xPos: event.clientX,
-      yPos: event.clientY,
-      deleteHighlight: () => deleteHighlight(highlight),
-      editComment: () => editComment(highlight),
-    });
-  };
+  //   setContextMenu({
+  //     xPos: event.clientX,
+  //     yPos: event.clientY,
+  //     deleteHighlight: () => deleteHighlight(highlight),
+  //     editComment: () => editComment(highlight),
+  //   });
+  // };
 
   const addHighlight = (highlight: GhostHighlight, comment: Comment) => {
     console.log("Saving highlight", highlight);
@@ -113,27 +112,27 @@ const App = () => {
     return highlights.find((highlight) => highlight.id === id);
   };
 
-  // Open comment tip and update highlight with new user input
-  const editComment = (highlight: ViewportHighlight) => {
-    if (!tipViewerUtilsRef.current) return;
+  // // Open comment tip and update highlight with new user input
+  // const editComment = (highlight: ViewportHighlight) => {
+  //   if (!tipViewerUtilsRef.current) return;
 
-    const editCommentTip: Tip = {
-      position: highlight.position,
-      content: (
-        <CommentForm
-          placeHolder={highlight.comment.text}
-          onSubmit={(input) => {
-            editHighlight(highlight.id, { comment: { text: input } });
-            tipViewerUtilsRef.current!.setTip(null);
-            tipViewerUtilsRef.current!.toggleEditInProgress(false);
-          }}
-        ></CommentForm>
-      ),
-    };
+  //   const editCommentTip: Tip = {
+  //     position: highlight.position,
+  //     content: (
+  //       <CommentForm
+  //         placeHolder={highlight.comment.text}
+  //         onSubmit={(input) => {
+  //           editHighlight(highlight.id, { comment: { text: input } });
+  //           tipViewerUtilsRef.current!.setTip(null);
+  //           tipViewerUtilsRef.current!.toggleEditInProgress(false);
+  //         }}
+  //       ></CommentForm>
+  //     ),
+  //   };
 
-    tipViewerUtilsRef.current.setTip(editCommentTip);
-    tipViewerUtilsRef.current.toggleEditInProgress(true);
-  };
+  //   tipViewerUtilsRef.current.setTip(editCommentTip);
+  //   tipViewerUtilsRef.current.toggleEditInProgress(true);
+  // };
 
   // Scroll to highlight based on hash in the URL
   const scrollToHighlightFromHash = () => {
@@ -180,9 +179,9 @@ const App = () => {
             scrollRef={(_scrollTo) => {
               scrollToRef.current = _scrollTo;
             }}
-            tipViewerUtilsRef={(_tipViewerUtils) => {
-              tipViewerUtilsRef.current = _tipViewerUtils;
-            }}
+            // tipViewerUtilsRef={(_tipViewerUtils) => {
+            //   tipViewerUtilsRef.current = _tipViewerUtils;
+            // }}
             pdfScaleValue={pdfScaleValue}
             selectionTip={<ExpandableTip addHighlight={addHighlight} />}
             highlights={highlights}
@@ -192,7 +191,7 @@ const App = () => {
           >
             <HighlightContainer
               editHighlight={editHighlight}
-              onContextMenu={handleContextMenu}
+              // onContextMenu={handleContextMenu}
             />
           </PdfHighlighter>
         </PdfLoader>

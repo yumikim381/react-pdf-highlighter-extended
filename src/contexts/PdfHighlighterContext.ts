@@ -3,6 +3,7 @@ import { GhostHighlight } from "../types";
 import { PdfLoaderContext } from "./PdfLoaderContext";
 
 export type PdfHighlighterUtils = {
+    isSelectionInProgress: () => boolean;
     getGhostHighlight: () => GhostHighlight | undefined;
   /**
    * Cancel any ghost highlight.

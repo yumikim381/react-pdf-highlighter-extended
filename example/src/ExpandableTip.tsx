@@ -3,9 +3,8 @@ import CommentForm from "./CommentForm";
 import {
   Comment,
   GhostHighlight,
-  useSelectionUtils,
-  useTipContainerUtils,
-  useTipViewerUtils,
+  useSelectionContext,
+  useTipContext,
 } from "./react-pdf-highlighter-extended";
 import "./style/ExpandableTip.css";
 
@@ -16,18 +15,13 @@ interface ExpandableTipProps {
 const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
   const [compact, setCompact] = useState(true);
 
-  const {
-    selectionPosition,
-    selectionContent,
-    removeGhostHighlight,
-    makeGhostHighlight,
-  } = useSelectionUtils();
+  const { position, content, removeGhostHighlight, makeGhostHighlight } =
+    useSelectionContext();
 
-  const { setTip } = useTipViewerUtils();
-  const { updatePosition } = useTipContainerUtils();
+  const { setTip, updatePosition } = useTipContext();
 
   useLayoutEffect(() => {
-    updatePosition();
+    updatePosition!();
   }, [compact]);
 
   return (
@@ -47,10 +41,7 @@ const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
           placeHolder="Your comment..."
           onSubmit={(input) => {
             const comment = { text: input };
-            addHighlight(
-              { content: selectionContent, position: selectionPosition },
-              comment,
-            );
+            addHighlight({ content, position }, comment);
 
             removeGhostHighlight();
             setTip(null);

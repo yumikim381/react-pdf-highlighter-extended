@@ -24,8 +24,6 @@ interface HighlightLayerProps {
   /** ID of the highlight the parent PDF Highlighter is trying to autoscroll to. */
   scrolledToHighlightId?: string | null;
   viewer: PDFViewer;
-  /** Whether there is currently a mouse selection or text selection in the same pdf viewer  */
-  isSelectionInProgress: () => boolean;
   /**
    * Group of DOM refs for all the highlights on this layer.
    * See the type comment for more explanation.
@@ -50,7 +48,6 @@ const HighlightLayer = ({
   pageNumber,
   scrolledToHighlightId,
   viewer,
-  isSelectionInProgress,
   highlightBindings,
   children,
 }: HighlightLayerProps) => {
@@ -72,8 +69,6 @@ const HighlightLayer = ({
 
         const highlightUtils: HighlightContainerUtils = {
           highlight: viewportHighlight,
-          key: index,
-          isSelectionInProgress,
           viewportToScaled: (rect: LTWHP) => {
             const viewport = viewer.getPageView(
               (rect.pageNumber || pageNumber) - 1, // Convert to 0 index

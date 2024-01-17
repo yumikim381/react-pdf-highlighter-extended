@@ -10,12 +10,12 @@ export type TipUtils = {
      * Set a tip manually to be displayed in the PDF viewer or
      * set to `null` to hide any existing tip.
      */
-    setTip: (tip: Tip | null) => void;
+    setTip: React.Dispatch<React.SetStateAction<Tip | null>>;
       /**
    * Recorrect a tip's position to account for its size.
    * Useful if your tip resizes at any point.
    */
-  updatePosition: () => void;
+  updatePosition?: () => void;
 }
 
 export const TipContext = createContext<TipUtils | undefined>(

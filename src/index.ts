@@ -4,7 +4,6 @@ import MonitoredHighlightContainer from "./components/MonitoredHighlightContaine
 import AreaHighlight from "./components/AreaHighlight";
 import PdfLoader from "./components/PdfLoader";
 import { HighlightContainerUtils, useHighlightContainerContext } from "./contexts/HighlightContext";
-import { SelectionUtils, useSelectionContext } from "./contexts/SelectionContext";
 import {
   viewportPositionToScaled,
   scaledPositionToViewport,
@@ -14,6 +13,7 @@ import {
   TipUtils,
   useTipContext
 } from "./contexts/TipContext";
+import { useSelectionContext } from "./contexts/SelectionContext";
 
 export {
   PdfHighlighter,
@@ -22,15 +22,14 @@ export {
   MonitoredHighlightContainer,
   AreaHighlight,
   useHighlightContainerContext,
-  useSelectionContext,
   useTipContext,
   viewportPositionToScaled,
   scaledPositionToViewport,
+  useSelectionContext
 };
 
 export type {
   HighlightContainerUtils,
-  SelectionUtils,
   TipUtils
 };
 export * from "./types";

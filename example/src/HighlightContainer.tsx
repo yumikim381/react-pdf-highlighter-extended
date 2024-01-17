@@ -7,8 +7,8 @@ import {
   TextHighlight,
   Tip,
   ViewportHighlight,
-  useHighlightUtils,
-  useTipViewerUtils,
+  useHighlightContainerContext,
+  useTipContext,
 } from "./react-pdf-highlighter-extended";
 
 interface HighlightContainerProps {
@@ -25,15 +25,13 @@ const HighlightContainer = ({
 }: HighlightContainerProps) => {
   const {
     highlight,
-    key,
-    isSelectionInProgress,
     viewportToScaled,
     screenshot,
     isScrolledTo,
     highlightBindings,
-  } = useHighlightUtils();
+  } = useHighlightContainerContext();
 
-  const { setTip, toggleEditInProgress } = useTipViewerUtils();
+  const { setTip } = useTipContext();
 
   const isTextHighlight = !Boolean(
     highlight.content && highlight.content.image,
@@ -63,13 +61,13 @@ const HighlightContainer = ({
         };
 
         editHighlight(highlight.id, edit);
-        toggleEditInProgress(false);
+        // toggleEditInProgress(false); TODO: EDIT
       }}
       bounds={highlightBindings.textLayer}
       onContextMenu={(event) =>
         onContextMenu && onContextMenu(event, highlight)
       }
-      onEditStart={() => toggleEditInProgress(true)}
+      // onEditStart={() => toggleEditInProgress(true)} TODO: EDIT
     />
   );
 
@@ -77,7 +75,7 @@ const HighlightContainer = ({
     <MonitoredHighlightContainer
       popupContent={<HighlightPopup comment={highlight.comment} />}
       onMouseOver={(popupContent) => {
-        if (isSelectionInProgress()) return;
+        // if (isSelectionInProgress()) return; TODO: REDO
 
         const popupTip: Tip = {
           position: highlight.position,
@@ -88,7 +86,7 @@ const HighlightContainer = ({
       onMouseOut={() => {
         setTip(null);
       }}
-      key={key}
+      key={highlight.id}
       children={component}
     />
   );

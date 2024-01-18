@@ -43,11 +43,11 @@ import {
 } from "../types";
 import HighlightLayer from "./HighlightLayer";
 import MouseSelectionRenderer from "./MouseSelectionRenderer";
-import TipRenderer from "./TipRenderer";
 import {
   PdfHighlighterContext,
   PdfHighlighterUtils,
 } from "../contexts/PdfHighlighterContext";
+import TipContainer from "./TipContainer";
 
 const SCROLL_MARGIN = 10;
 const SELECTION_DELAY = 250; // Debounce wait time in milliseconds for a selection changing to be registered
@@ -497,7 +497,7 @@ const PdfHighlighter = ({
           }
         `}
           </style>
-          {isViewerReady && <TipRenderer viewer={viewerRef.current!} />}
+          {isViewerReady && <TipContainer viewer={viewerRef.current!} />}
           {isViewerReady && enableAreaSelection && (
             <MouseSelectionRenderer
               viewer={viewerRef.current!}

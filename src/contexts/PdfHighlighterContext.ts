@@ -1,6 +1,5 @@
 import { createContext, useContext } from "react";
 import { GhostHighlight, PdfSelection } from "../types";
-import { PdfLoaderContext } from "./PdfLoaderContext";
 
 export type PdfHighlighterUtils = {
     isEditingOrHighlighting: () => boolean;

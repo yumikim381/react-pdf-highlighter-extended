@@ -7,7 +7,6 @@ import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 import { viewportPositionToScaled } from "../lib/coordinates";
 import screenshot from "../lib/screenshot";
 import type { LTWH, LTWHP, ScaledPosition, ViewportPosition } from "../types";
-import { usePdfHighlighterContext } from "../contexts/PdfHighlighterContext";
 
 type Coords = {
   x: number;
@@ -21,6 +20,18 @@ const getBoundingRect = (start: Coords, end: Coords): LTWH => {
 
     width: Math.abs(end.x - start.x),
     height: Math.abs(end.y - start.y),
+  };
+};
+
+const getContainerCoords = (
+  container: HTMLElement,
+  pageX: number,
+  pageY: number,
+) => {
+  const containerBoundingRect = container.getBoundingClientRect();
+  return {
+    x: pageX - containerBoundingRect.left + container.scrollLeft,
+    y: pageY - containerBoundingRect.top + container.scrollTop - window.scrollY,
   };
 };
 
@@ -40,23 +51,11 @@ interface MouseSelectionProps {
   style?: CSSProperties;
 }
 
-const getContainerCoords = (
-  container: HTMLElement,
-  pageX: number,
-  pageY: number,
-) => {
-  const containerBoundingRect = container.getBoundingClientRect();
-  return {
-    x: pageX - containerBoundingRect.left + container.scrollLeft,
-    y: pageY - containerBoundingRect.top + container.scrollTop - window.scrollY,
-  };
-};
-
 /**
- * A component that enables the creation of rectangular and interactive
- * mouse selections within a given container. NOTE: This does not disable
- * selection in whatever container the component is placed in. That must be handled
- * through the onDragStart and onDragEnd events.
+ * A component that enables the creation of rectangular and interactive mouse
+ * selections within a given container. NOTE: This does not disable selection in
+ * whatever container the component is placed in. That must be handled through
+ * the onDragStart and onDragEnd events.
  */
 const MouseSelection = ({
   viewer,
@@ -76,92 +75,6 @@ const MouseSelection = ({
   // Needed in order to grab the page info of a mouse selection
   const startTargetRef = useRef<HTMLElement | null>(null);
 
-  const handleMouseUp = (event: MouseEvent) => {
-    if (!rootRef.current || !start || !end || !startTargetRef.current) return;
-
-    const container = asElement(rootRef.current.parentElement);
-
-    const boundingRect = getBoundingRect(start, end);
-
-    // It's impossible to screenshot or open a context menu on a rect with 0 area
-    // So we need to prevent their render.
-    const shouldEnd = (boundingRect: LTWH) => {
-      return boundingRect.width >= 1 && boundingRect.height >= 1;
-    };
-
-    if (
-      !container.contains(asElement(event.target)) ||
-      !shouldEnd(boundingRect)
-    ) {
-      reset();
-      return;
-    }
-
-    setLocked(true);
-
-    const page = getPageFromElement(startTargetRef.current);
-    if (!page) return;
-
-    const pageBoundingRect: LTWHP = {
-      ...boundingRect,
-      top: boundingRect.top - page.node.offsetTop,
-      left: boundingRect.left - page.node.offsetLeft,
-      pageNumber: page.number,
-    };
-
-    const viewportPosition: ViewportPosition = {
-      boundingRect: pageBoundingRect,
-      rects: [],
-    };
-
-    const scaledPosition = viewportPositionToScaled(viewportPosition, viewer);
-
-    const image = screenshot(
-      pageBoundingRect,
-      pageBoundingRect.pageNumber,
-      viewer,
-    );
-
-    if (onSelection)
-      onSelection(viewportPosition, scaledPosition, image, reset);
-    if (onDragEnd) onDragEnd(event);
-  };
-
-  const handleMouseMove = (event: MouseEvent) => {
-    console.log("mouse move!");
-    if (!rootRef.current || !start || locked) return;
-
-    const container = asElement(rootRef.current.parentElement);
-    setEnd(getContainerCoords(container, event.pageX, event.pageY));
-    console.log("new end set!");
-  };
-
-  const handleMouseDown = (event: MouseEvent) => {
-    console.log("mousedown!");
-    const shouldStart = (event: MouseEvent) =>
-      enableAreaSelection(event) &&
-      isHTMLElement(event.target) &&
-      Boolean(asElement(event.target).closest(".page"));
-
-    const shouldReset = (event: MouseEvent) =>
-      start &&
-      !asElement(event.target).closest(".PdfHighlighter__tip-container");
-
-    if (!rootRef.current || !shouldStart(event)) {
-      if (shouldReset(event)) reset();
-      return;
-    }
-
-    const container = asElement(rootRef.current.parentElement);
-
-    startTargetRef.current = asElement(event.target);
-    if (onDragStart) onDragStart(event);
-    setStart(getContainerCoords(container, event.pageX, event.pageY));
-    setEnd(null);
-    setLocked(false);
-    console.log("new start set!");
-  };
-
   const reset = () => {
     if (onReset) onReset();
     setStart(null);
@@ -171,25 +84,104 @@ const MouseSelection = ({
 
   useEffect(() => {
     if (onChange) onChange(Boolean(start && end));
-  }, [start, end]);
-
-  useEffect(() => {
     if (!rootRef.current) return;
 
+    // Should be the PdfHighlighter
     const container = asElement(rootRef.current.parentElement);
 
-    console.log(container);
+    const handleMouseUp = (event: MouseEvent) => {
+      if (!start || !end || !startTargetRef.current) return;
 
+      const boundingRect = getBoundingRect(start, end);
+
+      // Check if the bounding rectangle has a minimum width and height
+      // to prevent recording selections with 0 area
+      const shouldEnd = (boundingRect: LTWH) =>
+        boundingRect.width >= 1 && boundingRect.height >= 1;
+
+      if (
+        !container.contains(asElement(event.target)) ||
+        !shouldEnd(boundingRect)
+      ) {
+        reset();
+        return;
+      }
+
+      setLocked(true);
+
+      const page = getPageFromElement(startTargetRef.current);
+      if (!page) return;
+
+      const pageBoundingRect: LTWHP = {
+        ...boundingRect,
+        top: boundingRect.top - page.node.offsetTop,
+        left: boundingRect.left - page.node.offsetLeft,
+        pageNumber: page.number,
+      };
+
+      const viewportPosition: ViewportPosition = {
+        boundingRect: pageBoundingRect,
+        rects: [],
+      };
+
+      const scaledPosition = viewportPositionToScaled(viewportPosition, viewer);
+
+      const image = screenshot(
+        pageBoundingRect,
+        pageBoundingRect.pageNumber,
+        viewer,
+      );
+
+      if (onSelection)
+        onSelection(viewportPosition, scaledPosition, image, reset);
+      if (onDragEnd) onDragEnd(event);
+    };
+
+    const handleMouseMove = (event: MouseEvent) => {
+      if (!rootRef.current || !start || locked) return;
+      setEnd(getContainerCoords(container, event.pageX, event.pageY));
+    };
+
+    const handleMouseDown = (event: MouseEvent) => {
+      const shouldStart = (event: MouseEvent) =>
+        enableAreaSelection(event) &&
+        isHTMLElement(event.target) &&
+        Boolean(asElement(event.target).closest(".page"));
+
+      // If the user clicks anywhere outside a tip, reset the selection
+      const shouldReset = (event: MouseEvent) =>
+        start &&
+        !asElement(event.target).closest(".PdfHighlighter__tip-container");
+
+      if (!shouldStart(event)) {
+        if (shouldReset(event)) reset();
+        return;
+      }
+
+      startTargetRef.current = asElement(event.target);
+      if (onDragStart) onDragStart(event);
+      setStart(getContainerCoords(container, event.pageX, event.pageY));
+      setEnd(null);
+      setLocked(false);
+    };
+
+    /**
+     * Although we register the event listeners on the PdfHighlighter component, we encapsulate
+     * them in this separate component to enhance maintainability and prevent unnecessary
+     * rerenders of the PdfHighlighter itself. While synthetic events on PdfHighlighter would
+     * be preferable, we need to register "mouseup" on the entire document anyway. Therefore,
+     * we can't avoid using useEffect. We must re-register all events on state changes, as
+     * custom event listeners may otherwise receive stale state.
+     */
     container.addEventListener("mousemove", handleMouseMove);
     container.addEventListener("mousedown", handleMouseDown);
 
-    const { ownerDocument: doc } = container;
-    if (doc.body) doc.body.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("mouseup", handleMouseUp);
 
     return () => {
       container.removeEventListener("mousemove", handleMouseMove);
       container.removeEventListener("mousedown", handleMouseDown);
-      doc.body.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [start, end]);
 

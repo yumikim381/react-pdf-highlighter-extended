@@ -18,9 +18,14 @@ import React, {
   useState,
 } from "react";
 import { createRoot } from "react-dom/client";
+import {
+  PdfHighlighterContext,
+  PdfHighlighterUtils,
+} from "../contexts/PdfHighlighterContext";
 import { usePdfLoaderContext } from "../contexts/PdfLoaderContext";
 import { TipContext, TipUtils } from "../contexts/TipContext";
 import { scaledToViewport, viewportPositionToScaled } from "../lib/coordinates";
+import { disableTextSelection } from "../lib/disable-text-selection";
 import getBoundingRect from "../lib/get-bounding-rect";
 import getClientRects from "../lib/get-client-rects";
 import groupHighlightsByPage from "../lib/group-highlights-by-page";
@@ -42,14 +47,8 @@ import {
   ViewportPosition,
 } from "../types";
 import HighlightLayer from "./HighlightLayer";
-import {
-  PdfHighlighterContext,
-  PdfHighlighterUtils,
-} from "../contexts/PdfHighlighterContext";
-import TipContainer from "./TipContainer";
 import MouseSelection from "./MouseSelection";
-import { disableTextSelection } from "../lib/disable-text-selection";
-import { clear } from "console";
+import TipContainer from "./TipContainer";
 
 const SCROLL_MARGIN = 10;
 const SELECTION_DELAY = 250; // Debounce wait time in milliseconds for a selection changing to be registered

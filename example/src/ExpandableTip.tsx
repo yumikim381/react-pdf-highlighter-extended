@@ -33,10 +33,8 @@ const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
           className="Tip__compact"
           onClick={() => {
             setCompact(false);
-            console.log(getCurrentSelection());
             selectionRef.current = getCurrentSelection();
             selectionRef.current!.makeGhostHighlight();
-            console.log(getCurrentSelection());
           }}
         >
           Add highlight

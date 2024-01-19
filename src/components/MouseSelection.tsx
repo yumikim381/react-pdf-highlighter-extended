@@ -1,9 +1,13 @@
 import React, { CSSProperties, useEffect, useRef, useState } from "react";
 
-import { asElement } from "../lib/pdfjs-dom";
+import { asElement, getPageFromElement, isHTMLElement } from "../lib/pdfjs-dom";
 import "../style/MouseSelection.css";
 
-import type { LTWH } from "../types";
+import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
+import { viewportPositionToScaled } from "../lib/coordinates";
+import screenshot from "../lib/screenshot";
+import type { LTWH, LTWHP, ScaledPosition, ViewportPosition } from "../types";
+import { usePdfHighlighterContext } from "../contexts/PdfHighlighterContext";
 
 type Coords = {
   x: number;
@@ -20,44 +24,33 @@ const getBoundingRect = (start: Coords, end: Coords): LTWH => {
   };
 };
 
-// It's impossible to screenshot or open a context menu on a rect with 0 area
-// So we need to prevent their render.
-const shouldRender = (boundingRect: LTWH) => {
-  return boundingRect.width >= 1 && boundingRect.height >= 1;
-};
-
 interface MouseSelectionProps {
-  /**
-   * Callback function for when the user stops dragging their mouse
-   * and a valid area selection is made. In general, this will only
-   * be called if a mouse selection is even rendered.
-   *
-   * @param startTarget - Whatever element the user's pointer started selection on.
-   * @param boundingRect - The bounding rectangle of the mouse selection.
-   * @param resetSelection - Callback to reset current selection.
-   */
-  onSelection: (
-    startTarget: HTMLElement,
-    boundingRect: LTWH,
+  viewer: PDFViewer;
+  onSelection?: (
+    viewportPosition: ViewportPosition,
+    scaledPosition: ScaledPosition,
+    image: string,
     resetSelection: () => void,
   ) => void;
-  onDragStart: () => void;
-  /**
-   * Callback whenever a mouse selection ends. This will be called
-   * whenever a selection resets and thus even when the selection is
-   * invalid/not rendered. This should be used for handling selection
-   * interference with the parent component (e.g., disabling text selection).
-   */
-  onDragEnd: () => void;
-  shouldStart: (event: MouseEvent) => boolean;
-  /**
-   * Callback whenever the mouse selection area changes.
-   *
-   * @param isVisible - Whether the mouse selection is rendered (i.e., non-zero area)
-   */
-  onChange: (isVisible: boolean) => void;
+  onReset?: () => void;
+  onDragStart?: (event: MouseEvent) => void;
+  onDragEnd?: (event: MouseEvent) => void;
+  enableAreaSelection: (event: MouseEvent) => boolean;
+  onChange?: (isVisible: boolean) => void;
   style?: CSSProperties;
 }
+
+const getContainerCoords = (
+  container: HTMLElement,
+  pageX: number,
+  pageY: number,
+) => {
+  const containerBoundingRect = container.getBoundingClientRect();
+  return {
+    x: pageX - containerBoundingRect.left + container.scrollLeft,
+    y: pageY - containerBoundingRect.top + container.scrollTop - window.scrollY,
+  };
+};
 
 /**
  * A component that enables the creation of rectangular and interactive
@@ -66,10 +59,12 @@ interface MouseSelectionProps {
  * through the onDragStart and onDragEnd events.
  */
 const MouseSelection = ({
+  viewer,
   onSelection,
+  onReset,
   onDragStart,
   onDragEnd,
-  shouldStart,
+  enableAreaSelection,
   onChange,
   style,
 }: MouseSelectionProps) => {
@@ -81,17 +76,101 @@ const MouseSelection = ({
   // Needed in order to grab the page info of a mouse selection
   const startTargetRef = useRef<HTMLElement | null>(null);
 
+  const handleMouseUp = (event: MouseEvent) => {
+    if (!rootRef.current || !start || !end || !startTargetRef.current) return;
+
+    const container = asElement(rootRef.current.parentElement);
+
+    const boundingRect = getBoundingRect(start, end);
+
+    // It's impossible to screenshot or open a context menu on a rect with 0 area
+    // So we need to prevent their render.
+    const shouldEnd = (boundingRect: LTWH) => {
+      return boundingRect.width >= 1 && boundingRect.height >= 1;
+    };
+
+    if (
+      !container.contains(asElement(event.target)) ||
+      !shouldEnd(boundingRect)
+    ) {
+      reset();
+      return;
+    }
+
+    setLocked(true);
+
+    const page = getPageFromElement(startTargetRef.current);
+    if (!page) return;
+
+    const pageBoundingRect: LTWHP = {
+      ...boundingRect,
+      top: boundingRect.top - page.node.offsetTop,
+      left: boundingRect.left - page.node.offsetLeft,
+      pageNumber: page.number,
+    };
+
+    const viewportPosition: ViewportPosition = {
+      boundingRect: pageBoundingRect,
+      rects: [],
+    };
+
+    const scaledPosition = viewportPositionToScaled(viewportPosition, viewer);
+
+    const image = screenshot(
+      pageBoundingRect,
+      pageBoundingRect.pageNumber,
+      viewer,
+    );
+
+    if (onSelection)
+      onSelection(viewportPosition, scaledPosition, image, reset);
+    if (onDragEnd) onDragEnd(event);
+  };
+
+  const handleMouseMove = (event: MouseEvent) => {
+    console.log("mouse move!");
+    if (!rootRef.current || !start || locked) return;
+
+    const container = asElement(rootRef.current.parentElement);
+    setEnd(getContainerCoords(container, event.pageX, event.pageY));
+    console.log("new end set!");
+  };
+
+  const handleMouseDown = (event: MouseEvent) => {
+    console.log("mousedown!");
+    const shouldStart = (event: MouseEvent) =>
+      enableAreaSelection(event) &&
+      isHTMLElement(event.target) &&
+      Boolean(asElement(event.target).closest(".page"));
+
+    const shouldReset = (event: MouseEvent) =>
+      start &&
+      !asElement(event.target).closest(".PdfHighlighter__tip-container");
+
+    if (!rootRef.current || !shouldStart(event)) {
+      if (shouldReset(event)) reset();
+      return;
+    }
+
+    const container = asElement(rootRef.current.parentElement);
+
+    startTargetRef.current = asElement(event.target);
+    if (onDragStart) onDragStart(event);
+    setStart(getContainerCoords(container, event.pageX, event.pageY));
+    setEnd(null);
+    setLocked(false);
+    console.log("new start set!");
+  };
+
   const reset = () => {
-    // onDragEnd(); Not sure why this was ever here??
-    // TODO: CLEAR SELCTION REF HERE
+    if (onReset) onReset();
     setStart(null);
     setEnd(null);
     setLocked(false);
   };
 
   useEffect(() => {
-    const isVisible = Boolean(start && end);
-    onChange(isVisible);
+    if (onChange) onChange(Boolean(start && end));
   }, [start, end]);
 
   useEffect(() => {
@@ -99,59 +178,7 @@ const MouseSelection = ({
 
     const container = asElement(rootRef.current.parentElement);
 
-    let containerBoundingRect: DOMRect | null = null;
-
-    const containerCoords = (pageX: number, pageY: number) => {
-      containerBoundingRect ||= container.getBoundingClientRect();
-      return {
-        x: pageX - containerBoundingRect.left + container.scrollLeft,
-        y:
-          pageY -
-          containerBoundingRect.top +
-          container.scrollTop -
-          window.scrollY,
-      };
-    };
-
-    const handleMouseMove = (event: MouseEvent) => {
-      if (!start || locked) return;
-      setEnd(containerCoords(event.pageX, event.pageY));
-    };
-
-    const handleMouseDown = (event: MouseEvent) => {
-      if (!shouldStart(event)) {
-        reset();
-        return;
-      }
-
-      startTargetRef.current = asElement(event.target);
-      onDragStart();
-      setStart(containerCoords(event.pageX, event.pageY));
-      setEnd(null);
-      setLocked(false);
-    };
-
-    const handleMouseUp = (event: MouseEvent) => {
-      if (!start) return;
-      const newEnd = containerCoords(event.pageX, event.pageY);
-      const boundingRect = getBoundingRect(start, newEnd);
-
-      if (
-        !container.contains(asElement(event.target)) ||
-        !shouldRender(boundingRect)
-      ) {
-        reset();
-        return;
-      }
-
-      setEnd(newEnd);
-      setLocked(true);
-
-      if (start && end && startTargetRef.current) {
-        onSelection(startTargetRef.current, boundingRect, reset);
-        onDragEnd();
-      }
-    };
+    console.log(container);
 
     container.addEventListener("mousemove", handleMouseMove);
     container.addEventListener("mousedown", handleMouseDown);

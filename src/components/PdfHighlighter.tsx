@@ -42,12 +42,14 @@ import {
   ViewportPosition,
 } from "../types";
 import HighlightLayer from "./HighlightLayer";
-import MouseSelectionRenderer from "./MouseSelectionRenderer";
 import {
   PdfHighlighterContext,
   PdfHighlighterUtils,
 } from "../contexts/PdfHighlighterContext";
 import TipContainer from "./TipContainer";
+import MouseSelection from "./MouseSelection";
+import { disableTextSelection } from "../lib/disable-text-selection";
+import { clear } from "console";
 
 const SCROLL_MARGIN = 10;
 const SELECTION_DELAY = 250; // Debounce wait time in milliseconds for a selection changing to be registered
@@ -88,7 +90,7 @@ interface PdfHighlighterProps {
    *
    * @param event - Event data and utilities to convert selection into a ghost highlight.
    */
-  onSelectionFinished?: (PdfSelection: PdfSelection) => void;
+  onSelection?: (PdfSelection: PdfSelection) => void;
   onCreateGhostHighlight?: (ghostHighlight: GhostHighlight) => void;
   onRemoveGhostHighlight?: (ghostHighlight: GhostHighlight) => void;
   /**
@@ -131,7 +133,7 @@ const PdfHighlighter = ({
   scrollRef,
   pdfViewerRef,
   pdfScaleValue = DEFAULT_SCALE_VALUE,
-  onSelectionFinished,
+  onSelection: onSelectionFinished,
   onCreateGhostHighlight,
   onRemoveGhostHighlight,
   selectionTip,
@@ -335,6 +337,7 @@ const PdfHighlighter = ({
         };
         if (onCreateGhostHighlight)
           onCreateGhostHighlight(ghostHighlightRef.current);
+        clearTextSelection();
         renderHighlightLayers();
         return ghostHighlightRef.current;
       },
@@ -499,19 +502,26 @@ const PdfHighlighter = ({
           </style>
           {isViewerReady && <TipContainer viewer={viewerRef.current!} />}
           {isViewerReady && enableAreaSelection && (
-            <MouseSelectionRenderer
+            <MouseSelection
               viewer={viewerRef.current!}
               onChange={(isVisible) =>
                 (isAreaSelectionInProgressRef.current = isVisible)
               }
               enableAreaSelection={enableAreaSelection}
               style={mouseSelectionStyle}
-              onAfterSelection={(
+              onDragStart={() => disableTextSelection(viewerRef.current!, true)}
+              onDragEnd={() => disableTextSelection(viewerRef.current!, false)}
+              onReset={() => {
+                // console.log("onReset called!");
+                selectionRef.current = undefined;
+              }}
+              onSelection={(
                 viewportPosition,
                 scaledPosition,
                 image,
                 resetSelection,
               ) => {
+                console.log(scaledPosition);
                 selectionRef.current = {
                   content: { image },
                   position: scaledPosition,
@@ -522,6 +532,7 @@ const PdfHighlighter = ({
                     };
                     if (onCreateGhostHighlight)
                       onCreateGhostHighlight(ghostHighlightRef.current);
+                    // console.log("Before onReset");
                     resetSelection();
                     renderHighlightLayers();
                     return ghostHighlightRef.current;

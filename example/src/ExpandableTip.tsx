@@ -1,8 +1,9 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import CommentForm from "./CommentForm";
 import {
   Comment,
   GhostHighlight,
+  PdfSelection,
   usePdfHighlighterContext,
   useTipContext,
 } from "./react-pdf-highlighter-extended";
@@ -14,15 +15,10 @@ interface ExpandableTipProps {
 
 const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
   const [compact, setCompact] = useState(true);
+  const selectionRef = useRef<PdfSelection | undefined>(undefined);
 
   const { getCurrentSelection, removeGhostHighlight } =
     usePdfHighlighterContext();
-
-  const currentSelection = getCurrentSelection();
-
-  console.log(currentSelection);
-
-  const { position, content, makeGhostHighlight } = currentSelection;
 
   const { setTip, updatePosition } = useTipContext();
 
@@ -37,7 +33,10 @@ const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
           className="Tip__compact"
           onClick={() => {
             setCompact(false);
-            makeGhostHighlight();
+            console.log(getCurrentSelection());
+            selectionRef.current = getCurrentSelection();
+            selectionRef.current!.makeGhostHighlight();
+            console.log(getCurrentSelection());
           }}
         >
           Add highlight
@@ -47,7 +46,13 @@ const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
           placeHolder="Your comment..."
           onSubmit={(input) => {
             const comment = { text: input };
-            addHighlight({ content, position }, comment);
+            addHighlight(
+              {
+                content: selectionRef.current!.content,
+                position: selectionRef.current!.position,
+              },
+              comment,
+            );
 
             removeGhostHighlight();
             setTip(null);

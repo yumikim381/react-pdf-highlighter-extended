@@ -56,23 +56,24 @@ export type Comment = {
   data?: any;
 };
 
-export type Highlight = {
-  comment: Comment;
-  content: Content;
-  position: ScaledPosition;
-  id: string;
-};
-
-export type ViewportHighlight = Omit<Highlight, "position"> & {
-  position: ViewportPosition;
-};
-
 /**
  * A temporary highlight. This represents a selected (text/mouse) area
  * that has been turned into a highlight, usually to fill some tip form.
  * It has just not been stored permanently yet.
  */
-export type GhostHighlight = Omit<Highlight, "id" | "comment">;
+export interface GhostHighlight {
+  content: Content;
+  position: ScaledPosition;
+}
+
+export interface Highlight extends GhostHighlight {
+  comment: Comment;
+  id: string;
+}
+
+export interface ViewportHighlight extends Omit<Highlight, 'position'> {
+  position: ViewportPosition;
+}
 
 export type PdfSelection = GhostHighlight & {
   // removeGhostHighlight: () => void;

@@ -210,13 +210,9 @@ const PdfHighlighter = ({
     };
   }, [selectionTip, highlights, onSelectionFinished]);
 
-  // Initialise PDF Viewer
-  useLayoutEffect(() => {
-    if (!containerNodeRef.current) return;
-
-    viewerRef.current =
-      viewerRef.current ||
-      new PDFViewer({
+  const debouncedDocumentInit = debounce(() => {
+    if (!viewerRef.current) {
+      viewerRef.current = new PDFViewer({
         container: containerNodeRef.current!,
         eventBus: eventBusRef.current,
         textLayerMode: 2, // Needed to prevent flickering in Chrome. Known issue with PDF.js
@@ -224,12 +220,24 @@ const PdfHighlighter = ({
         linkService: linkServiceRef.current,
         l10n: NullL10n, // No localisation
       });
-
+    }
+    viewerRef.current.setDocument(pdfDocument);
     linkServiceRef.current.setDocument(pdfDocument);
     linkServiceRef.current.setViewer(viewerRef.current);
-    viewerRef.current.setDocument(pdfDocument);
+
     setIsViewerReady(true);
-  }, []);
+  }, 100);
+
+  // Initialise PDF Viewer
+  useLayoutEffect(() => {
+    if (!containerNodeRef.current) return;
+
+    debouncedDocumentInit();
+
+    return () => {
+      debouncedDocumentInit.cancel();
+    };
+  }, [document]);
 
   const isEditingOrHighlighting = () => {
     return (

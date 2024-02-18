@@ -1,7 +1,11 @@
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState, useRef } from "react";
 
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist/legacy/build/pdf";
-import type { PDFDocumentProxy, OnProgressParameters } from "pdfjs-dist";
+import type {
+  PDFDocumentProxy,
+  OnProgressParameters,
+  PDFDocumentLoadingTask,
+} from "pdfjs-dist";
 import {
   DocumentInitParameters,
   TypedArray,
@@ -62,7 +66,8 @@ const PdfLoader = ({
   onError = DEFAULT_ON_ERROR,
   workerSrc = DEFAULT_WORKER_SRC,
 }: PdfLoaderProps) => {
-  const [pdfDocument, setPdfDocument] = useState<PDFDocumentProxy | null>(null);
+  const pdfLoadingTaskRef = useRef<null | PDFDocumentLoadingTask>(null);
+  const pdfDocumentRef = useRef<PDFDocumentProxy | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [loadingProgress, setLoadingProgress] =
     useState<OnProgressParameters | null>(null);
@@ -70,28 +75,34 @@ const PdfLoader = ({
   // Intitialise document
   useEffect(() => {
     GlobalWorkerOptions.workerSrc = workerSrc;
+    pdfLoadingTaskRef.current = getDocument(document);
+    pdfLoadingTaskRef.current.onProgress = (progress: OnProgressParameters) => {
+      setLoadingProgress(progress);
+    };
 
-    const pdfLoadingTask = getDocument(document);
-
-    pdfLoadingTask.promise
+    pdfLoadingTaskRef.current.promise
       .then((pdfDocument: PDFDocumentProxy) => {
-        setPdfDocument(pdfDocument);
+        pdfDocumentRef.current = pdfDocument;
       })
       .catch((error: Error) => {
-        setError(error);
-        onError(error);
+        if (error.message != "Worker was destroyed") {
+          setError(error);
+          onError(error);
+        }
       })
       .finally(() => {
         setLoadingProgress(null);
       });
 
-    pdfLoadingTask.onProgress = (progress: OnProgressParameters) => {
-      setLoadingProgress(progress);
-    };
-
     return () => {
-      if (pdfDocument) {
-        pdfDocument.destroy();
+      console.log(pdfLoadingTaskRef.current);
+
+      if (pdfLoadingTaskRef.current) {
+        pdfLoadingTaskRef.current.destroy();
+      }
+
+      if (pdfDocumentRef.current) {
+        pdfDocumentRef.current.destroy();
       }
     };
   }, [document]);
@@ -100,9 +111,9 @@ const PdfLoader = ({
     ? errorMessage
     : loadingProgress
       ? beforeLoad(loadingProgress)
-      : pdfDocument && (
+      : pdfDocumentRef.current && (
           <PdfLoaderContext.Provider
-            value={{ pdfDocument }}
+            value={{ pdfDocument: pdfDocumentRef.current }}
             children={children}
           />
         );

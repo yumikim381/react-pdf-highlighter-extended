@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 import { useTipContext } from "../contexts/TipContext";
 
@@ -13,9 +13,6 @@ interface TipContainerProps {
 
 const TipContainer = ({ viewer }: TipContainerProps) => {
   const tipUtils = useTipContext();
-  const currentTip = tipUtils.currentTip;
-
-  if (!currentTip) return null;
 
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
@@ -31,7 +28,12 @@ const TipContainer = ({ viewer }: TipContainerProps) => {
   tipUtils.updatePosition = updatePosition;
 
   // useLayoutEffect ensures state is updated before re-render, preventing flickering
-  useLayoutEffect(updatePosition, []);
+  useLayoutEffect(() => {
+    updatePosition();
+  }, [updatePosition]);
+
+  const currentTip = tipUtils.currentTip;
+  if (!currentTip) return null;
 
   // Destructuring current tip's position and content
   const { position, content } = currentTip;

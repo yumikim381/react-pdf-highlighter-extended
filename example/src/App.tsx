@@ -20,7 +20,8 @@ import { testHighlights as _testHighlights } from "./test-highlights";
 const TEST_HIGHLIGHTS = _testHighlights;
 const PRIMARY_PDF_URL = "https://arxiv.org/pdf/1708.08021.pdf";
 const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480.pdf";
-const LONG_LOADING_PDF_URL = "https://arxiv.org/pdf/2210.04048.pdf";
+const LONG_LOADING_PDF_URL =
+  "https://cdn.filestackcontent.com/wcrjf9qPTCKXV3hMXDwK";
 
 const getNextId = () => String(Math.random()).slice(2);
 

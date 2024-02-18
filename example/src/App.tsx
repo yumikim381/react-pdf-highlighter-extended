@@ -174,27 +174,30 @@ const App = () => {
           url={url}
         />
         <PdfLoader document={url}>
-          <PdfHighlighter
-            enableAreaSelection={(event) => event.altKey}
-            onScrollAway={resetHash}
-            scrollRef={(_scrollTo) => {
-              scrollToRef.current = _scrollTo;
-            }}
-            // tipViewerUtilsRef={(_tipViewerUtils) => {
-            //   tipViewerUtilsRef.current = _tipViewerUtils;
-            // }}
-            pdfScaleValue={pdfScaleValue}
-            selectionTip={<ExpandableTip addHighlight={addHighlight} />}
-            highlights={highlights}
-            style={{
-              height: "calc(100% - 45px)",
-            }}
-          >
-            <HighlightContainer
-              editHighlight={editHighlight}
-              // onContextMenu={handleContextMenu}
-            />
-          </PdfHighlighter>
+          {(pdfDocument) => (
+            <PdfHighlighter
+              enableAreaSelection={(event) => event.altKey}
+              pdfDocument={pdfDocument}
+              onScrollAway={resetHash}
+              scrollRef={(_scrollTo) => {
+                scrollToRef.current = _scrollTo;
+              }}
+              // tipViewerUtilsRef={(_tipViewerUtils) => {
+              //   tipViewerUtilsRef.current = _tipViewerUtils;
+              // }}
+              pdfScaleValue={pdfScaleValue}
+              selectionTip={<ExpandableTip addHighlight={addHighlight} />}
+              highlights={highlights}
+              style={{
+                height: "calc(100% - 45px)",
+              }}
+            >
+              <HighlightContainer
+                editHighlight={editHighlight}
+                // onContextMenu={handleContextMenu}
+              />
+            </PdfHighlighter>
+          )}
         </PdfLoader>
       </div>
 

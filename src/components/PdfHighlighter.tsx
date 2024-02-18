@@ -49,6 +49,7 @@ import {
 import HighlightLayer from "./HighlightLayer";
 import MouseSelection from "./MouseSelection";
 import TipContainer from "./TipContainer";
+import { PDFDocumentProxy } from "pdfjs-dist";
 
 const SCROLL_MARGIN = 10;
 const SELECTION_DELAY = 250; // Debounce wait time in milliseconds for a selection changing to be registered
@@ -104,6 +105,7 @@ interface PdfHighlighterProps {
    */
   enableAreaSelection?: (event: MouseEvent) => boolean;
   mouseSelectionStyle?: CSSProperties;
+  pdfDocument: PDFDocumentProxy;
   /**
    * This should be a HighlightRenderer of some sorts. It will be given
    * appropriate context for a single highlight which it can then use to
@@ -138,12 +140,12 @@ const PdfHighlighter = ({
   selectionTip,
   enableAreaSelection,
   mouseSelectionStyle,
+  pdfDocument,
   children,
   textSelectionColor = DEFAULT_TEXT_SELECTION_COLOR,
   style,
 }: PdfHighlighterProps) => {
   const containerNodeRef = useRef<HTMLDivElement | null>(null);
-  const { pdfDocument } = usePdfLoaderContext();
 
   // These are all refs because
   // 1. We need to use their updated states immediately
@@ -486,9 +488,9 @@ const PdfHighlighter = ({
       Boolean(selectionRef.current) || isAreaSelectionInProgressRef.current,
   };
 
-  // scrollRef && scrollRef(scrollToHighlight);
+  scrollRef && scrollRef(scrollToHighlight);
   // tipViewerUtilsRef && tipViewerUtilsRef(tipViewerUtils);
-  // pdfViewerRef && viewerRef.current && pdfViewerRef(viewerRef.current);
+  pdfViewerRef && viewerRef.current && pdfViewerRef(viewerRef.current);
 
   return (
     <PdfHighlighterContext.Provider value={pdfHighlighterUtils}>

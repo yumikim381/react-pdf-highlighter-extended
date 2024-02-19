@@ -1,6 +1,6 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
-import { useTipContext } from "../contexts/TipContext";
+import React, { MutableRefObject, useLayoutEffect, useRef, useState } from "react";
+import { usePdfHighlighterContext } from "../contexts/PdfHighlighterContext";
 
 const clamp = (value: number, left: number, right: number) =>
   Math.min(Math.max(value, left), right);
@@ -9,11 +9,10 @@ const VERTICAL_PADDING = 5;
 
 interface TipContainerProps {
   viewer: PDFViewer;
+  updateTipPositionRef: MutableRefObject<() => void>;
 }
 
-const TipContainer = ({ viewer }: TipContainerProps) => {
-  const tipUtils = useTipContext();
-
+const TipContainer = ({ viewer, updateTipPositionRef }: TipContainerProps) => {
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -25,14 +24,15 @@ const TipContainer = ({ viewer }: TipContainerProps) => {
     setWidth(offsetWidth);
   };
 
-  tipUtils.updatePosition = updatePosition;
+  updateTipPositionRef.current = updatePosition;
 
   // useLayoutEffect ensures state is updated before re-render, preventing flickering
   useLayoutEffect(() => {
     updatePosition();
   }, [updatePosition]);
 
-  const currentTip = tipUtils.currentTip;
+  const {getTip} = usePdfHighlighterContext();
+  const currentTip = getTip();
   if (!currentTip) return null;
 
   // Destructuring current tip's position and content

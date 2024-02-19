@@ -9,10 +9,6 @@ import {
   scaledPositionToViewport,
 } from "./lib/coordinates";
 
-import {
-  TipUtils,
-  useTipContext
-} from "./contexts/TipContext";
 import { PdfHighlighterUtils, usePdfHighlighterContext } from "./contexts/PdfHighlighterContext";
 
 export {
@@ -22,7 +18,6 @@ export {
   MonitoredHighlightContainer,
   AreaHighlight,
   useHighlightContainerContext,
-  useTipContext,
   viewportPositionToScaled,
   scaledPositionToViewport,
   usePdfHighlighterContext
@@ -30,7 +25,6 @@ export {
 
 export type {
   HighlightContainerUtils,
-  TipUtils,
   PdfHighlighterUtils
 };
 export * from "./types";

@@ -5,7 +5,6 @@ import {
   GhostHighlight,
   PdfSelection,
   usePdfHighlighterContext,
-  useTipContext,
 } from "./react-pdf-highlighter-extended";
 import "./style/ExpandableTip.css";
 
@@ -15,15 +14,13 @@ interface ExpandableTipProps {
 
 const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
   const [compact, setCompact] = useState(true);
-  const selectionRef = useRef<PdfSelection | undefined>(undefined);
+  const selectionRef = useRef<PdfSelection | null>(null);
 
-  const { getCurrentSelection, removeGhostHighlight } =
+  const { getCurrentSelection, removeGhostHighlight, setTip, updateTipPosition } =
     usePdfHighlighterContext();
 
-  const { setTip, updatePosition } = useTipContext();
-
   useLayoutEffect(() => {
-    updatePosition!();
+    updateTipPosition!();
   }, [compact]);
 
   return (

@@ -8,8 +8,7 @@ import {
   Tip,
   ViewportHighlight,
   useHighlightContainerContext,
-  usePdfHighlighterContext,
-  useTipContext,
+  usePdfHighlighterContext
 } from "./react-pdf-highlighter-extended";
 
 interface HighlightContainerProps {
@@ -32,10 +31,8 @@ const HighlightContainer = ({
     highlightBindings,
   } = useHighlightContainerContext();
 
-  const { toggleEditInProgress, isEditingOrHighlighting } =
+  const { toggleEditInProgress, isEditingOrHighlighting, setTip } =
     usePdfHighlighterContext();
-
-  const { setTip } = useTipContext();
 
   const isTextHighlight = !Boolean(
     highlight.content && highlight.content.image,

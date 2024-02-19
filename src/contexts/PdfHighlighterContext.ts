@@ -1,10 +1,11 @@
 import { createContext, useContext } from "react";
-import { GhostHighlight, PdfSelection } from "../types";
+import { GhostHighlight, Highlight, PdfSelection, Tip } from "../types";
+import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 
 export type PdfHighlighterUtils = {
     isEditingOrHighlighting: () => boolean;
-    getCurrentSelection: () => PdfSelection | undefined;
-    getGhostHighlight: () => GhostHighlight | undefined;
+    getCurrentSelection: () => PdfSelection | null;
+    getGhostHighlight: () => GhostHighlight | null;
   /**
    * Cancel any ghost highlight.
    * The selected area will stay selected until the user clicks away.
@@ -21,6 +22,11 @@ export type PdfHighlighterUtils = {
    */
   isEditInProgress: () => boolean;
   isSelectionInProgress: () => boolean;
+  scrollToHighlight: (highlight: Highlight) => void;
+  getViewer: () => PDFViewer | null;
+  getTip: () => Tip | null;
+  setTip: (tip: Tip | null) => void;
+  updateTipPosition: () => void;
 }
 
 export const PdfHighlighterContext = createContext<PdfHighlighterUtils | undefined>(

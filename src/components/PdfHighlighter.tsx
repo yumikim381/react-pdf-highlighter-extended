@@ -238,19 +238,17 @@ const PdfHighlighter = ({
   }, SELECTION_DELAY);
 
   const handleMouseDown: PointerEventHandler = (event) => {
-    console.log("mousedown!")
     if (
       !isHTMLElement(event.target) ||
       asElement(event.target).closest(".PdfHighlighter__tip-container") // Ignore selections on tip container
     ) {
-      console.log("in tip")
       return;
     }
 
     setTip(null);
     clearTextSelection(); // TODO: Check if clearing text selection only if not clicking on tip breaks anything.
     removeGhostHighlight();
-    isEditInProgressRef.current = false;
+    toggleEditInProgress(false);
   };
 
   const handleKeyDown = (event: KeyboardEvent) => {
@@ -334,6 +332,21 @@ const PdfHighlighter = ({
     );
   };
 
+  const toggleEditInProgress = (flag?: boolean) => {
+    if (flag !== undefined) {
+      isEditInProgressRef.current = flag;
+    } else {
+      isEditInProgressRef.current = !isEditInProgressRef.current;
+    }
+
+    // Disable text selection
+    if (viewerRef.current)
+      viewerRef.current.viewer?.classList.toggle(
+        "PdfHighlighter--disable-selection",
+        isEditInProgressRef.current,
+      );
+  }
+
   const removeGhostHighlight = () => {
     if (onRemoveGhostHighlight && ghostHighlightRef.current)
       onRemoveGhostHighlight(ghostHighlightRef.current);
@@ -391,20 +404,7 @@ const PdfHighlighter = ({
     getCurrentSelection: () => selectionRef.current,
     getGhostHighlight: () => ghostHighlightRef.current,
     removeGhostHighlight,
-    toggleEditInProgress: (flag) => {
-      if (flag !== undefined) {
-        isEditInProgressRef.current = flag;
-      } else {
-        isEditInProgressRef.current = !isEditInProgressRef.current;
-      }
-
-      // Disable text selection
-      if (viewerRef.current)
-        viewerRef.current.viewer?.classList.toggle(
-          "PdfHighlighter--disable-selection",
-          isEditInProgressRef.current,
-        );
-    },
+    toggleEditInProgress,
     isEditInProgress: () => isEditInProgressRef.current,
     isSelectionInProgress: () =>
       Boolean(selectionRef.current) || isAreaSelectionInProgressRef.current,
@@ -416,7 +416,6 @@ const PdfHighlighter = ({
   };
 
   utilsRef(pdfHighlighterUtils);
-  console.log(isEditingOrHighlighting());
 
   return (
     <PdfHighlighterContext.Provider value={pdfHighlighterUtils}>
@@ -454,7 +453,6 @@ const PdfHighlighter = ({
                 image,
                 resetSelection,
               ) => {
-                console.log(scaledPosition);
                 selectionRef.current = {
                   content: { image },
                   position: scaledPosition,

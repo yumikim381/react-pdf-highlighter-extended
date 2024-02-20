@@ -94,8 +94,6 @@ const PdfLoader = ({
       });
 
     return () => {
-      console.log(pdfLoadingTaskRef.current);
-
       if (pdfLoadingTaskRef.current) {
         pdfLoadingTaskRef.current.destroy();
       }

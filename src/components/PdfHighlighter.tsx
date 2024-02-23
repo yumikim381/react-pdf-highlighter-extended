@@ -355,7 +355,7 @@ const PdfHighlighter = ({
   };
 
   const clearTextSelection = () => {
-    selectionRef.current = undefined;
+    selectionRef.current = null;
 
     const container = containerNodeRef.current;
     const selection = getWindow(container).getSelection();

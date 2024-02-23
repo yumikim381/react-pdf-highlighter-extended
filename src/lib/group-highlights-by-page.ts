@@ -1,11 +1,15 @@
-import { GhostHighlight, Highlight, ViewportHighlight } from "../types";
+import { GhostHighlight, Highlight } from "../types";
 
-const groupHighlightsByPage = <T extends GhostHighlight | ViewportHighlight>(
-  highlights: Array<T>
-): Record<number, Array<T>> =>
+type GroupedHighlights = { [pageNumber: number]: Array<Highlight | GhostHighlight> };
+
+const groupHighlightsByPage = (
+  highlights: Array<Highlight | GhostHighlight | null>
+): GroupedHighlights =>
   highlights
-    .filter(Boolean)
-    .reduce<Record<number, Array<T>>>((acc, highlight) => {
+    .reduce<GroupedHighlights>((acc, highlight) => {
+      if (!highlight) {
+        return acc
+      }
       const pageNumbers = [
         highlight.position.boundingRect.pageNumber,
         ...highlight.position.rects.map((rect) => rect.pageNumber || 0),

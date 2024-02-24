@@ -1,8 +1,8 @@
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
-import React, { ReactElement } from "react";
+import React, { ReactNode } from "react";
 import {
-  HighlightContext,
   HighlightContainerUtils,
+  HighlightContext,
 } from "../contexts/HighlightContext";
 import { scaledPositionToViewport, viewportToScaled } from "../lib/coordinates";
 import screenshot from "../lib/screenshot";
@@ -17,31 +17,53 @@ import {
 
 const EMPTY_ID = "empty-id";
 
+/**
+ * The props type for {@link HighlightLayer}.
+ * 
+ * @internal
+ */
 interface HighlightLayerProps {
+  /**
+   * Highlights and GhostHighlights organised by page number.
+   */
   highlightsByPage: { [pageNumber: number]: Array<Highlight | GhostHighlight> };
-  /** The page number of the PDF document to highlight (1 indexed). */
+
+  /**
+   * The page number of the PDF document to highlight (1 indexed).
+   */
   pageNumber: number;
-  /** ID of the highlight the parent PDF Highlighter is trying to autoscroll to. */
+
+  /**
+   * ID of the highlight that the parent PDF Highlighter is trying to autoscroll to.
+   */
   scrolledToHighlightId?: string | null;
+
+  /**
+   * The PDFViewer instance containing the HighlightLayer
+   */
   viewer: PDFViewer;
+
   /**
    * Group of DOM refs for all the highlights on this layer.
-   * See the type comment for more explanation.
    */
   highlightBindings: HighlightBindings;
+
   /**
-   * This should be a HighlightContainer of some sorts. It will be given
-   * appropriate context for a single highlight which it can then use to
-   * render a TextHighlight, AreaHighlight, etc. in the correct place.
+   * The Highlight container that should be used to render highlights for this layer.
+   * It will be given appropriate context for a single highlight, allowing it to render
+   * a single {@link TextHighlight}, {@link AreaHighlight}, etc., in the correct place.
    */
-  children: ReactElement;
+  children: ReactNode;
 }
 
 /**
- * An internal component that holds all the highlights and ghost highlights
- * for a single page of a PDF document.
- * It should be given a HighlightContainer as a child and all children will be wrapped
- * in the correct HighlightContext. Its rendering should be managed by the PdfHighlighter.
+ * A component responsible for managing all the highlights and ghost highlights
+ * for a single page of a PDF document. It does not render each highlight
+ * but it provides context for a highlight container to do so.
+ * Its rendering should be controlled by a {@link PdfHighlighter}.
+ *
+ * @category Component
+ * @internal
  */
 const HighlightLayer = ({
   highlightsByPage,

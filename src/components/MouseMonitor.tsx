@@ -1,10 +1,10 @@
-import React, { ReactElement, useEffect, useRef } from "react";
+import React, { ReactElement, ReactNode, useEffect, useRef } from "react";
 
 interface MouseMonitorProps {
   onMoveAway: () => void;
   paddingX: number;
   paddingY: number;
-  children: ReactElement;
+  children: ReactNode;
 }
 
 /**

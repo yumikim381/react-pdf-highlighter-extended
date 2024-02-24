@@ -1,26 +1,31 @@
-import React, { ReactElement, useRef } from "react";
+import React, { ReactElement, ReactNode, useRef } from "react";
 import MouseMonitor from "./MouseMonitor";
+import { usePdfHighlighterContext } from "../contexts/PdfHighlighterContext";
+import { Tip } from "../types";
 
+/**
+ * The props type for {@link MonitoredHighlightContainer}.
+ */
 interface MonitoredHighlightContainerProps {
   /**
-   * A callback function to execute when the mouse hovers over the children/highlight.
-   * Can be used for triggering popup renders.
-   *
-   * @param monitoredPopupContent - The content to display in a popup.
+   * A callback triggered whenever the mouse hovers over a highlight.
    */
-  onMouseOver: (monitoredPopupContent: ReactElement) => void;
+  onMouseEnter?: () => void;
+
   /**
    * The content to display in a popup. NOTE: This will not render the popupContent,
    * but it will monitor mouse activity over it
    */
-  popupContent: ReactElement;
+  highlightTip?: Tip;
+
   /**
-   * A callback function to execute when the mouse completely moves out from both the popupContent
+   * A callback triggered whenever the mouse completely moves out from both the popupContent
    * and highlight (children).
    */
-  onMouseOut: () => void;
+  onMouseLeave?: () => void;
+
   /**
-   * Container children. Ideally, should be highlight components of some sort.
+   * Container to monitor .
    */
   children: ReactElement;
 }
@@ -31,38 +36,46 @@ interface MonitoredHighlightContainerProps {
  * but it should ideally be used to set the visible state / rendering of a popup.
  */
 const MonitoredHighlightContainer = ({
-  onMouseOver,
-  popupContent,
-  onMouseOut,
+  onMouseEnter,
+  highlightTip,
+  onMouseLeave,
   children,
 }: MonitoredHighlightContainerProps) => {
   const mouseInRef = useRef(false); // Whether the mouse is over the child (highlight)
 
-  // Create a mouse monitor for the popup content
-  const monitorContent = (
-    <MouseMonitor
-      onMoveAway={() => {
-        if (mouseInRef.current) {
-          return;
-        }
-
-        onMouseOut();
-      }}
-      paddingX={60}
-      paddingY={30}
-    >
-      {popupContent}
-    </MouseMonitor>
-  );
+  const { setTip, isEditingOrHighlighting } = usePdfHighlighterContext();
 
   return (
     <div
       onMouseEnter={() => {
         mouseInRef.current = true;
-        onMouseOver(monitorContent);
+        onMouseEnter && onMouseEnter();
+        if (isEditingOrHighlighting()) return;
+        if (highlightTip) {
+          setTip({
+            position: highlightTip.position,
+            content: (
+              <MouseMonitor
+                onMoveAway={() => {
+                  if (mouseInRef.current) {
+                    return;
+                  }
+
+                  setTip(null);
+                  onMouseLeave && onMouseLeave();
+                }}
+                paddingX={60}
+                paddingY={30}
+              >
+                {highlightTip.content}
+              </MouseMonitor>
+            ),
+          });
+        }
       }}
       onMouseLeave={() => {
         mouseInRef.current = false;
+        !highlightTip && onMouseLeave && onMouseLeave();
       }}
     >
       {children}

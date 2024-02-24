@@ -72,21 +72,14 @@ const HighlightContainer = ({
     />
   );
 
+  const highlightTip: Tip = {
+    position: highlight.position,
+    content: <HighlightPopup comment={highlight.comment} />
+  };
+
   return (
     <MonitoredHighlightContainer
-      popupContent={<HighlightPopup comment={highlight.comment} />}
-      onMouseOver={(popupContent) => {
-        if (isEditingOrHighlighting()) return;
-
-        const popupTip: Tip = {
-          position: highlight.position,
-          content: popupContent,
-        };
-        setTip(popupTip);
-      }}
-      onMouseOut={() => {
-        setTip(null);
-      }}
+      highlightTip={highlightTip}
       key={highlight.id}
       children={component}
     />

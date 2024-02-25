@@ -82,6 +82,7 @@ interface MouseSelectionProps {
    * Condition to check before any mouse selection starts.
    * 
    * @param event - mouse event associated with the new selection.
+   * @returns - `True` if mouse selection should start.
    */
   enableAreaSelection: (event: MouseEvent) => boolean;
 

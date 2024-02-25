@@ -43,11 +43,15 @@ interface PdfLoaderProps {
    * Callback to render content before the PDF document is loaded.
    *
    * @param progress - PDF.js progress status.
+   * @returns - Component to be rendered in space of the PDF document while loading.
    */
   beforeLoad?: (progress: OnProgressParameters) => ReactNode;
 
   /**
    * Component to render in the case of any PDF loading errors.
+   * 
+   * @param error - PDF loading error.
+   * @returns - Component to be rendered in space of the PDF document.
    */
   errorMessage?: (error: Error) => ReactNode;
 
@@ -55,6 +59,7 @@ interface PdfLoaderProps {
    * Child components to use/render the loaded PDF document.
    *
    * @param pdfDocument - The loaded PDF document.
+   * @returns - Component to render once PDF document is loaded.
    */
   children: (pdfDocument: PDFDocumentProxy) => ReactNode;
 
@@ -62,6 +67,7 @@ interface PdfLoaderProps {
    * Callback triggered whenever an error occurs.
    *
    * @param error - PDF Loading error triggering the event.
+   * @returns - Component to be rendered in space of the PDF document.
    */
   onError?: (error: Error) => void;
 

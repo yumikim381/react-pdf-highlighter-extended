@@ -35,19 +35,66 @@ const getContainerCoords = (
   };
 };
 
+/**
+ * The props type for {@link MouseSelection}.
+ *
+ * @internal
+ */
 interface MouseSelectionProps {
+  /**
+   * The PDFViewer instance containing this MouseSelection.
+   */
   viewer: PDFViewer;
+
+  /**
+   * Callback triggered whenever the user stops dragging their mouse and a valid
+   * mouse selection is made. In general, this will only be called if a mouse
+   * selection is rendered.
+   *
+   * @param viewportPosition - viewport position of the mouse selection.
+   * @param scaledPosition - scaled position of the mouse selection.
+   * @param image - PNG screenshot of the mouse selection.
+   * @param resetSelection - Callback to reset the current selection.
+   * @param event - Mouse event associated with ending the selection.
+   */
   onSelection?: (
     viewportPosition: ViewportPosition,
     scaledPosition: ScaledPosition,
     image: string,
     resetSelection: () => void,
+    event: MouseEvent
   ) => void;
+
+  /**
+   * Callback triggered whenever the current mouse selection is reset.
+   * This includes when dragging ends but the selection is invalid.
+   */
   onReset?: () => void;
+
+  /**
+   * Callback triggered whenever a new valid mouse selection begins.
+   * 
+   * @param event - mouse event associated with the new selection.
+   */
   onDragStart?: (event: MouseEvent) => void;
-  onDragEnd?: (event: MouseEvent) => void;
+
+  /**
+   * Condition to check before any mouse selection starts.
+   * 
+   * @param event - mouse event associated with the new selection.
+   */
   enableAreaSelection: (event: MouseEvent) => boolean;
+
+  /**
+   * Callback whenever the mouse selection area changes.
+   *
+   * @param isVisible - Whether the mouse selection is rendered (i.e., non-zero area)
+   */
   onChange?: (isVisible: boolean) => void;
+
+  /**
+   * Optional style props for the mouse selection rectangle.
+   */
   style?: CSSProperties;
 }
 
@@ -55,14 +102,16 @@ interface MouseSelectionProps {
  * A component that enables the creation of rectangular and interactive mouse
  * selections within a given container. NOTE: This does not disable selection in
  * whatever container the component is placed in. That must be handled through
- * the onDragStart and onDragEnd events.
+ * the component's events.
+ *
+ * @category Component
+ * @internal
  */
 const MouseSelection = ({
   viewer,
   onSelection,
   onReset,
   onDragStart,
-  onDragEnd,
   enableAreaSelection,
   onChange,
   style,
@@ -76,14 +125,15 @@ const MouseSelection = ({
   const startTargetRef = useRef<HTMLElement | null>(null);
 
   const reset = () => {
-    if (onReset) onReset();
+    onReset && onReset();
     setStart(null);
     setEnd(null);
     setLocked(false);
   };
 
+  // Register event listeners onChange
   useEffect(() => {
-    if (onChange) onChange(Boolean(start && end));
+    onChange && onChange(Boolean(start && end));
     if (!rootRef.current) return;
 
     // Should be the PdfHighlighter
@@ -96,13 +146,9 @@ const MouseSelection = ({
 
       // Check if the bounding rectangle has a minimum width and height
       // to prevent recording selections with 0 area
-      const shouldEnd = (boundingRect: LTWH) =>
-        boundingRect.width >= 1 && boundingRect.height >= 1;
+      const shouldEnd = boundingRect.width >= 1 && boundingRect.height >= 1;
 
-      if (
-        !container.contains(asElement(event.target)) ||
-        !shouldEnd(boundingRect)
-      ) {
+      if (!container.contains(asElement(event.target)) || !shouldEnd) {
         reset();
         return;
       }
@@ -132,9 +178,7 @@ const MouseSelection = ({
         viewer,
       );
 
-      if (onSelection)
-        onSelection(viewportPosition, scaledPosition, image, reset);
-      if (onDragEnd) onDragEnd(event);
+      onSelection && onSelection(viewportPosition, scaledPosition, image, reset, event);
     };
 
     const handleMouseMove = (event: MouseEvent) => {
@@ -159,7 +203,7 @@ const MouseSelection = ({
       }
 
       startTargetRef.current = asElement(event.target);
-      if (onDragStart) onDragStart(event);
+      onDragStart && onDragStart(event);
       setStart(getContainerCoords(container, event.pageX, event.pageY));
       setEnd(null);
       setLocked(false);

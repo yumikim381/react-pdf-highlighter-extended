@@ -31,7 +31,7 @@ const HighlightContainer = ({
     highlightBindings,
   } = useHighlightContainerContext();
 
-  const { toggleEditInProgress, isEditingOrHighlighting, setTip } =
+  const { toggleEditInProgress } =
     usePdfHighlighterContext();
 
   const isTextHighlight = !Boolean(

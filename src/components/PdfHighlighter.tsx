@@ -13,7 +13,7 @@ import {
 import React, {
   CSSProperties,
   PointerEventHandler,
-  ReactElement,
+  ReactNode,
   useLayoutEffect,
   useRef,
   useState,
@@ -61,23 +61,111 @@ const findOrCreateHighlightLayer = (textLayer: HTMLElement) => {
   );
 };
 
+/**
+ * The props type for {@link PdfHighlighter}.
+ */
 interface PdfHighlighterProps {
+  /**
+   * Array of all highlights to be organised and fed through to the child
+   * highlight container.
+   */
   highlights: Array<Highlight>;
+
+  /**
+   * Event is called only once whenever the user changes scroll after
+   * the autoscroll function, scrollToHighlight, has been called.
+   */
   onScrollAway?: () => void;
+
+  /**
+   * What scale to render the PDF at inside the viewer.
+   */
   pdfScaleValue?: PdfScaleValue;
+
+  /**
+   * Callback triggered whenever a user finishes making a mouse selection or has
+   * selected text.
+   *
+   * @param PdfSelection - Content and positioning of the selection. NOTE:
+   * `makeGhostHighlight` will not work if the selection disappears.
+   */
   onSelection?: (PdfSelection: PdfSelection) => void;
+
+  /**
+   * Callback triggered whenever a ghost (non-permanent) highlight is created.
+   *
+   * @param ghostHighlight - Ghost Highlight that has been created.
+   */
   onCreateGhostHighlight?: (ghostHighlight: GhostHighlight) => void;
+
+  /**
+   * Callback triggered whenever a ghost (non-permanent) highlight is removed.
+   *
+   * @param ghostHighlight - Ghost Highlight that has been removed.
+   */
   onRemoveGhostHighlight?: (ghostHighlight: GhostHighlight) => void;
-  selectionTip?: ReactElement;
+
+  /**
+   * Optional element that can be displayed as a tip whenever a user makes a
+   * selection.
+   */
+  selectionTip?: ReactNode;
+
+  /**
+   * Condition to check before any mouse selection starts.
+   *
+   * @param event - mouse event associated with the new selection.
+   */
   enableAreaSelection?: (event: MouseEvent) => boolean;
+
+  /**
+   * Optional CSS styling for the rectangular mouse selection.
+   */
   mouseSelectionStyle?: CSSProperties;
+
+  /**
+   * PDF document to view and overlay highlights.
+   */
   pdfDocument: PDFDocumentProxy;
-  children: ReactElement;
+
+  /**
+   * This should be a highlight container/renderer of some sorts. It will be
+   * given appropriate context for a single highlight which it can then use to
+   * render a TextHighlight, AreaHighlight, etc. in the correct place.
+   */
+  children: ReactNode;
+
+  /**
+   * Coloring for unhighlighted, selected text.
+   */
   textSelectionColor?: string;
+
+  /**
+   * Creates a reference to the PdfHighlighterContext above the component.
+   *
+   * @param pdfHighlighterUtils - various useful tools with a PdfHighlighter.
+   * See {@link PdfHighlighterContext} for more description.
+   */
   utilsRef: (pdfHighlighterUtils: PdfHighlighterUtils) => void;
+
+  /**
+   * Style properties for the PdfHighlighter (scrollbar, background, etc.), NOT
+   * the PDF.js viewer it encloses. If you want to edit the latter, use the
+   * other style props like `textSelectionColor` or overwrite pdf_viewer.css
+   */
   style?: CSSProperties;
 }
 
+/**
+ * This is a large-scale PDF viewer component designed to facilitate
+ * highlighting. It should be used as a child to a {@link PdfLoader} to ensure
+ * proper document loading. This does not itself render any highlights, but
+ * instead its child should be the container component for each individual
+ * highlight. This component will be provided appropriate HighlightContext for
+ * rendering.
+ *
+ * @category Component
+ */
 const PdfHighlighter = ({
   highlights,
   onScrollAway,
@@ -100,8 +188,10 @@ const PdfHighlighter = ({
 
   // Refs
   const containerNodeRef = useRef<HTMLDivElement | null>(null);
-  const highlightBindingsRef = useRef<{ [page: number]: HighlightBindings }>({});
-  const ghostHighlightRef = useRef<GhostHighlight | null>(null); 
+  const highlightBindingsRef = useRef<{ [page: number]: HighlightBindings }>(
+    {},
+  );
+  const ghostHighlightRef = useRef<GhostHighlight | null>(null);
   const selectionRef = useRef<PdfSelection | null>(null);
   const scrolledToHighlightIdRef = useRef<string | null>(null);
   const isAreaSelectionInProgressRef = useRef(false);
@@ -118,8 +208,6 @@ const PdfHighlighter = ({
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const viewerRef = useRef<PDFViewer | null>(null);
 
-
-
   // Initialise PDF Viewer
   useLayoutEffect(() => {
     if (!containerNodeRef.current) return;
@@ -135,7 +223,7 @@ const PdfHighlighter = ({
           linkService: linkServiceRef.current,
           l10n: NullL10n, // No localisation
         });
-        
+
       viewerRef.current.setDocument(pdfDocument);
       linkServiceRef.current.setDocument(pdfDocument);
       linkServiceRef.current.setViewer(viewerRef.current);
@@ -225,7 +313,8 @@ const PdfHighlighter = ({
           position: scaledPosition,
         };
 
-        onCreateGhostHighlight && onCreateGhostHighlight(ghostHighlightRef.current);
+        onCreateGhostHighlight &&
+          onCreateGhostHighlight(ghostHighlightRef.current);
         clearTextSelection();
         renderHighlightLayers();
         return ghostHighlightRef.current;
@@ -234,7 +323,8 @@ const PdfHighlighter = ({
 
     onSelectionFinished && onSelectionFinished(selectionRef.current);
 
-    selectionTip && setTip({position: viewportPosition, content: selectionTip});
+    selectionTip &&
+      setTip({ position: viewportPosition, content: selectionTip });
   }, SELECTION_DELAY);
 
   const handleMouseDown: PointerEventHandler = (event) => {
@@ -274,17 +364,17 @@ const PdfHighlighter = ({
 
     highlightBindings.reactRoot.render(
       <PdfHighlighterContext.Provider value={pdfHighlighterUtils}>
-          <HighlightLayer
-            highlightsByPage={groupHighlightsByPage([
-              ...highlights,
-              ghostHighlightRef.current,
-            ])}
-            pageNumber={pageNumber}
-            scrolledToHighlightId={scrolledToHighlightIdRef.current}
-            viewer={viewerRef.current}
-            highlightBindings={highlightBindings}
-            children={children}
-          />
+        <HighlightLayer
+          highlightsByPage={groupHighlightsByPage([
+            ...highlights,
+            ghostHighlightRef.current,
+          ])}
+          pageNumber={pageNumber}
+          scrolledToHighlightId={scrolledToHighlightIdRef.current}
+          viewer={viewerRef.current}
+          highlightBindings={highlightBindings}
+          children={children}
+        />
       </PdfHighlighterContext.Provider>,
     );
   };
@@ -345,7 +435,7 @@ const PdfHighlighter = ({
         "PdfHighlighter--disable-selection",
         isEditInProgressRef.current,
       );
-  }
+  };
 
   const removeGhostHighlight = () => {
     if (onRemoveGhostHighlight && ghostHighlightRef.current)
@@ -412,68 +502,75 @@ const PdfHighlighter = ({
     getViewer: () => viewerRef.current,
     getTip: () => tip,
     setTip,
-    updateTipPosition: updateTipPositionRef.current
+    updateTipPosition: updateTipPositionRef.current,
   };
 
   utilsRef(pdfHighlighterUtils);
 
   return (
     <PdfHighlighterContext.Provider value={pdfHighlighterUtils}>
-        <div
-          ref={containerNodeRef}
-          className="PdfHighlighter"
-          onPointerDown={handleMouseDown}
-          style={style}
-        >
-          <div className="pdfViewer" />
-          <style>
-            {`
+      <div
+        ref={containerNodeRef}
+        className="PdfHighlighter"
+        onPointerDown={handleMouseDown}
+        style={style}
+      >
+        <div className="pdfViewer" />
+        <style>
+          {`
           .textLayer ::selection {
             background: ${textSelectionColor};
           }
         `}
-          </style>
-          {isViewerReady && <TipContainer viewer={viewerRef.current!} updateTipPositionRef={updateTipPositionRef} />}
-          {isViewerReady && enableAreaSelection && (
-            <MouseSelection
-              viewer={viewerRef.current!}
-              onChange={(isVisible) =>
-                (isAreaSelectionInProgressRef.current = isVisible)
-              }
-              enableAreaSelection={enableAreaSelection}
-              style={mouseSelectionStyle}
-              onDragStart={() => disableTextSelection(viewerRef.current!, true)}
-              onDragEnd={() => disableTextSelection(viewerRef.current!, false)}
-              onReset={() => {
-                selectionRef.current = null;
-              }}
-              onSelection={(
-                viewportPosition,
-                scaledPosition,
-                image,
-                resetSelection,
-              ) => {
-                selectionRef.current = {
-                  content: { image },
-                  position: scaledPosition,
-                  makeGhostHighlight: () => {
-                    ghostHighlightRef.current = {
-                      position: scaledPosition,
-                      content: { image },
-                    };
-                    onCreateGhostHighlight && onCreateGhostHighlight(ghostHighlightRef.current);
-                    resetSelection();
-                    renderHighlightLayers();
-                    return ghostHighlightRef.current;
-                  },
-                };
+        </style>
+        {isViewerReady && (
+          <TipContainer
+            viewer={viewerRef.current!}
+            updateTipPositionRef={updateTipPositionRef}
+          />
+        )}
+        {isViewerReady && enableAreaSelection && (
+          <MouseSelection
+            viewer={viewerRef.current!}
+            onChange={(isVisible) =>
+              (isAreaSelectionInProgressRef.current = isVisible)
+            }
+            enableAreaSelection={enableAreaSelection}
+            style={mouseSelectionStyle}
+            onDragStart={() => disableTextSelection(viewerRef.current!, true)}
+            onReset={() => {
+              selectionRef.current = null;
+              disableTextSelection(viewerRef.current!, false);
+            }}
+            onSelection={(
+              viewportPosition,
+              scaledPosition,
+              image,
+              resetSelection,
+            ) => {
+              selectionRef.current = {
+                content: { image },
+                position: scaledPosition,
+                makeGhostHighlight: () => {
+                  ghostHighlightRef.current = {
+                    position: scaledPosition,
+                    content: { image },
+                  };
+                  onCreateGhostHighlight &&
+                    onCreateGhostHighlight(ghostHighlightRef.current);
+                  resetSelection();
+                  renderHighlightLayers();
+                  return ghostHighlightRef.current;
+                },
+              };
 
-                onSelectionFinished && onSelectionFinished(selectionRef.current);
-                selectionTip && setTip({position: viewportPosition, content: selectionTip});
-              }}
-            />
-          )}
-        </div>
+              onSelectionFinished && onSelectionFinished(selectionRef.current);
+              selectionTip &&
+                setTip({ position: viewportPosition, content: selectionTip });
+            }}
+          />
+        )}
+      </div>
     </PdfHighlighterContext.Provider>
   );
 };

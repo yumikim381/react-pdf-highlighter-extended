@@ -1,5 +1,10 @@
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
-import React, { MutableRefObject, useLayoutEffect, useRef, useState } from "react";
+import React, {
+  MutableRefObject,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { usePdfHighlighterContext } from "../contexts/PdfHighlighterContext";
 
 const clamp = (value: number, left: number, right: number) =>
@@ -7,11 +12,31 @@ const clamp = (value: number, left: number, right: number) =>
 
 const VERTICAL_PADDING = 5;
 
+/**
+ * The props type for {@link TipContainer}.
+ *
+ * @internal
+ */
 interface TipContainerProps {
+  /**
+   * The PDFViewer instance containing the HighlightLayer
+   */
   viewer: PDFViewer;
+
+  /**
+   * Reference to the callback to update the tip's position.This should be
+   * managed by the PdfHighlighter.
+   */
   updateTipPositionRef: MutableRefObject<() => void>;
 }
 
+/**
+ * A component that manages rendering and placement of a tip around a highlight.
+ * It does not automatically update the tip's position if it resizes.
+ *
+ * @category Component
+ * @internal
+ */
 const TipContainer = ({ viewer, updateTipPositionRef }: TipContainerProps) => {
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
@@ -31,7 +56,7 @@ const TipContainer = ({ viewer, updateTipPositionRef }: TipContainerProps) => {
     updatePosition();
   }, [updatePosition]);
 
-  const {getTip} = usePdfHighlighterContext();
+  const { getTip } = usePdfHighlighterContext();
   const currentTip = getTip();
   if (!currentTip) return null;
 

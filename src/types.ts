@@ -49,11 +49,9 @@ export type Content = {
   image?: string;
 };
 
-/** The comment associated with a highlight.
- * `data` can be used anything, such as emojis, highlight categories, etc. */
+/** The comment associated with a highlight. */
 export type Comment = {
   text: string;
-  data?: any;
 };
 
 /**
@@ -76,7 +74,6 @@ export interface ViewportHighlight extends Omit<Highlight, 'position'> {
 }
 
 export type PdfSelection = GhostHighlight & {
-  // removeGhostHighlight: () => void;
   makeGhostHighlight: () => GhostHighlight;
 }
 

@@ -5,25 +5,34 @@ import {
   LTWHP,
   Scaled,
   ViewportHighlight,
-} from "src/types";
+} from "../types";
 
 /**
- * A set of utilities for existing highlights designed to be used
- * by a highlight container.
+ * A set of utilities for rendering highlights. Designed to be used within a
+ * highlight container.
  */
-export type HighlightUtils = {
+export type HighlightContainerUtils = {
+  /**
+   * The highlight being rendered at this component.
+   */
   highlight: ViewportHighlight;
-  key: number;
-  isSelectionInProgress: () => boolean;
+
   /**
    * Convert a Viewport rectangle to a scaled rectangle. Can be used
    * for storing and updating area selection highlights, for example.
    */
   viewportToScaled: (rect: LTWHP) => Scaled;
-  /** Capture a PNG data url of a viewport rectangle */
+
+  /**
+   *  Capture a PNG data url of a viewport rectangle.
+   */
   screenshot: (position: LTWH) => string;
-  /** Whether the highlight has been autoscrolled to. */
+
+  /** 
+   * Whether the highlight has been autoscrolled to.
+   */
   isScrolledTo: boolean;
+
   /**
    * All the DOM refs for the highlights shared on the same page
    * as `highlight`
@@ -31,16 +40,20 @@ export type HighlightUtils = {
   highlightBindings: HighlightBindings;
 };
 
-export const HighlightContext = createContext<HighlightUtils | undefined>(
+export const HighlightContext = createContext<HighlightContainerUtils | undefined>(
   undefined
 );
 
-export const useHighlightUtils = () => {
-  const highlightUtils = useContext(HighlightContext);
+/**
+ * Custom hook for providing {@link HighlightContainerUtils}. Must be used
+ * within a child of {@link PdfHighlighter}.
+ */
+export const useHighlightContainerContext = () => {
+  const highlightContainerUtils = useContext(HighlightContext);
 
-  if (highlightUtils === undefined) {
-    throw new Error("useHighlightUtils must be used with a PdfHighlighter!");
+  if (highlightContainerUtils === undefined) {
+    throw new Error("useHighlightContainerContext must be used within a child of PdfHighlighter!");
   }
 
-  return highlightUtils;
+  return highlightContainerUtils;
 };

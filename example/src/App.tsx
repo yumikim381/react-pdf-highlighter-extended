@@ -10,9 +10,9 @@ import {
   GhostHighlight,
   Highlight,
   PdfHighlighter,
+  PdfHighlighterUtils,
   PdfLoader,
   Tip,
-  TipViewerUtils,
   ViewportHighlight,
 } from "./react-pdf-highlighter-extended";
 import "./style/App.css";
@@ -21,7 +21,8 @@ import { testHighlights as _testHighlights } from "./test-highlights";
 const TEST_HIGHLIGHTS = _testHighlights;
 const PRIMARY_PDF_URL = "https://arxiv.org/pdf/1708.08021.pdf";
 const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480.pdf";
-const LONG_LOADING_PDF_URL = "https://arxiv.org/pdf/2210.04048.pdf";
+const LONG_LOADING_PDF_URL =
+  "https://cdn.filestackcontent.com/wcrjf9qPTCKXV3hMXDwK";
 
 const getNextId = () => String(Math.random()).slice(2);
 
@@ -45,10 +46,7 @@ const App = () => {
   );
 
   // Refs for PdfHighlighter utilities
-  const scrollToRef = useRef<((highlight: Highlight) => void) | undefined>(
-    undefined,
-  );
-  const tipViewerUtilsRef = useRef<TipViewerUtils | undefined>(undefined);
+  const highlighterUtilsRef = useRef<PdfHighlighterUtils>();
 
   const toggleDocument = () => {
     const urls = [PRIMARY_PDF_URL, SECONDARY_PDF_URL, LONG_LOADING_PDF_URL];
@@ -115,7 +113,7 @@ const App = () => {
 
   // Open comment tip and update highlight with new user input
   const editComment = (highlight: ViewportHighlight) => {
-    if (!tipViewerUtilsRef.current) return;
+    if (!highlighterUtilsRef.current) return;
 
     const editCommentTip: Tip = {
       position: highlight.position,
@@ -124,23 +122,23 @@ const App = () => {
           placeHolder={highlight.comment.text}
           onSubmit={(input) => {
             editHighlight(highlight.id, { comment: { text: input } });
-            tipViewerUtilsRef.current!.setTip(null);
-            tipViewerUtilsRef.current!.toggleEditInProgress(false);
+            highlighterUtilsRef.current!.setTip(null);
+            highlighterUtilsRef.current!.toggleEditInProgress(false);
           }}
         ></CommentForm>
       ),
     };
 
-    tipViewerUtilsRef.current.setTip(editCommentTip);
-    tipViewerUtilsRef.current.toggleEditInProgress(true);
+    highlighterUtilsRef.current.setTip(editCommentTip);
+    highlighterUtilsRef.current.toggleEditInProgress(true);
   };
 
   // Scroll to highlight based on hash in the URL
   const scrollToHighlightFromHash = () => {
     const highlight = getHighlightById(parseIdFromHash());
 
-    if (highlight && scrollToRef.current) {
-      scrollToRef.current(highlight);
+    if (highlight && highlighterUtilsRef.current) {
+      highlighterUtilsRef.current.scrollToHighlight(highlight);
     }
   };
 
@@ -174,27 +172,27 @@ const App = () => {
           url={url}
         />
         <PdfLoader document={url}>
-          <PdfHighlighter
-            enableAreaSelection={(event) => event.altKey}
-            onScrollAway={resetHash}
-            scrollRef={(_scrollTo) => {
-              scrollToRef.current = _scrollTo;
-            }}
-            tipViewerUtilsRef={(_tipViewerUtils) => {
-              tipViewerUtilsRef.current = _tipViewerUtils;
-            }}
-            pdfScaleValue={pdfScaleValue}
-            selectionTip={<ExpandableTip addHighlight={addHighlight} />}
-            highlights={highlights}
-            style={{
-              height: "calc(100% - 45px)",
-            }}
-          >
-            <HighlightContainer
-              editHighlight={editHighlight}
-              onContextMenu={handleContextMenu}
-            />
-          </PdfHighlighter>
+          {(pdfDocument) => (
+            <PdfHighlighter
+              enableAreaSelection={(event) => event.altKey}
+              pdfDocument={pdfDocument}
+              onScrollAway={resetHash}
+              utilsRef={(_pdfHighlighterUtils) => {
+                highlighterUtilsRef.current = _pdfHighlighterUtils;
+              }}
+              pdfScaleValue={pdfScaleValue}
+              selectionTip={<ExpandableTip addHighlight={addHighlight} />}
+              highlights={highlights}
+              style={{
+                height: "calc(100% - 45px)",
+              }}
+            >
+              <HighlightContainer
+                editHighlight={editHighlight}
+                onContextMenu={handleContextMenu}
+              />
+            </PdfHighlighter>
+          )}
         </PdfLoader>
       </div>
 

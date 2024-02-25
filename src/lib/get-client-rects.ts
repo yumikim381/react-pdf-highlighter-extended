@@ -1,4 +1,4 @@
-import type { LTWHP, Page } from "../types.js";
+import type { LTWHP, Page } from "../types";
 
 import optimizeClientRects from "./optimize-client-rects";
 
@@ -37,6 +37,7 @@ const getClientRects = (
         clientRect.width > 0 &&
         clientRect.height > 0 &&
         clientRect.width < pageRect.width &&
+        clientRect.left > pageRect.left &&
         clientRect.height < pageRect.height
       ) {
         const highlightedRect = {

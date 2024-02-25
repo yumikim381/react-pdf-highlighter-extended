@@ -49,18 +49,9 @@ export type Content = {
   image?: string;
 };
 
-/** The comment associated with a highlight.
- * `data` can be used anything, such as emojis, highlight categories, etc. */
+/** The comment associated with a highlight. */
 export type Comment = {
   text: string;
-  data?: any;
-};
-
-export type Highlight = {
-  comment: Comment;
-  content: Content;
-  position: ScaledPosition;
-  id: string;
 };
 
 /**
@@ -68,11 +59,23 @@ export type Highlight = {
  * that has been turned into a highlight, usually to fill some tip form.
  * It has just not been stored permanently yet.
  */
-export type GhostHighlight = Omit<Highlight, "id" | "comment">;
+export interface GhostHighlight {
+  content: Content;
+  position: ScaledPosition;
+}
 
-export type ViewportHighlight = Omit<Highlight, "position"> & {
+export interface Highlight extends GhostHighlight {
+  comment: Comment;
+  id: string;
+}
+
+export interface ViewportHighlight extends Omit<Highlight, 'position'> {
   position: ViewportPosition;
-};
+}
+
+export type PdfSelection = GhostHighlight & {
+  makeGhostHighlight: () => GhostHighlight;
+}
 
 /** The viewport of a single page in a PDF.js viewer  */
 export type Viewport = {

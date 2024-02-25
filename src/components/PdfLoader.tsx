@@ -96,7 +96,7 @@ const PdfLoader = ({
     GlobalWorkerOptions.workerSrc = workerSrc;
     pdfLoadingTaskRef.current = getDocument(document);
     pdfLoadingTaskRef.current.onProgress = (progress: OnProgressParameters) => {
-      setLoadingProgress(progress);
+      setLoadingProgress(progress.loaded >= progress.total ? null : progress);
     };
 
     pdfLoadingTaskRef.current.promise

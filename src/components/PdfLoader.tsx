@@ -1,13 +1,13 @@
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 
 import type {
-  OnProgressParameters,
   PDFDocumentLoadingTask,
   PDFDocumentProxy,
 } from "pdfjs-dist";
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist/legacy/build/pdf";
 import {
   DocumentInitParameters,
+  OnProgressParameters,
   TypedArray,
 } from "pdfjs-dist/types/src/display/api";
 
@@ -26,7 +26,7 @@ const DEFAULT_ON_ERROR = (error: Error) => {
 };
 
 const DEFAULT_WORKER_SRC =
-  "https://unpkg.com/pdfjs-dist@3.8.162/build/pdf.worker.min.js";
+  "https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js";
 
 /**
  * The props type for {@link PdfLoader}.
@@ -37,7 +37,7 @@ interface PdfLoaderProps {
    * If you need to pass HTTP headers, auth parameters,
    * or other pdf settings, do it through here.
    */
-  document: string | URL | TypedArray | ArrayBuffer | DocumentInitParameters;
+  document: string | URL | TypedArray | DocumentInitParameters;
 
   /**
    * Callback to render content before the PDF document is loaded.

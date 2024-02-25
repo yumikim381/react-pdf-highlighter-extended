@@ -4,12 +4,7 @@ import "../style/pdf_viewer.css";
 
 import debounce from "lodash.debounce";
 import { PDFDocumentProxy } from "pdfjs-dist";
-import {
-  EventBus,
-  NullL10n,
-  PDFLinkService,
-  PDFViewer,
-} from "pdfjs-dist/legacy/web/pdf_viewer";
+import { EventBus, NullL10n, PDFLinkService, PDFViewer } from "pdfjs-dist/legacy/web/pdf_viewer";
 import React, {
   CSSProperties,
   PointerEventHandler,
@@ -218,7 +213,9 @@ const PdfHighlighter = ({
         new PDFViewer({
           container: containerNodeRef.current!,
           eventBus: eventBusRef.current,
-          textLayerMode: 2, // Needed to prevent flickering in Chrome. Known issue with PDF.js
+          // @ts-ignore enhanceTextSelection is deprecated but this is the last version to support it. See: https://github.com/DanielArnould/react-pdf-highlighter-extended/issues/3
+          enhanceTextSelection: true,
+          textLayerMode: 2,
           removePageBorders: true,
           linkService: linkServiceRef.current,
           l10n: NullL10n, // No localisation
@@ -393,14 +390,15 @@ const PdfHighlighter = ({
           viewerRef.current!.getPageView(pageNumber - 1) || {};
         if (!textLayer) continue; // Viewer hasn't rendered page yet
 
-        const highlightLayer = findOrCreateHighlightLayer(textLayer.div);
+        // textLayer.div for version >=3.0 and textLayer.textLayerDiv otherwise.
+        const highlightLayer = findOrCreateHighlightLayer(textLayer.textLayerDiv);
 
         if (highlightLayer) {
           const reactRoot = createRoot(highlightLayer);
           highlightBindingsRef.current[pageNumber] = {
             reactRoot,
             container: highlightLayer,
-            textLayer: textLayer.div,
+            textLayer: textLayer.textLayerDiv, // textLayer.div for version >=3.0 and textLayer.textLayerDiv otherwise.
           };
 
           renderHighlightLayer(

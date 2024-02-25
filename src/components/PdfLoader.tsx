@@ -31,7 +31,7 @@ const DEFAULT_WORKER_SRC =
 /**
  * The props type for {@link PdfLoader}.
  */
-interface PdfLoaderProps {
+export interface PdfLoaderProps {
   /**
    * The document to be loaded by PDF.js.
    * If you need to pass HTTP headers, auth parameters,
@@ -45,7 +45,7 @@ interface PdfLoaderProps {
    * @param progress - PDF.js progress status.
    * @returns - Component to be rendered in space of the PDF document while loading.
    */
-  beforeLoad?: (progress: OnProgressParameters) => ReactNode;
+  beforeLoad?(progress: OnProgressParameters): ReactNode;
 
   /**
    * Component to render in the case of any PDF loading errors.
@@ -53,7 +53,7 @@ interface PdfLoaderProps {
    * @param error - PDF loading error.
    * @returns - Component to be rendered in space of the PDF document.
    */
-  errorMessage?: (error: Error) => ReactNode;
+  errorMessage?(error: Error): ReactNode;
 
   /**
    * Child components to use/render the loaded PDF document.
@@ -61,7 +61,7 @@ interface PdfLoaderProps {
    * @param pdfDocument - The loaded PDF document.
    * @returns - Component to render once PDF document is loaded.
    */
-  children: (pdfDocument: PDFDocumentProxy) => ReactNode;
+  children(pdfDocument: PDFDocumentProxy): ReactNode;
 
   /**
    * Callback triggered whenever an error occurs.
@@ -69,7 +69,7 @@ interface PdfLoaderProps {
    * @param error - PDF Loading error triggering the event.
    * @returns - Component to be rendered in space of the PDF document.
    */
-  onError?: (error: Error) => void;
+  onError?(error: Error): void;
 
   /**
    * NOTE: This will be applied to all PdfLoader instances.
@@ -83,7 +83,7 @@ interface PdfLoaderProps {
  *
  * @category Component
  */
-const PdfLoader = ({
+export const PdfLoader = ({
   document,
   beforeLoad = DEFAULT_BEFORE_LOAD,
   errorMessage = DEFAULT_ERROR_MESSAGE,
@@ -137,5 +137,3 @@ const PdfLoader = ({
       ? beforeLoad(loadingProgress)
       : pdfDocumentRef.current && children(pdfDocumentRef.current);
 };
-
-export default PdfLoader;

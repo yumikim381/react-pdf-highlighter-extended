@@ -74,13 +74,13 @@ export interface ViewportHighlight extends Omit<Highlight, 'position'> {
 }
 
 export type PdfSelection = GhostHighlight & {
-  makeGhostHighlight: () => GhostHighlight;
+  makeGhostHighlight(): GhostHighlight;
 }
 
 /** The viewport of a single page in a PDF.js viewer  */
 export type Viewport = {
-  convertToPdfPoint: (x: number, y: number) => Array<number>;
-  convertToViewportRectangle: (pdfRectangle: Array<number>) => Array<number>;
+  convertToPdfPoint(x: number, y: number): Array<number>;
+  convertToViewportRectangle(pdfRectangle: Array<number>): Array<number>;
   width: number;
   height: number;
 };

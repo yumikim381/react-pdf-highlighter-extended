@@ -7,7 +7,7 @@ import type { ViewportHighlight } from "../types";
 /**
  * The props type for {@link TextHighlight}.
  */
-interface TextHighlightProps {
+export interface TextHighlightProps {
   /**
    * Highlight to render over text.
    */
@@ -18,21 +18,21 @@ interface TextHighlightProps {
    *
    * @param event - Mouse event associated with click.
    */
-  onClick?: (event: MouseEvent<HTMLDivElement>) => void;
+  onClick?(event: MouseEvent<HTMLDivElement>): void;
 
   /**
    * Callback triggered whenever the user enters the area of a text highlight.
    *
    * @param event - Mouse event associated with movement.
    */
-  onMouseOver?: (event: MouseEvent<HTMLDivElement>) => void;
+  onMouseOver?(event: MouseEvent<HTMLDivElement>): void;
 
   /**
    * Callback triggered whenever the user leaves  the area of a text highlight.
    *
    * @param event - Mouse event associated with movement.
    */
-  onMouseOut?: (event: MouseEvent<HTMLDivElement>) => void;
+  onMouseOut?(event: MouseEvent<HTMLDivElement>): void;
 
   /**
    * Indicates whether the component is autoscrolled into view, affecting
@@ -45,7 +45,7 @@ interface TextHighlightProps {
    *
    * @param event - Mouse event associated with click.
    */
-  onContextMenu?: (event: MouseEvent<HTMLDivElement>) => void;
+  onContextMenu?(event: MouseEvent<HTMLDivElement>): void;
 
   /**
    * Optional CSS styling applied to each TextHighlight part.
@@ -58,7 +58,7 @@ interface TextHighlightProps {
  *
  * @category Component
  */
-const TextHighlight = ({
+export const TextHighlight = ({
   highlight,
   onClick,
   onMouseOver,
@@ -90,5 +90,3 @@ const TextHighlight = ({
     </div>
   );
 };
-
-export default TextHighlight;

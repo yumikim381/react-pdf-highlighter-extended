@@ -40,9 +40,9 @@ import {
   Tip,
   ViewportPosition,
 } from "../types";
-import HighlightLayer from "./HighlightLayer";
-import MouseSelection from "./MouseSelection";
-import TipContainer from "./TipContainer";
+import { HighlightLayer } from "./HighlightLayer";
+import { MouseSelection } from "./MouseSelection";
+import { TipContainer } from "./TipContainer";
 
 const SCROLL_MARGIN = 10;
 const SELECTION_DELAY = 250; // Debounce wait time in milliseconds for a selection changing to be registered
@@ -59,7 +59,7 @@ const findOrCreateHighlightLayer = (textLayer: HTMLElement) => {
 /**
  * The props type for {@link PdfHighlighter}.
  */
-interface PdfHighlighterProps {
+export interface PdfHighlighterProps {
   /**
    * Array of all highlights to be organised and fed through to the child
    * highlight container.
@@ -70,7 +70,7 @@ interface PdfHighlighterProps {
    * Event is called only once whenever the user changes scroll after
    * the autoscroll function, scrollToHighlight, has been called.
    */
-  onScrollAway?: () => void;
+  onScrollAway?(): void;
 
   /**
    * What scale to render the PDF at inside the viewer.
@@ -84,21 +84,21 @@ interface PdfHighlighterProps {
    * @param PdfSelection - Content and positioning of the selection. NOTE:
    * `makeGhostHighlight` will not work if the selection disappears.
    */
-  onSelection?: (PdfSelection: PdfSelection) => void;
+  onSelection?(PdfSelection: PdfSelection): void;
 
   /**
    * Callback triggered whenever a ghost (non-permanent) highlight is created.
    *
    * @param ghostHighlight - Ghost Highlight that has been created.
    */
-  onCreateGhostHighlight?: (ghostHighlight: GhostHighlight) => void;
+  onCreateGhostHighlight?(ghostHighlight: GhostHighlight): void;
 
   /**
    * Callback triggered whenever a ghost (non-permanent) highlight is removed.
    *
    * @param ghostHighlight - Ghost Highlight that has been removed.
    */
-  onRemoveGhostHighlight?: (ghostHighlight: GhostHighlight) => void;
+  onRemoveGhostHighlight?(ghostHighlight: GhostHighlight): void;
 
   /**
    * Optional element that can be displayed as a tip whenever a user makes a
@@ -112,7 +112,7 @@ interface PdfHighlighterProps {
    * @param event - mouse event associated with the new selection.
    * @returns - `True` if mouse selection should start.
    */
-  enableAreaSelection?: (event: MouseEvent) => boolean;
+  enableAreaSelection?(event: MouseEvent):  boolean;
 
   /**
    * Optional CSS styling for the rectangular mouse selection.
@@ -142,7 +142,7 @@ interface PdfHighlighterProps {
    * @param pdfHighlighterUtils - various useful tools with a PdfHighlighter.
    * See {@link PdfHighlighterContext} for more description.
    */
-  utilsRef: (pdfHighlighterUtils: PdfHighlighterUtils) => void;
+  utilsRef(pdfHighlighterUtils: PdfHighlighterUtils): void;
 
   /**
    * Style properties for the PdfHighlighter (scrollbar, background, etc.), NOT
@@ -162,7 +162,7 @@ interface PdfHighlighterProps {
  *
  * @category Component
  */
-const PdfHighlighter = ({
+export const PdfHighlighter = ({
   highlights,
   onScrollAway,
   pdfScaleValue = DEFAULT_SCALE_VALUE,
@@ -573,5 +573,3 @@ const PdfHighlighter = ({
     </PdfHighlighterContext.Provider>
   );
 };
-
-export default PdfHighlighter;

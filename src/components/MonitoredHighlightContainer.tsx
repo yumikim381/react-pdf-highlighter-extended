@@ -1,16 +1,16 @@
 import React, { ReactNode, useRef } from "react";
 import { usePdfHighlighterContext } from "../contexts/PdfHighlighterContext";
 import { Tip } from "../types";
-import MouseMonitor from "./MouseMonitor";
+import { MouseMonitor } from "./MouseMonitor";
 
 /**
  * The props type for {@link MonitoredHighlightContainer}.
  */
-interface MonitoredHighlightContainerProps {
+export interface MonitoredHighlightContainerProps {
   /**
    * A callback triggered whenever the mouse hovers over a highlight.
    */
-  onMouseEnter?: () => void;
+  onMouseEnter?(): void;
 
   /**
    * What tip to automatically display whenever a mouse hovers over a highlight.
@@ -23,7 +23,7 @@ interface MonitoredHighlightContainerProps {
    * A callback triggered whenever the mouse completely moves out from both the
    * highlight (children) and any highlightTip.
    */
-  onMouseLeave?: () => void;
+  onMouseLeave?(): void;
 
   /**
    * Component to monitor mouse activity over. This should be a highlight within the {@link PdfHighlighter}.
@@ -39,7 +39,7 @@ interface MonitoredHighlightContainerProps {
  * 
  * @category Component 
  */
-const MonitoredHighlightContainer = ({
+export const MonitoredHighlightContainer = ({
   onMouseEnter,
   highlightTip,
   onMouseLeave,
@@ -95,5 +95,3 @@ const MonitoredHighlightContainer = ({
     </div>
   );
 };
-
-export default MonitoredHighlightContainer;

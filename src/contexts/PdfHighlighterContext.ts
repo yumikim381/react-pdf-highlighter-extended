@@ -9,49 +9,49 @@ export type PdfHighlighterUtils = {
   /**
    * Checks whether a selection is progress, a ghost highlight, or an edit.
    * 
-   * @returns - `True` if editing, ghost highlighting, or selecting.
+   * @returns - `true` if editing, ghost highlighting, or selecting.
    */
-  isEditingOrHighlighting: () => boolean;
+  isEditingOrHighlighting(): boolean;
 
   /**
    * Get currently selected area or text selection.
    * 
    * @returns - current selection or `null` if no selection is being made.
    */
-  getCurrentSelection: () => PdfSelection | null;
+  getCurrentSelection(): PdfSelection | null;
 
   /**
    * Get the currently present ghost highlight.
    * 
    * @return - currently present ghost highlight or `null` if non-existent.
    */
-  getGhostHighlight: () => GhostHighlight | null;
+  getGhostHighlight(): GhostHighlight | null;
 
   /**
    * Cancel any ghost highlight.
    * The selected area will stay selected until the user clicks away.
    */
-  removeGhostHighlight: () => void;
+  removeGhostHighlight(): void;
   /**
    * If enabled, automatic tips/popups inside of a PdfHighlighter will be disabled.
    * Additional niceties will also be provided to prevent new highlights being made.
    */
-  toggleEditInProgress: (flag?: boolean) => void;
+  toggleEditInProgress(flag?: boolean): void;
 
   /**
    * Whether an AreaHighlight is being moved/resized, or a manual highlight edit has
    * been toggled.
    * 
-   * @returns - `True` if AreaHighlight is being edited or edit mode was set.
+   * @returns - `true` if AreaHighlight is being edited or edit mode was set.
    */
-  isEditInProgress: () => boolean;
+  isEditInProgress(): boolean;
 
   /**
    * Whether a mouse selection or text selection is currently being performed.
    * 
-   * @returns - `True` if mouse selection or text selection is being performed.
+   * @returns - `true` if mouse selection or text selection is being performed.
    */
-  isSelectionInProgress: () => boolean;
+  isSelectionInProgress(): boolean;
 
   /**
    * Scroll to a highlight in this viewer.
@@ -59,34 +59,34 @@ export type PdfHighlighterUtils = {
    * @param highlight - A highlight provided to the {@link PdfHighlighter} to
    * scroll to.
    */
-  scrollToHighlight: (highlight: Highlight) => void;
+  scrollToHighlight(highlight: Highlight):  void;
 
   /**
    * Get a reference to the currently used instance of a PDF Viewer.
    * 
-   * @returns - THe currently active PDF Viewer.
+   * @returns - The currently active PDF Viewer.
    */
-  getViewer: () => PDFViewer | null;
+  getViewer(): PDFViewer | null;
 
   /**
    * Get the currently active tip, if any.
    *
    * @returns - the currently active tip or `null` if inactive.
    */
-  getTip: () => Tip | null;
+  getTip(): Tip | null;
 
   /**
    * Set a tip to be displayed in the current PDF Viewer.
    *
    * @param tip - tip to be displayed, or `null` to hide any tip.
    */
-  setTip: (tip: Tip | null) => void;
+  setTip(tip: Tip | null): void;
 
   /**
    * Callback to update any currently active tip's position. This will make sure
    * the tip is visible above/below its highlight.
    */
-  updateTipPosition: () => void;
+  updateTipPosition(): void;
 };
 
 export const PdfHighlighterContext = createContext<

@@ -40,7 +40,7 @@ const getContainerCoords = (
  *
  * @internal
  */
-interface MouseSelectionProps {
+export interface MouseSelectionProps {
   /**
    * The PDFViewer instance containing this MouseSelection.
    */
@@ -57,41 +57,41 @@ interface MouseSelectionProps {
    * @param resetSelection - Callback to reset the current selection.
    * @param event - Mouse event associated with ending the selection.
    */
-  onSelection?: (
+  onSelection?(
     viewportPosition: ViewportPosition,
     scaledPosition: ScaledPosition,
     image: string,
     resetSelection: () => void,
-    event: MouseEvent
-  ) => void;
+    event: MouseEvent,
+  ): void;
 
   /**
    * Callback triggered whenever the current mouse selection is reset.
    * This includes when dragging ends but the selection is invalid.
    */
-  onReset?: () => void;
+  onReset?(): void;
 
   /**
    * Callback triggered whenever a new valid mouse selection begins.
-   * 
+   *
    * @param event - mouse event associated with the new selection.
    */
-  onDragStart?: (event: MouseEvent) => void;
+  onDragStart?(event: MouseEvent): void;
 
   /**
    * Condition to check before any mouse selection starts.
-   * 
+   *
    * @param event - mouse event associated with the new selection.
    * @returns - `True` if mouse selection should start.
    */
-  enableAreaSelection: (event: MouseEvent) => boolean;
+  enableAreaSelection(event: MouseEvent): boolean;
 
   /**
    * Callback whenever the mouse selection area changes.
    *
    * @param isVisible - Whether the mouse selection is rendered (i.e., non-zero area)
    */
-  onChange?: (isVisible: boolean) => void;
+  onChange?(isVisible: boolean): void;
 
   /**
    * Optional style props for the mouse selection rectangle.
@@ -108,7 +108,7 @@ interface MouseSelectionProps {
  * @category Component
  * @internal
  */
-const MouseSelection = ({
+export const MouseSelection = ({
   viewer,
   onSelection,
   onReset,
@@ -179,7 +179,8 @@ const MouseSelection = ({
         viewer,
       );
 
-      onSelection && onSelection(viewportPosition, scaledPosition, image, reset, event);
+      onSelection &&
+        onSelection(viewportPosition, scaledPosition, image, reset, event);
     };
 
     const handleMouseMove = (event: MouseEvent) => {
@@ -241,5 +242,3 @@ const MouseSelection = ({
     </div>
   );
 };
-
-export default MouseSelection;

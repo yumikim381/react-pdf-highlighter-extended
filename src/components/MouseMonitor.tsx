@@ -5,13 +5,13 @@ import React, { ReactNode, useEffect, useRef } from "react";
  * 
  * @internal
  */
-interface MouseMonitorProps {
+export interface MouseMonitorProps {
   /**
    * Callback triggered whenever the mouse moves not within the bounds of the
    * child component. This will keep triggering as long as the component is
    * rendered.
    */
-  onMoveAway: () => void;
+  onMoveAway(): void;
 
   /**
    * X padding in pixels for the container to monitor mouse activity in.
@@ -35,7 +35,7 @@ interface MouseMonitorProps {
  * @category Component
  * @internal
  */
-const MouseMonitor = ({
+export const MouseMonitor = ({
   onMoveAway,
   paddingX,
   paddingY,
@@ -71,5 +71,3 @@ const MouseMonitor = ({
 
   return <div ref={containerRef}>{children}</div>;
 };
-
-export default MouseMonitor;

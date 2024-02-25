@@ -22,7 +22,7 @@ const EMPTY_ID = "empty-id";
  * 
  * @internal
  */
-interface HighlightLayerProps {
+export interface HighlightLayerProps {
   /**
    * Highlights and GhostHighlights organised by page number.
    */
@@ -65,7 +65,7 @@ interface HighlightLayerProps {
  * @category Component
  * @internal
  */
-const HighlightLayer = ({
+export const HighlightLayer = ({
   highlightsByPage,
   pageNumber,
   scrolledToHighlightId,
@@ -113,5 +113,3 @@ const HighlightLayer = ({
     </div>
   );
 };
-
-export default HighlightLayer;

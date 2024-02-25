@@ -17,7 +17,7 @@ const VERTICAL_PADDING = 5;
  *
  * @internal
  */
-interface TipContainerProps {
+export interface TipContainerProps {
   /**
    * The PDFViewer instance containing the HighlightLayer
    */
@@ -37,7 +37,7 @@ interface TipContainerProps {
  * @category Component
  * @internal
  */
-const TipContainer = ({ viewer, updateTipPositionRef }: TipContainerProps) => {
+export const TipContainer = ({ viewer, updateTipPositionRef }: TipContainerProps) => {
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -98,5 +98,3 @@ const TipContainer = ({ viewer, updateTipPositionRef }: TipContainerProps) => {
     </div>
   );
 };
-
-export default TipContainer;

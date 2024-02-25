@@ -10,7 +10,7 @@ import type { LTWHP, ViewportHighlight } from "../types";
 /**
  * The props type for {@link AreaHighlight}.
  */
-interface AreaHighlightProps {
+export interface AreaHighlightProps {
   /**
    * The highlight to be rendered as an {@link AreaHighlight}.
    */
@@ -19,9 +19,10 @@ interface AreaHighlightProps {
   /**
    * A callback triggered whenever the highlight area is either finished
    * being moved or resized.
+   * 
    * @param rect - The updated highlight area.
    */
-  onChange?: (rect: LTWHP) => void;
+  onChange?(rect: LTWHP): void;
 
   /**
    * Has the highlight been auto-scrolled into view? By default, this will render the highlight red.
@@ -36,14 +37,15 @@ interface AreaHighlightProps {
 
   /**
    * A callback triggered whenever a context menu is opened on the highlight area.
+   * 
    * @param event - The mouse event associated with the context menu.
    */
-  onContextMenu?: (event: MouseEvent<HTMLDivElement>) => void;
+  onContextMenu?(event: MouseEvent<HTMLDivElement>): void;
 
   /**
    * Event called whenever the user tries to move or resize an {@link AreaHighlight}.
    */
-  onEditStart?: () => void;
+  onEditStart?(): void;
 
   /**
    * Custom styling to be applied to the {@link AreaHighlight} component.
@@ -56,7 +58,7 @@ interface AreaHighlightProps {
  *
  * @category Component
  */
-const AreaHighlight = ({
+export const AreaHighlight = ({
   highlight,
   onChange,
   isScrolledTo,
@@ -120,5 +122,3 @@ const AreaHighlight = ({
     </div>
   );
 };
-
-export default AreaHighlight;

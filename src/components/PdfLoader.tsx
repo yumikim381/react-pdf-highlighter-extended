@@ -85,8 +85,9 @@ const PdfLoader = ({
   onError = DEFAULT_ON_ERROR,
   workerSrc = DEFAULT_WORKER_SRC,
 }: PdfLoaderProps) => {
-  const pdfLoadingTaskRef = useRef<null | PDFDocumentLoadingTask>(null);
+  const pdfLoadingTaskRef = useRef<PDFDocumentLoadingTask| null>(null);
   const pdfDocumentRef = useRef<PDFDocumentProxy | null>(null);
+  
   const [error, setError] = useState<Error | null>(null);
   const [loadingProgress, setLoadingProgress] =
     useState<OnProgressParameters | null>(null);

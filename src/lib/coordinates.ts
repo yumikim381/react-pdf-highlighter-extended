@@ -1,10 +1,3 @@
-/**
- * "viewport" rectangle is { top, left, width, height }
- * "scaled" means that data structure stores (0, 1) coordinates.
- *  for clarity reasons I decided not to store actual (0, 1) coordinates, but
- *  provide width and height, so user can compute ratio himself if needed
- * - Artem Tyurin <artem.tyurin@gmail.com>
- */
 
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 import type {
@@ -12,14 +5,15 @@ import type {
   ViewportPosition,
   Scaled,
   ScaledPosition,
-  Viewport,
 } from "../types";
+import { PageViewport } from "pdfjs-dist";
 
 interface WIDTH_HEIGHT {
   width: number;
   height: number;
 }
 
+/** @category Utilities */
 export const viewportToScaled = (
   rect: LTWHP,
   { width, height }: WIDTH_HEIGHT
@@ -38,6 +32,7 @@ export const viewportToScaled = (
   };
 };
 
+/** @category Utilities */
 export const viewportPositionToScaled = (
   { boundingRect, rects }: ViewportPosition,
   viewer: PDFViewer
@@ -52,7 +47,7 @@ export const viewportPositionToScaled = (
   };
 };
 
-const pdfToViewport = (pdf: Scaled, viewport: Viewport): LTWHP => {
+const pdfToViewport = (pdf: Scaled, viewport: PageViewport): LTWHP => {
   const [x1, y1, x2, y2] = viewport.convertToViewportRectangle([
     pdf.x1,
     pdf.y1,
@@ -71,9 +66,10 @@ const pdfToViewport = (pdf: Scaled, viewport: Viewport): LTWHP => {
   };
 };
 
+/** @category Utilities */
 export const scaledToViewport = (
   scaled: Scaled,
-  viewport: Viewport,
+  viewport: PageViewport,
   usePdfCoordinates: boolean = false
 ): LTWHP => {
   const { width, height } = viewport;
@@ -101,6 +97,7 @@ export const scaledToViewport = (
   };
 };
 
+/** @category Utilities */
 export const scaledPositionToViewport = (
   { boundingRect, rects, usePdfCoordinates }: ScaledPosition,
   viewer: PDFViewer

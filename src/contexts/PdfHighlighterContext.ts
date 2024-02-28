@@ -4,6 +4,8 @@ import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
 
 /**
  * A set of utilities for to control the behaviour of {@link PdfHighlighter}.
+ * 
+ * @category Context
  */
 export type PdfHighlighterUtils = {
   /**
@@ -96,6 +98,8 @@ export const PdfHighlighterContext = createContext<
 /**
  * Custom hook for providing {@link PdfHighlighterUtils}. Must be used
  * within a child of {@link PdfHighlighter}.
+ * 
+ * @category Context
  */
 export const usePdfHighlighterContext = () => {
   const pdfHighlighterUtils = useContext(PdfHighlighterContext);

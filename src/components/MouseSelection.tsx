@@ -38,6 +38,7 @@ const getContainerCoords = (
 /**
  * The props type for {@link MouseSelection}.
  *
+ * @category Component Properties
  * @internal
  */
 export interface MouseSelectionProps {

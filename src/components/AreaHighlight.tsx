@@ -9,6 +9,8 @@ import type { LTWHP, ViewportHighlight } from "../types";
 
 /**
  * The props type for {@link AreaHighlight}.
+ * 
+ * @category Component Properties
  */
 export interface AreaHighlightProps {
   /**

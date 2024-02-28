@@ -15,6 +15,7 @@ const VERTICAL_PADDING = 5;
 /**
  * The props type for {@link TipContainer}.
  *
+ * @category Component Properties
  * @internal
  */
 export interface TipContainerProps {

@@ -20,6 +20,7 @@ const EMPTY_ID = "empty-id";
 /**
  * The props type for {@link HighlightLayer}.
  * 
+ * @category Component Properties
  * @internal
  */
 export interface HighlightLayerProps {
@@ -81,7 +82,6 @@ export const HighlightLayer = ({
         const viewportHighlight: ViewportHighlight = {
           ...highlight,
           id: "id" in highlight ? highlight.id : EMPTY_ID, // Give Empty ID to GhostHighlight
-          comment: "comment" in highlight ? highlight.comment : { text: "" }, // Give empty comment to GhostHighlight
           position: scaledPositionToViewport(highlight.position, viewer),
         };
 

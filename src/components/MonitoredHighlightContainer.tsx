@@ -5,6 +5,8 @@ import { MouseMonitor } from "./MouseMonitor";
 
 /**
  * The props type for {@link MonitoredHighlightContainer}.
+ * 
+ * @category Component Properties
  */
 export interface MonitoredHighlightContainerProps {
   /**

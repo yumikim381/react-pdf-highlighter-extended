@@ -10,6 +10,8 @@ import {
 /**
  * A set of utilities for rendering highlights. Designed to be used within a
  * highlight container.
+ * 
+ * @category Context
  */
 export type HighlightContainerUtils = {
   /**
@@ -51,6 +53,8 @@ export const HighlightContext = createContext<HighlightContainerUtils | undefine
 /**
  * Custom hook for providing {@link HighlightContainerUtils}. Must be used
  * within a child of {@link PdfHighlighter}.
+ * 
+ * @category Context
  */
 export const useHighlightContainerContext = () => {
   const highlightContainerUtils = useContext(HighlightContext);

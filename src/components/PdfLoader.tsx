@@ -30,6 +30,8 @@ const DEFAULT_WORKER_SRC =
 
 /**
  * The props type for {@link PdfLoader}.
+ * 
+ * @category Component Properties
  */
 export interface PdfLoaderProps {
   /**

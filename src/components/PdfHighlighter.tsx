@@ -58,6 +58,8 @@ const findOrCreateHighlightLayer = (textLayer: HTMLElement) => {
 
 /**
  * The props type for {@link PdfHighlighter}.
+ * 
+ * @category Component Properties
  */
 export interface PdfHighlighterProps {
   /**
@@ -462,6 +464,8 @@ export const PdfHighlighter = ({
     const pageViewport = viewerRef.current!.getPageView(
       pageNumber - 1,
     ).viewport;
+
+    console.log(pageViewport);
 
     viewerRef.current!.scrollPageIntoView({
       pageNumber,

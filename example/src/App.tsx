@@ -6,7 +6,6 @@ import HighlightContainer from "./HighlightContainer";
 import Sidebar from "./Sidebar";
 import Toolbar from "./Toolbar";
 import {
-  Comment,
   GhostHighlight,
   Highlight,
   PdfHighlighter,
@@ -17,9 +16,10 @@ import {
 } from "./react-pdf-highlighter-extended";
 import "./style/App.css";
 import { testHighlights as _testHighlights } from "./test-highlights";
+import { CommentedHighlight } from "./types";
 
 const TEST_HIGHLIGHTS = _testHighlights;
-const PRIMARY_PDF_URL = "https://arxiv.org/pdf/1708.08021.pdf";
+const PRIMARY_PDF_URL = "https://arxiv.org/pdf/2203.11115.pdf";
 const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480.pdf";
 const LONG_LOADING_PDF_URL =
   "https://cdn.filestackcontent.com/wcrjf9qPTCKXV3hMXDwK";
@@ -36,7 +36,7 @@ const resetHash = () => {
 
 const App = () => {
   const [url, setUrl] = useState(PRIMARY_PDF_URL);
-  const [highlights, setHighlights] = useState<Array<Highlight>>(
+  const [highlights, setHighlights] = useState<Array<CommentedHighlight>>(
     TEST_HIGHLIGHTS[PRIMARY_PDF_URL] ?? [],
   );
   const currentPdfIndexRef = useRef(0);
@@ -84,7 +84,7 @@ const App = () => {
     });
   };
 
-  const addHighlight = (highlight: GhostHighlight, comment: Comment) => {
+  const addHighlight = (highlight: GhostHighlight, comment: string) => {
     console.log("Saving highlight", highlight);
     setHighlights([{ ...highlight, comment, id: getNextId() }, ...highlights]);
   };
@@ -94,7 +94,7 @@ const App = () => {
     setHighlights(highlights.filter((h) => h.id != highlight.id));
   };
 
-  const editHighlight = (idToUpdate: string, edit: Partial<Highlight>) => {
+  const editHighlight = (idToUpdate: string, edit: Partial<CommentedHighlight>) => {
     console.log(`Editing highlight ${idToUpdate} with `, edit);
     setHighlights(
       highlights.map((highlight) =>
@@ -112,16 +112,16 @@ const App = () => {
   };
 
   // Open comment tip and update highlight with new user input
-  const editComment = (highlight: ViewportHighlight) => {
+  const editComment = (highlight: ViewportHighlight<CommentedHighlight>) => {
     if (!highlighterUtilsRef.current) return;
 
     const editCommentTip: Tip = {
       position: highlight.position,
       content: (
         <CommentForm
-          placeHolder={highlight.comment.text}
+          placeHolder={highlight.comment}
           onSubmit={(input) => {
-            editHighlight(highlight.id, { comment: { text: input } });
+            editHighlight(highlight.id, { comment: input });
             highlighterUtilsRef.current!.setTip(null);
             highlighterUtilsRef.current!.toggleEditInProgress(false);
           }}
@@ -169,7 +169,6 @@ const App = () => {
       >
         <Toolbar
           setPdfScaleValue={(value) => setPdfScaleValue(value)}
-          url={url}
         />
         <PdfLoader document={url}>
           {(pdfDocument) => (
@@ -184,7 +183,7 @@ const App = () => {
               selectionTip={<ExpandableTip addHighlight={addHighlight} />}
               highlights={highlights}
               style={{
-                height: "calc(100% - 45px)",
+                height: "calc(100% - 41px)",
               }}
             >
               <HighlightContainer

@@ -4,11 +4,10 @@ import "./style/Toolbar.css";
 
 interface ToolbarProps {
   setPdfScaleValue: (value: number) => void;
-  url: string;
 }
 
-const Toolbar = ({ setPdfScaleValue, url }: ToolbarProps) => {
-  const [zoom, setZoom] = useState<number | undefined>(undefined);
+const Toolbar = ({ setPdfScaleValue }: ToolbarProps) => {
+  const [zoom, setZoom] = useState<number | null>(null);
 
   const zoomIn = () => {
     if (zoom) {
@@ -41,9 +40,6 @@ const Toolbar = ({ setPdfScaleValue, url }: ToolbarProps) => {
         <button onClick={zoomOut}>-</button>
         {zoom ? `${(zoom * 100).toFixed(0)}%` : "Auto"}
       </div>
-      <a href={url} className="Toolbar__title">
-        {url}
-      </a>
     </div>
   );
 };

@@ -1,9 +1,10 @@
 import React from "react";
 import type { Highlight } from "./react-pdf-highlighter-extended";
 import "./style/Sidebar.css";
+import { CommentedHighlight } from "./types";
 
 interface SidebarProps {
-  highlights: Array<Highlight>;
+  highlights: Array<CommentedHighlight>;
   resetHighlights: () => void;
   toggleDocument: () => void;
 }
@@ -54,7 +55,7 @@ const Sidebar = ({
             >
               <div>
                 {/* Highlight comment and text */}
-                <strong>{highlight.comment.text}</strong>
+                <strong>{highlight.comment}</strong>
                 {highlight.content.text && (
                   <blockquote style={{ marginTop: "0.5rem" }}>
                     {`${highlight.content.text.slice(0, 90).trim()}…`}

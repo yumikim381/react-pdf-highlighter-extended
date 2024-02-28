@@ -2,7 +2,6 @@ import React, { MouseEvent } from "react";
 import HighlightPopup from "./HighlightPopup";
 import {
   AreaHighlight,
-  Highlight,
   MonitoredHighlightContainer,
   TextHighlight,
   Tip,
@@ -10,9 +9,10 @@ import {
   useHighlightContainerContext,
   usePdfHighlighterContext
 } from "./react-pdf-highlighter-extended";
+import { CommentedHighlight } from "./types";
 
 interface HighlightContainerProps {
-  editHighlight: (idToUpdate: string, edit: Partial<Highlight>) => void;
+  editHighlight: (idToUpdate: string, edit: Partial<CommentedHighlight>) => void;
   onContextMenu?: (
     event: MouseEvent<HTMLDivElement>,
     highlight: ViewportHighlight,
@@ -74,7 +74,7 @@ const HighlightContainer = ({
 
   const highlightTip: Tip = {
     position: highlight.position,
-    content: <HighlightPopup comment={highlight.comment} />
+    content: <HighlightPopup highlight={highlight} />
   };
 
   return (

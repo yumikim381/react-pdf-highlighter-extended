@@ -1,21 +1,15 @@
-import PdfHighlighter from "./components/PdfHighlighter";
-import TextHighlight from "./components/TextHighlight";
-import MonitoredHighlightContainer from "./components/MonitoredHighlightContainer";
-import AreaHighlight from "./components/AreaHighlight";
-import PdfLoader from "./components/PdfLoader";
-import { HighlightUtils, useHighlightUtils } from "./contexts/HighlightContext";
-import { SelectionUtils, useSelectionUtils } from "./contexts/SelectionContext";
+import {PdfHighlighter, PdfHighlighterProps} from "./components/PdfHighlighter";
+import {TextHighlight, TextHighlightProps} from "./components/TextHighlight";
+import {MonitoredHighlightContainer, MonitoredHighlightContainerProps} from "./components/MonitoredHighlightContainer";
+import {AreaHighlight, AreaHighlightProps} from "./components/AreaHighlight";
+import {PdfLoader, PdfLoaderProps} from "./components/PdfLoader";
+import { HighlightContainerUtils, useHighlightContainerContext } from "./contexts/HighlightContext";
 import {
   viewportPositionToScaled,
   scaledPositionToViewport,
 } from "./lib/coordinates";
 
-import {
-  TipViewerUtils,
-  useTipViewerUtils,
-  TipContainerUtils,
-  useTipContainerUtils,
-} from "./contexts/TipContext";
+import { PdfHighlighterUtils, usePdfHighlighterContext } from "./contexts/PdfHighlighterContext";
 
 export {
   PdfHighlighter,
@@ -23,18 +17,19 @@ export {
   TextHighlight,
   MonitoredHighlightContainer,
   AreaHighlight,
-  useHighlightUtils,
-  useSelectionUtils,
-  useTipViewerUtils,
-  useTipContainerUtils,
+  useHighlightContainerContext,
   viewportPositionToScaled,
   scaledPositionToViewport,
+  usePdfHighlighterContext,
 };
 
 export type {
-  HighlightUtils,
-  SelectionUtils,
-  TipContainerUtils,
-  TipViewerUtils,
+  HighlightContainerUtils,
+  PdfHighlighterUtils,
+  PdfHighlighterProps,
+  TextHighlightProps,
+  MonitoredHighlightContainerProps,
+  AreaHighlightProps,
+  PdfLoaderProps
 };
 export * from "./types";

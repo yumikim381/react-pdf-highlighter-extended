@@ -7,33 +7,60 @@ import "../style/AreaHighlight.css";
 import { Rnd } from "react-rnd";
 import type { LTWHP, ViewportHighlight } from "../types";
 
-interface AreaHighlightProps {
-  highlight: ViewportHighlight;
+/**
+ * The props type for {@link AreaHighlight}.
+ * 
+ * @category Component Properties
+ */
+export interface AreaHighlightProps {
   /**
-   * A callback function for when the highlight area is either finished
+   * The highlight to be rendered as an {@link AreaHighlight}.
+   */
+  highlight: ViewportHighlight;
+
+  /**
+   * A callback triggered whenever the highlight area is either finished
    * being moved or resized.
+   * 
    * @param rect - The updated highlight area.
    */
-  onChange?: (rect: LTWHP) => void;
-  /** Whether the component is autoscrolled into view. */
+  onChange?(rect: LTWHP): void;
+
+  /**
+   * Has the highlight been auto-scrolled into view? By default, this will render the highlight red.
+   */
   isScrolledTo?: boolean;
+
   /**
    * react-rnd bounds on the highlight area. This is useful for preventing the user
-   * moving the highlight off the viewer/page.
+   * moving the highlight off the viewer/page.  See [react-rnd docs](https://github.com/bokuweb/react-rnd).
    */
   bounds?: string | Element;
-  onContextMenu?: (event: MouseEvent<HTMLDivElement>) => void;
+
   /**
-   * Event called whenever the user tries to move or resize the AreaHighlight.
+   * A callback triggered whenever a context menu is opened on the highlight area.
+   * 
+   * @param event - The mouse event associated with the context menu.
    */
-  onEditStart?: () => void;
+  onContextMenu?(event: MouseEvent<HTMLDivElement>): void;
+
+  /**
+   * Event called whenever the user tries to move or resize an {@link AreaHighlight}.
+   */
+  onEditStart?(): void;
+
+  /**
+   * Custom styling to be applied to the {@link AreaHighlight} component.
+   */
   style?: CSSProperties;
 }
 
 /**
- * A component for displaying and interacting with a rectangular highlight area.
+ * Renders a resizeable and interactive rectangular area for a highlight.
+ *
+ * @category Component
  */
-const AreaHighlight = ({
+export const AreaHighlight = ({
   highlight,
   onChange,
   isScrolledTo,
@@ -97,5 +124,3 @@ const AreaHighlight = ({
     </div>
   );
 };
-
-export default AreaHighlight;

@@ -30,7 +30,8 @@
 
 .highlight__image__container::-webkit-scrollbar-track-piece,
 .sidebar::-webkit-scrollbar-track-piece {
-    background-color: #f4f4f4;
+    background-color: none;
+    border-radius: 5px;
 }
 
 .sidebar__highlights {

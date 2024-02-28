@@ -6,22 +6,23 @@ import HighlightContainer from "./HighlightContainer";
 import Sidebar from "./Sidebar";
 import Toolbar from "./Toolbar";
 import {
-  Comment,
   GhostHighlight,
   Highlight,
   PdfHighlighter,
+  PdfHighlighterUtils,
   PdfLoader,
   Tip,
-  TipViewerUtils,
   ViewportHighlight,
 } from "./react-pdf-highlighter-extended";
 import "./style/App.css";
 import { testHighlights as _testHighlights } from "./test-highlights";
+import { CommentedHighlight } from "./types";
 
 const TEST_HIGHLIGHTS = _testHighlights;
-const PRIMARY_PDF_URL = "https://arxiv.org/pdf/1708.08021.pdf";
+const PRIMARY_PDF_URL = "https://arxiv.org/pdf/2203.11115.pdf";
 const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480.pdf";
-const LONG_LOADING_PDF_URL = "https://arxiv.org/pdf/2210.04048.pdf";
+const LONG_LOADING_PDF_URL =
+  "https://cdn.filestackcontent.com/wcrjf9qPTCKXV3hMXDwK";
 
 const getNextId = () => String(Math.random()).slice(2);
 
@@ -35,7 +36,7 @@ const resetHash = () => {
 
 const App = () => {
   const [url, setUrl] = useState(PRIMARY_PDF_URL);
-  const [highlights, setHighlights] = useState<Array<Highlight>>(
+  const [highlights, setHighlights] = useState<Array<CommentedHighlight>>(
     TEST_HIGHLIGHTS[PRIMARY_PDF_URL] ?? [],
   );
   const currentPdfIndexRef = useRef(0);
@@ -45,10 +46,7 @@ const App = () => {
   );
 
   // Refs for PdfHighlighter utilities
-  const scrollToRef = useRef<((highlight: Highlight) => void) | undefined>(
-    undefined,
-  );
-  const tipViewerUtilsRef = useRef<TipViewerUtils | undefined>(undefined);
+  const highlighterUtilsRef = useRef<PdfHighlighterUtils>();
 
   const toggleDocument = () => {
     const urls = [PRIMARY_PDF_URL, SECONDARY_PDF_URL, LONG_LOADING_PDF_URL];
@@ -86,7 +84,7 @@ const App = () => {
     });
   };
 
-  const addHighlight = (highlight: GhostHighlight, comment: Comment) => {
+  const addHighlight = (highlight: GhostHighlight, comment: string) => {
     console.log("Saving highlight", highlight);
     setHighlights([{ ...highlight, comment, id: getNextId() }, ...highlights]);
   };
@@ -96,7 +94,7 @@ const App = () => {
     setHighlights(highlights.filter((h) => h.id != highlight.id));
   };
 
-  const editHighlight = (idToUpdate: string, edit: Partial<Highlight>) => {
+  const editHighlight = (idToUpdate: string, edit: Partial<CommentedHighlight>) => {
     console.log(`Editing highlight ${idToUpdate} with `, edit);
     setHighlights(
       highlights.map((highlight) =>
@@ -114,33 +112,33 @@ const App = () => {
   };
 
   // Open comment tip and update highlight with new user input
-  const editComment = (highlight: ViewportHighlight) => {
-    if (!tipViewerUtilsRef.current) return;
+  const editComment = (highlight: ViewportHighlight<CommentedHighlight>) => {
+    if (!highlighterUtilsRef.current) return;
 
     const editCommentTip: Tip = {
       position: highlight.position,
       content: (
         <CommentForm
-          placeHolder={highlight.comment.text}
+          placeHolder={highlight.comment}
           onSubmit={(input) => {
-            editHighlight(highlight.id, { comment: { text: input } });
-            tipViewerUtilsRef.current!.setTip(null);
-            tipViewerUtilsRef.current!.toggleEditInProgress(false);
+            editHighlight(highlight.id, { comment: input });
+            highlighterUtilsRef.current!.setTip(null);
+            highlighterUtilsRef.current!.toggleEditInProgress(false);
           }}
         ></CommentForm>
       ),
     };
 
-    tipViewerUtilsRef.current.setTip(editCommentTip);
-    tipViewerUtilsRef.current.toggleEditInProgress(true);
+    highlighterUtilsRef.current.setTip(editCommentTip);
+    highlighterUtilsRef.current.toggleEditInProgress(true);
   };
 
   // Scroll to highlight based on hash in the URL
   const scrollToHighlightFromHash = () => {
     const highlight = getHighlightById(parseIdFromHash());
 
-    if (highlight && scrollToRef.current) {
-      scrollToRef.current(highlight);
+    if (highlight && highlighterUtilsRef.current) {
+      highlighterUtilsRef.current.scrollToHighlight(highlight);
     }
   };
 
@@ -171,30 +169,29 @@ const App = () => {
       >
         <Toolbar
           setPdfScaleValue={(value) => setPdfScaleValue(value)}
-          url={url}
         />
         <PdfLoader document={url}>
-          <PdfHighlighter
-            enableAreaSelection={(event) => event.altKey}
-            onScrollAway={resetHash}
-            scrollRef={(_scrollTo) => {
-              scrollToRef.current = _scrollTo;
-            }}
-            tipViewerUtilsRef={(_tipViewerUtils) => {
-              tipViewerUtilsRef.current = _tipViewerUtils;
-            }}
-            pdfScaleValue={pdfScaleValue}
-            selectionTip={<ExpandableTip addHighlight={addHighlight} />}
-            highlights={highlights}
-            style={{
-              height: "calc(100% - 45px)",
-            }}
-          >
-            <HighlightContainer
-              editHighlight={editHighlight}
-              onContextMenu={handleContextMenu}
-            />
-          </PdfHighlighter>
+          {(pdfDocument) => (
+            <PdfHighlighter
+              enableAreaSelection={(event) => event.altKey}
+              pdfDocument={pdfDocument}
+              onScrollAway={resetHash}
+              utilsRef={(_pdfHighlighterUtils) => {
+                highlighterUtilsRef.current = _pdfHighlighterUtils;
+              }}
+              pdfScaleValue={pdfScaleValue}
+              selectionTip={<ExpandableTip addHighlight={addHighlight} />}
+              highlights={highlights}
+              style={{
+                height: "calc(100% - 41px)",
+              }}
+            >
+              <HighlightContainer
+                editHighlight={editHighlight}
+                onContextMenu={handleContextMenu}
+              />
+            </PdfHighlighter>
+          )}
         </PdfLoader>
       </div>
 

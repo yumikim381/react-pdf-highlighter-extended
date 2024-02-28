@@ -1,46 +1,35 @@
-import { GhostHighlight, Highlight, ViewportHighlight } from "src/types";
+import { GhostHighlight, Highlight } from "../types";
 
-type AllHighlights = Highlight | GhostHighlight | ViewportHighlight;
+type GroupedHighlights = { [pageNumber: number]: Array<Highlight | GhostHighlight> };
 
-const groupHighlightsByPage = <T extends AllHighlights | null | undefined>(
-  highlights: Array<T>
-): Record<number, Array<NonNullable<T>>> => {
-  const allHighlights = highlights.filter(Boolean) as Array<NonNullable<T>>;
-  const groupedHighlights: Record<number, Array<NonNullable<T>>> = {};
-
-  allHighlights.forEach((highlight) => {
-    const pageNumbers = new Set<number>();
-    pageNumbers.add(highlight.position.boundingRect.pageNumber);
-
-    // Add page numbers of all associated rects
-    // to deal with multi-page highlights
-    highlight.position.rects.forEach((rect) => {
-      if (rect.pageNumber) {
-        pageNumbers.add(rect.pageNumber);
+const groupHighlightsByPage = (
+  highlights: Array<Highlight | GhostHighlight | null>
+): GroupedHighlights =>
+  highlights
+    .reduce<GroupedHighlights>((acc, highlight) => {
+      if (!highlight) {
+        return acc
       }
-    });
+      const pageNumbers = [
+        highlight.position.boundingRect.pageNumber,
+        ...highlight.position.rects.map((rect) => rect.pageNumber || 0),
+      ];
 
-    // Push the highlight and right rects to all relevant pages
-    pageNumbers.forEach((pageNumber) => {
-      if (!groupedHighlights[pageNumber]) {
-        groupedHighlights[pageNumber] = [];
-      }
+      pageNumbers.forEach((pageNumber) => {
+        acc[pageNumber] ||= [];
+        const pageSpecificHighlight = {
+          ...highlight,
+          position: {
+            ...highlight.position,
+            rects: highlight.position.rects.filter(
+              (rect) => pageNumber === rect.pageNumber
+            ),
+          },
+        };
+        acc[pageNumber].push(pageSpecificHighlight);
+      });
 
-      const pageSpecificHighlight = {
-        ...highlight,
-        position: {
-          ...highlight.position,
-          rects: highlight.position.rects.filter(
-            (rect) => pageNumber === rect.pageNumber
-          ),
-        },
-      };
-
-      groupedHighlights[pageNumber].push(pageSpecificHighlight);
-    });
-  });
-
-  return groupedHighlights;
-};
+      return acc;
+    }, {});
 
 export default groupHighlightsByPage;

@@ -1,73 +1,99 @@
-import React, { ReactElement, useRef } from "react";
-import MouseMonitor from "./MouseMonitor";
+import React, { ReactNode, useRef } from "react";
+import { usePdfHighlighterContext } from "../contexts/PdfHighlighterContext";
+import { Tip } from "../types";
+import { MouseMonitor } from "./MouseMonitor";
 
-interface MonitoredHighlightContainerProps {
+/**
+ * The props type for {@link MonitoredHighlightContainer}.
+ * 
+ * @category Component Properties
+ */
+export interface MonitoredHighlightContainerProps {
   /**
-   * A callback function to execute when the mouse hovers over the children/highlight.
-   * Can be used for triggering popup renders.
-   *
-   * @param monitoredPopupContent - The content to display in a popup.
+   * A callback triggered whenever the mouse hovers over a highlight.
    */
-  onMouseOver: (monitoredPopupContent: ReactElement) => void;
+  onMouseEnter?(): void;
+
   /**
-   * The content to display in a popup. NOTE: This will not render the popupContent,
-   * but it will monitor mouse activity over it
+   * What tip to automatically display whenever a mouse hovers over a highlight.
+   * The tip will persist even as the user puts their mouse over it and not the
+   * highlight, but will disappear once it no longer hovers both.
    */
-  popupContent: ReactElement;
+  highlightTip?: Tip;
+
   /**
-   * A callback function to execute when the mouse completely moves out from both the popupContent
-   * and highlight (children).
+   * A callback triggered whenever the mouse completely moves out from both the
+   * highlight (children) and any highlightTip.
    */
-  onMouseOut: () => void;
+  onMouseLeave?(): void;
+
   /**
-   * Container children. Ideally, should be highlight components of some sort.
+   * Component to monitor mouse activity over. This should be a highlight within the {@link PdfHighlighter}.
    */
-  children: ReactElement;
+  children: ReactNode;
 }
 
 /**
- * A container for a highlight component that monitors whether a mouse is over a highlight
- * and over some secondary/popup content. This does not render any popup/tip,
- * but it should ideally be used to set the visible state / rendering of a popup.
+ * A container for a highlight component that monitors whether a mouse is over a
+ * highlight and over some secondary highlight tip. It will display the tip
+ * whenever the mouse is over the highlight and it will hide the tip only when
+ * the mouse has left the highlight AND the tip.
+ * 
+ * @category Component 
  */
-const MonitoredHighlightContainer = ({
-  onMouseOver,
-  popupContent,
-  onMouseOut,
+export const MonitoredHighlightContainer = ({
+  onMouseEnter,
+  highlightTip,
+  onMouseLeave,
   children,
 }: MonitoredHighlightContainerProps) => {
   const mouseInRef = useRef(false); // Whether the mouse is over the child (highlight)
 
-  // Create a mouse monitor for the popup content
-  const monitorContent = (
-    <MouseMonitor
-      onMoveAway={() => {
-        if (mouseInRef.current) {
-          return;
-        }
-
-        onMouseOut();
-      }}
-      paddingX={60}
-      paddingY={30}
-    >
-      {popupContent}
-    </MouseMonitor>
-  );
+  const { setTip, isEditingOrHighlighting } = usePdfHighlighterContext();
 
   return (
     <div
       onMouseEnter={() => {
         mouseInRef.current = true;
-        onMouseOver(monitorContent);
+        onMouseEnter && onMouseEnter();
+
+        if (isEditingOrHighlighting()) return;
+
+        if (highlightTip) {
+          // MouseMonitor the highlightTip to prevent it from disappearing if the mouse is over it and not the highlight.
+          const monitoredHighlightTip = (
+            <MouseMonitor
+              onMoveAway={() => {
+                // The event will keep triggering if the mouse is not on the highlightTip,
+                // but don't do anything if the mouse is over the highlight.
+                if (mouseInRef.current) {
+                  return;
+                }
+
+                setTip(null);
+                onMouseLeave && onMouseLeave();
+              }}
+              paddingX={60}
+              paddingY={30}
+            >
+              {highlightTip.content}
+            </MouseMonitor>
+          );
+
+          setTip({
+            position: highlightTip.position,
+            content: monitoredHighlightTip,
+          });
+        }
       }}
       onMouseLeave={() => {
         mouseInRef.current = false;
+
+        // Trigger onMouseLeave if no highlightTip exists
+        !highlightTip && onMouseLeave && onMouseLeave();
       }}
     >
       {children}
     </div>
   );
 };
-
-export default MonitoredHighlightContainer;

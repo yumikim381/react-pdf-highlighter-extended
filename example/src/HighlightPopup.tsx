@@ -1,15 +1,16 @@
 import React from "react";
-import type { Comment } from "./react-pdf-highlighter-extended";
+import type { ViewportHighlight } from "./react-pdf-highlighter-extended";
 
 import "./style/HighlightPopup.css";
+import { CommentedHighlight } from "./types";
 
 interface HighlightPopupProps {
-  comment: Comment;
+  highlight: ViewportHighlight<CommentedHighlight>;
 }
 
-const HighlightPopup = ({ comment }: HighlightPopupProps) => {
-  return comment.text ? (
-    <div className="Highlight__popup">{comment.text}</div>
+const HighlightPopup = ({ highlight }: HighlightPopupProps) => {
+  return highlight.comment ? (
+    <div className="Highlight__popup">{highlight.comment}</div>
   ) : (
     <div className="Highlight__popup">Comment has no Text</div>
   );

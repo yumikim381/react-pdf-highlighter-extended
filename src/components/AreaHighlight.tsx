@@ -9,7 +9,7 @@ import type { LTWHP, ViewportHighlight } from "../types";
 
 /**
  * The props type for {@link AreaHighlight}.
- * 
+ *
  * @category Component Properties
  */
 export interface AreaHighlightProps {
@@ -21,7 +21,7 @@ export interface AreaHighlightProps {
   /**
    * A callback triggered whenever the highlight area is either finished
    * being moved or resized.
-   * 
+   *
    * @param rect - The updated highlight area.
    */
   onChange?(rect: LTWHP): void;
@@ -39,7 +39,7 @@ export interface AreaHighlightProps {
 
   /**
    * A callback triggered whenever a context menu is opened on the highlight area.
-   * 
+   *
    * @param event - The mouse event associated with the context menu.
    */
   onContextMenu?(event: MouseEvent<HTMLDivElement>): void;

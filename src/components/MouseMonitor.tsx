@@ -2,7 +2,7 @@ import React, { ReactNode, useEffect, useRef } from "react";
 
 /**
  * The props type for {@link MouseMonitor}.
- * 
+ *
  * @category Component Properties
  * @internal
  */
@@ -32,7 +32,7 @@ export interface MouseMonitorProps {
 
 /**
  * A component that monitors mouse movements over a child and invisible padded area.
- * 
+ *
  * @category Component
  * @internal
  */

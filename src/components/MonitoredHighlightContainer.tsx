@@ -5,7 +5,7 @@ import { MouseMonitor } from "./MouseMonitor";
 
 /**
  * The props type for {@link MonitoredHighlightContainer}.
- * 
+ *
  * @category Component Properties
  */
 export interface MonitoredHighlightContainerProps {
@@ -38,8 +38,8 @@ export interface MonitoredHighlightContainerProps {
  * highlight and over some secondary highlight tip. It will display the tip
  * whenever the mouse is over the highlight and it will hide the tip only when
  * the mouse has left the highlight AND the tip.
- * 
- * @category Component 
+ *
+ * @category Component
  */
 export const MonitoredHighlightContainer = ({
   onMouseEnter,

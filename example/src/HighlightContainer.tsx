@@ -7,12 +7,15 @@ import {
   Tip,
   ViewportHighlight,
   useHighlightContainerContext,
-  usePdfHighlighterContext
+  usePdfHighlighterContext,
 } from "./react-pdf-highlighter-extended";
 import { CommentedHighlight } from "./types";
 
 interface HighlightContainerProps {
-  editHighlight: (idToUpdate: string, edit: Partial<CommentedHighlight>) => void;
+  editHighlight: (
+    idToUpdate: string,
+    edit: Partial<CommentedHighlight>,
+  ) => void;
   onContextMenu?: (
     event: MouseEvent<HTMLDivElement>,
     highlight: ViewportHighlight,
@@ -31,8 +34,7 @@ const HighlightContainer = ({
     highlightBindings,
   } = useHighlightContainerContext<CommentedHighlight>();
 
-  const { toggleEditInProgress } =
-    usePdfHighlighterContext();
+  const { toggleEditInProgress } = usePdfHighlighterContext();
 
   const isTextHighlight = !Boolean(
     highlight.content && highlight.content.image,
@@ -74,7 +76,7 @@ const HighlightContainer = ({
 
   const highlightTip: Tip = {
     position: highlight.position,
-    content: <HighlightPopup highlight={highlight} />
+    content: <HighlightPopup highlight={highlight} />,
   };
 
   return (

@@ -1,10 +1,10 @@
 import { ReactNode } from "react";
 import { Root } from "react-dom/client";
 
-/** 
+/**
  * A rectangle as measured by the viewport.
  *
- * @category Type 
+ * @category Type
  */
 export type LTWH = {
   /** The x coordinate of the top-left of the rectangle. */
@@ -27,7 +27,7 @@ export type LTWHP = LTWH & {
  * "scaled" means that data structure stores (0, 1) coordinates.
  *  for clarity reasons I decided not to store actual (0, 1) coordinates, but
  *  provide width and height, so user can compute ratio himself if needed
- * 
+ *
  * @category Type
  * @author Artem Tyurin <artem.tyurin@gmail.com>
  */
@@ -45,9 +45,9 @@ export type Scaled = {
   pageNumber: number;
 };
 
-/** 
+/**
  * Position of a Highlight relative to the viewport.
- *  
+ *
  * @category Type
  */
 export type ViewportPosition = {
@@ -57,9 +57,9 @@ export type ViewportPosition = {
   rects: Array<LTWHP>;
 };
 
-/** 
+/**
  * Position of a Highlight with normalised coordinates.
- *  
+ *
  * @category Type
  */
 export type ScaledPosition = {
@@ -71,9 +71,9 @@ export type ScaledPosition = {
   usePdfCoordinates?: boolean;
 };
 
-/** 
+/**
  * The content of a highlight
- * 
+ *
  * @category Type
  */
 export type Content = {
@@ -84,7 +84,7 @@ export type Content = {
 /**
  * This represents a selected (text/mouse) area that has been turned into a
  * highlight. If you are storing highlights, they should be stored as this type.
- * 
+ *
  * @category Type
  */
 export interface Highlight {
@@ -96,24 +96,27 @@ export interface Highlight {
 /**
  * This represents a temporary highlight and is ideal as an intermediary between
  * a selection and a highlight.
- * 
+ *
  * @category Type
  */
 export type GhostHighlight = Omit<Highlight, "id">;
 
-/** 
+/**
  * This represents a rendered highlight, with its position defined by the page
- * viewport. 
- * 
+ * viewport.
+ *
  * @category Type
  */
-export type ViewportHighlight<T extends Highlight = Highlight> = Omit<T, "position"> & {
+export type ViewportHighlight<T extends Highlight = Highlight> = Omit<
+  T,
+  "position"
+> & {
   position: ViewportPosition;
-}
+};
 
 /**
  * An area or text selection in a PDF Document.
- * 
+ *
  * @category Type
  */
 export type PdfSelection = GhostHighlight & {
@@ -121,9 +124,9 @@ export type PdfSelection = GhostHighlight & {
   makeGhostHighlight(): GhostHighlight;
 };
 
-/** 
+/**
  * A PDF.js page representation. This is the reference type for every page in the PdfHighlighter.
- * 
+ *
  * @category Type
  */
 export type Page = {
@@ -132,9 +135,9 @@ export type Page = {
   number: number;
 };
 
-/** 
+/**
  * All the DOM refs for a group of highlights on one page
- * 
+ *
  * @category Type
  */
 export type HighlightBindings = {
@@ -143,9 +146,9 @@ export type HighlightBindings = {
   textLayer: HTMLElement;
 };
 
-/** 
+/**
  * A popup that can be viewed inside a PdfHighlighter.
- * 
+ *
  * @category Type
  */
 export type Tip = {
@@ -156,7 +159,7 @@ export type Tip = {
 /**
  * The accepted scale values by the PDF.js viewer.
  * Numeric entries accept floats, e.g. 1.2 = 120%
- * 
+ *
  * @category Type
  */
 export type PdfScaleValue =

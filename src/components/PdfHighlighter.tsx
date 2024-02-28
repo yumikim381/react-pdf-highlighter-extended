@@ -4,7 +4,12 @@ import "../style/pdf_viewer.css";
 
 import debounce from "lodash.debounce";
 import { PDFDocumentProxy } from "pdfjs-dist";
-import { EventBus, NullL10n, PDFLinkService, PDFViewer } from "pdfjs-dist/legacy/web/pdf_viewer";
+import {
+  EventBus,
+  NullL10n,
+  PDFLinkService,
+  PDFViewer,
+} from "pdfjs-dist/legacy/web/pdf_viewer";
 import React, {
   CSSProperties,
   PointerEventHandler,
@@ -58,7 +63,7 @@ const findOrCreateHighlightLayer = (textLayer: HTMLElement) => {
 
 /**
  * The props type for {@link PdfHighlighter}.
- * 
+ *
  * @category Component Properties
  */
 export interface PdfHighlighterProps {
@@ -114,7 +119,7 @@ export interface PdfHighlighterProps {
    * @param event - mouse event associated with the new selection.
    * @returns - `True` if mouse selection should start.
    */
-  enableAreaSelection?(event: MouseEvent):  boolean;
+  enableAreaSelection?(event: MouseEvent): boolean;
 
   /**
    * Optional CSS styling for the rectangular mouse selection.
@@ -394,7 +399,9 @@ export const PdfHighlighter = ({
         if (!textLayer) continue; // Viewer hasn't rendered page yet
 
         // textLayer.div for version >=3.0 and textLayer.textLayerDiv otherwise.
-        const highlightLayer = findOrCreateHighlightLayer(textLayer.textLayerDiv);
+        const highlightLayer = findOrCreateHighlightLayer(
+          textLayer.textLayerDiv,
+        );
 
         if (highlightLayer) {
           const reactRoot = createRoot(highlightLayer);

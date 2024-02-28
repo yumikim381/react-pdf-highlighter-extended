@@ -18,14 +18,14 @@ const getBoundingRect = (clientRects: Array<LTWHP>): LTWHP => {
   rects.forEach((rect) => {
     firstPageNumber = Math.min(
       firstPageNumber,
-      rect.pageNumber ?? firstPageNumber
+      rect.pageNumber ?? firstPageNumber,
     );
   });
 
   const rectsWithSizeOnFirstPage = rects.filter(
     (rect) =>
       (rect.X0 > 0 || rect.X1 > 0 || rect.Y0 > 0 || rect.Y1 > 0) &&
-      rect.pageNumber === firstPageNumber
+      rect.pageNumber === firstPageNumber,
   );
 
   const optimal = rectsWithSizeOnFirstPage.reduce((res, rect) => {

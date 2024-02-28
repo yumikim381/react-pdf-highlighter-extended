@@ -94,7 +94,10 @@ const App = () => {
     setHighlights(highlights.filter((h) => h.id != highlight.id));
   };
 
-  const editHighlight = (idToUpdate: string, edit: Partial<CommentedHighlight>) => {
+  const editHighlight = (
+    idToUpdate: string,
+    edit: Partial<CommentedHighlight>,
+  ) => {
     console.log(`Editing highlight ${idToUpdate} with `, edit);
     setHighlights(
       highlights.map((highlight) =>
@@ -167,9 +170,7 @@ const App = () => {
           flexGrow: 1,
         }}
       >
-        <Toolbar
-          setPdfScaleValue={(value) => setPdfScaleValue(value)}
-        />
+        <Toolbar setPdfScaleValue={(value) => setPdfScaleValue(value)} />
         <PdfLoader document={url}>
           {(pdfDocument) => (
             <PdfHighlighter

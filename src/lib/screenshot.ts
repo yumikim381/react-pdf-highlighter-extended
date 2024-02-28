@@ -33,7 +33,7 @@ const getAreaAsPng = (canvas: HTMLCanvasElement, position: LTWH): string => {
     0,
     0,
     width,
-    height
+    height,
   );
 
   return newCanvas.toDataURL("image/png");

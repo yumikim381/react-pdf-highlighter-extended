@@ -59,8 +59,8 @@ export const getPagesFromRange = (range: Range): Page[] => {
   while (currentPageNumber <= endPage.number) {
     const currentPage = getPageFromElement(
       document.querySelector(
-        `[data-page-number='${currentPageNumber}'`
-      ) as HTMLElement
+        `[data-page-number='${currentPageNumber}'`,
+      ) as HTMLElement,
     );
     if (currentPage) {
       pages.push(currentPage);
@@ -73,7 +73,7 @@ export const getPagesFromRange = (range: Range): Page[] => {
 
 export const findOrCreateContainerLayer = (
   container: HTMLElement,
-  className: string
+  className: string,
 ) => {
   const doc = getDocument(container);
   let layer = container?.querySelector(`.${className}`);

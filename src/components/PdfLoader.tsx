@@ -1,9 +1,6 @@
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 
-import type {
-  PDFDocumentLoadingTask,
-  PDFDocumentProxy,
-} from "pdfjs-dist";
+import type { PDFDocumentLoadingTask, PDFDocumentProxy } from "pdfjs-dist";
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist/legacy/build/pdf";
 import {
   DocumentInitParameters,
@@ -30,7 +27,7 @@ const DEFAULT_WORKER_SRC =
 
 /**
  * The props type for {@link PdfLoader}.
- * 
+ *
  * @category Component Properties
  */
 export interface PdfLoaderProps {
@@ -51,7 +48,7 @@ export interface PdfLoaderProps {
 
   /**
    * Component to render in the case of any PDF loading errors.
-   * 
+   *
    * @param error - PDF loading error.
    * @returns - Component to be rendered in space of the PDF document.
    */
@@ -93,9 +90,9 @@ export const PdfLoader = ({
   onError = DEFAULT_ON_ERROR,
   workerSrc = DEFAULT_WORKER_SRC,
 }: PdfLoaderProps) => {
-  const pdfLoadingTaskRef = useRef<PDFDocumentLoadingTask| null>(null);
+  const pdfLoadingTaskRef = useRef<PDFDocumentLoadingTask | null>(null);
   const pdfDocumentRef = useRef<PDFDocumentProxy | null>(null);
-  
+
   const [error, setError] = useState<Error | null>(null);
   const [loadingProgress, setLoadingProgress] =
     useState<OnProgressParameters | null>(null);

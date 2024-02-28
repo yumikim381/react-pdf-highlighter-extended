@@ -1,11 +1,5 @@
-
 import { PDFViewer } from "pdfjs-dist/types/web/pdf_viewer";
-import type {
-  LTWHP,
-  ViewportPosition,
-  Scaled,
-  ScaledPosition,
-} from "../types";
+import type { LTWHP, ViewportPosition, Scaled, ScaledPosition } from "../types";
 import { PageViewport } from "pdfjs-dist";
 
 interface WIDTH_HEIGHT {
@@ -16,7 +10,7 @@ interface WIDTH_HEIGHT {
 /** @category Utilities */
 export const viewportToScaled = (
   rect: LTWHP,
-  { width, height }: WIDTH_HEIGHT
+  { width, height }: WIDTH_HEIGHT,
 ): Scaled => {
   return {
     x1: rect.left,
@@ -35,7 +29,7 @@ export const viewportToScaled = (
 /** @category Utilities */
 export const viewportPositionToScaled = (
   { boundingRect, rects }: ViewportPosition,
-  viewer: PDFViewer
+  viewer: PDFViewer,
 ): ScaledPosition => {
   const pageNumber = boundingRect.pageNumber;
   const viewport = viewer.getPageView(pageNumber - 1).viewport; // Account for 1 indexing of PDF documents
@@ -70,7 +64,7 @@ const pdfToViewport = (pdf: Scaled, viewport: PageViewport): LTWHP => {
 export const scaledToViewport = (
   scaled: Scaled,
   viewport: PageViewport,
-  usePdfCoordinates: boolean = false
+  usePdfCoordinates: boolean = false,
 ): LTWHP => {
   const { width, height } = viewport;
 
@@ -100,7 +94,7 @@ export const scaledToViewport = (
 /** @category Utilities */
 export const scaledPositionToViewport = (
   { boundingRect, rects, usePdfCoordinates }: ScaledPosition,
-  viewer: PDFViewer
+  viewer: PDFViewer,
 ): ViewportPosition => {
   const pageNumber = boundingRect.pageNumber;
   const viewport = viewer.getPageView(pageNumber - 1).viewport; // Account for 1 indexing of PDF documents

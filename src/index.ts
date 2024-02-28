@@ -1,15 +1,27 @@
-import {PdfHighlighter, PdfHighlighterProps} from "./components/PdfHighlighter";
-import {TextHighlight, TextHighlightProps} from "./components/TextHighlight";
-import {MonitoredHighlightContainer, MonitoredHighlightContainerProps} from "./components/MonitoredHighlightContainer";
-import {AreaHighlight, AreaHighlightProps} from "./components/AreaHighlight";
-import {PdfLoader, PdfLoaderProps} from "./components/PdfLoader";
-import { HighlightContainerUtils, useHighlightContainerContext } from "./contexts/HighlightContext";
+import {
+  PdfHighlighter,
+  PdfHighlighterProps,
+} from "./components/PdfHighlighter";
+import { TextHighlight, TextHighlightProps } from "./components/TextHighlight";
+import {
+  MonitoredHighlightContainer,
+  MonitoredHighlightContainerProps,
+} from "./components/MonitoredHighlightContainer";
+import { AreaHighlight, AreaHighlightProps } from "./components/AreaHighlight";
+import { PdfLoader, PdfLoaderProps } from "./components/PdfLoader";
+import {
+  HighlightContainerUtils,
+  useHighlightContainerContext,
+} from "./contexts/HighlightContext";
 import {
   viewportPositionToScaled,
   scaledPositionToViewport,
 } from "./lib/coordinates";
 
-import { PdfHighlighterUtils, usePdfHighlighterContext } from "./contexts/PdfHighlighterContext";
+import {
+  PdfHighlighterUtils,
+  usePdfHighlighterContext,
+} from "./contexts/PdfHighlighterContext";
 
 export {
   PdfHighlighter,
@@ -30,6 +42,6 @@ export type {
   TextHighlightProps,
   MonitoredHighlightContainerProps,
   AreaHighlightProps,
-  PdfLoaderProps
+  PdfLoaderProps,
 };
 export * from "./types";

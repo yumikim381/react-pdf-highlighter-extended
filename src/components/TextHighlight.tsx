@@ -6,7 +6,7 @@ import type { ViewportHighlight } from "../types";
 
 /**
  * The props type for {@link TextHighlight}.
- * 
+ *
  * @category Component Properties
  */
 export interface TextHighlightProps {

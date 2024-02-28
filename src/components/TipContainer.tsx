@@ -38,7 +38,10 @@ export interface TipContainerProps {
  * @category Component
  * @internal
  */
-export const TipContainer = ({ viewer, updateTipPositionRef }: TipContainerProps) => {
+export const TipContainer = ({
+  viewer,
+  updateTipPositionRef,
+}: TipContainerProps) => {
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement | null>(null);

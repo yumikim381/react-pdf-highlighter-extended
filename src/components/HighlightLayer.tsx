@@ -19,7 +19,7 @@ const EMPTY_ID = "empty-id";
 
 /**
  * The props type for {@link HighlightLayer}.
- * 
+ *
  * @category Component Properties
  * @internal
  */

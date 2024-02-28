@@ -19,7 +19,9 @@
   },
   "typedocOptions": {
     "entryPoints": ["./src/index.ts"],
-    "out": "doc"
+    "out": "doc",
+    "plugin": ["typedoc-theme-category-nav"],
+    "theme": "navigation"
   },
   "include": ["./src"]
 }

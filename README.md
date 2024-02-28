@@ -9,6 +9,7 @@ This originally started as a fork of [`react-pdf-highlighter`](https://github.co
 
 ## Table of Contents
 
+- [Documentation](#documentation)
 - [Example](#example)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -25,9 +26,15 @@ This originally started as a fork of [`react-pdf-highlighter`](https://github.co
     - [Example](#example-3)
 - [Contribute](#contribute)
 
+## Documentation
+
+If you just want to use this library, you can find comprehensive docs for all aspects by visiting the [official documentation page](https://danielarnould.github.io/react-pdf-highlighter-extended/docs/).
+
+If you wish to contribute, most internal components are documented in code, though not to the same depth.
+
 ## Example
 
-For a live demo check https://danielarnould.github.io/react-pdf-highlighter-extended/.
+For a live demo check https://danielarnould.github.io/react-pdf-highlighter-extended/example-app/.
 
 To run the example app locally:
 

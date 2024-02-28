@@ -1,5 +1,6 @@
 import { createContext, useContext } from "react";
 import {
+  Highlight,
   HighlightBindings,
   LTWH,
   LTWHP,
@@ -13,11 +14,11 @@ import {
  * 
  * @category Context
  */
-export type HighlightContainerUtils = {
+export type HighlightContainerUtils<T extends Highlight = Highlight> = {
   /**
    * The highlight being rendered at this component.
    */
-  highlight: ViewportHighlight;
+  highlight: ViewportHighlight<T>;
 
   /**
    * Convert a Viewport rectangle to a scaled rectangle. Can be used
@@ -56,12 +57,12 @@ export const HighlightContext = createContext<HighlightContainerUtils | undefine
  * 
  * @category Context
  */
-export const useHighlightContainerContext = () => {
+export const useHighlightContainerContext = <T extends Highlight = Highlight>() => {
   const highlightContainerUtils = useContext(HighlightContext);
 
   if (highlightContainerUtils === undefined) {
     throw new Error("useHighlightContainerContext must be used within a child of PdfHighlighter!");
   }
 
-  return highlightContainerUtils;
+  return highlightContainerUtils as HighlightContainerUtils<T>;
 };

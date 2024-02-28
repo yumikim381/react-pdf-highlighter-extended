@@ -29,7 +29,7 @@ const HighlightContainer = ({
     screenshot,
     isScrolledTo,
     highlightBindings,
-  } = useHighlightContainerContext();
+  } = useHighlightContainerContext<CommentedHighlight>();
 
   const { toggleEditInProgress } =
     usePdfHighlighterContext();

@@ -34,7 +34,7 @@
     "build:esm": "tsc",
     "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
     "build:copy-styles": "cp -r ./src/style ./dist/esm && cp -r ./src/style ./dist/cjs",
-    "build:example": "(cd ./example && tsc && vite build && mkdir \"../public/\" && cp -r dist ../public/)",
+    "build:example": "(cd ./example && tsc && vite build && mkdir \"../public/\" && cp -r example-app ../public/)",
     "build:docs": "npx typedoc",
     "format": "prettier --write './**/*.{js,ts,tsx}'",
     "format:check": "prettier --check './**/*.{js,ts,tsx}'",

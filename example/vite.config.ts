@@ -2,10 +2,10 @@ import { defineConfig } from "vite";
 import reactRefresh from "@vitejs/plugin-react";
 
 export default defineConfig({
-  base: "/react-pdf-highlighter-extended/public/dist/",
+  base: "/react-pdf-highlighter-extended/example-app/",
   build: {
     target: "esnext",
-    outDir: "dist",
+    outDir: "example-app",
   },
   plugins: [reactRefresh()],
   server: {

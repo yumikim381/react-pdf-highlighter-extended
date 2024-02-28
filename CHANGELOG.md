@@ -1,3 +1,24 @@
+# 8.0.0
+- Added safety check to `onProgress` hook in `PdfLoader` to prevent potential races and resets to loading state after a PDF has been loaded in. #1 Thank you @orausch ❤.
+- Removed `MouseSelectionRenderer` and moved any necessary logic into `MouseSelection`.
+- Removed `TipRenderer` and moved any necessary logic into `TipContainer`.
+- Removed `PdfLoaderContext` in favour of callback style child components, much like the original branch.
+- Removed `SelectionContext` and `TipContext`, moving all functionality into a new `PdfHighlighterContext`. This streamlines the library massively and makes tasks like getting the current tip, setting a tip, getting the current selection, making a ghost highlight, etc. much simpler and accessible across an entire application.
+- Added strict mode to example app for better testing.
+- Fixed PDF document stacking by debouncing PDF Loading #2 .
+- Removed `Comment` and added generic types to `ViewportHighlight`. This allows the user to create their own Highlight types and typehint them inside their `HighlightContext`.
+- Added `highlightTip` to `MonitoredHighlightContainer` directly, so users can simply specify the component they want to display above a hovered highlight.
+- Added `onCreateGhostHighlight` and `onRemoveGhostHighlight` events
+- Renamed `MonitoredHighlightContainer` events
+- Added tip position clipping on the left of the screen.
+- Rolled back to PDF.js v2.16.05 for a better selection experience. This may change in future. #3 .
+- Added TypeDocs.
+- Updated example app.
+- Updated usage examples
+- Updated dependencies.
+
+*NOTE: This was labelled 7.1.0 originally, but since backward compatibility is broken, the version number is being updated to be semantically corect.*
+
 # 7.0.0
 
 - Exposed pdfScaleValue as a stateful prop

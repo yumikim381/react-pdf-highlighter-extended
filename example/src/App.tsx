@@ -19,10 +19,8 @@ import { testHighlights as _testHighlights } from "./test-highlights";
 import { CommentedHighlight } from "./types";
 
 const TEST_HIGHLIGHTS = _testHighlights;
-const PRIMARY_PDF_URL = "https://arxiv.org/pdf/2203.11115.pdf";
-const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480.pdf";
-const LONG_LOADING_PDF_URL =
-  "https://cdn.filestackcontent.com/wcrjf9qPTCKXV3hMXDwK";
+const PRIMARY_PDF_URL = "https://arxiv.org/pdf/2203.11115";
+const SECONDARY_PDF_URL = "https://arxiv.org/pdf/1604.02480";
 
 const getNextId = () => String(Math.random()).slice(2);
 
@@ -49,7 +47,7 @@ const App = () => {
   const highlighterUtilsRef = useRef<PdfHighlighterUtils>();
 
   const toggleDocument = () => {
-    const urls = [PRIMARY_PDF_URL, SECONDARY_PDF_URL, LONG_LOADING_PDF_URL];
+    const urls = [PRIMARY_PDF_URL, SECONDARY_PDF_URL];
     currentPdfIndexRef.current = (currentPdfIndexRef.current + 1) % urls.length;
     setUrl(urls[currentPdfIndexRef.current]);
     setHighlights(TEST_HIGHLIGHTS[urls[currentPdfIndexRef.current]] ?? []);

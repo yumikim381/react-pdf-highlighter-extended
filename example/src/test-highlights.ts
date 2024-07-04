@@ -1,7 +1,7 @@
 import { CommentedHighlight } from "./types";
 
 export const testHighlights: Record<string, Array<CommentedHighlight>> = {
-  "https://arxiv.org/pdf/2203.11115.pdf": [
+  "https://arxiv.org/pdf/2203.11115": [
     {
       content: {
         text: "The analysis indicates that TS applications exhibit significantly better code quality and understandability than JS applications.",
@@ -163,7 +163,7 @@ export const testHighlights: Record<string, Array<CommentedHighlight>> = {
       id: "9298580906684795",
     },
   ],
-  "https://arxiv.org/pdf/1604.02480.pdf": [
+  "https://arxiv.org/pdf/1604.02480": [
     {
       content: {
         text: "SSA",

@@ -4,12 +4,6 @@ import "../style/pdf_viewer.css";
 
 import debounce from "lodash.debounce";
 import { PDFDocumentProxy } from "pdfjs-dist";
-import {
-  EventBus,
-  NullL10n,
-  PDFLinkService,
-  PDFViewer,
-} from "pdfjs-dist/legacy/web/pdf_viewer";
 import React, {
   CSSProperties,
   PointerEventHandler,
@@ -24,7 +18,6 @@ import {
   PdfHighlighterUtils,
 } from "../contexts/PdfHighlighterContext";
 import { scaledToViewport, viewportPositionToScaled } from "../lib/coordinates";
-import { disableTextSelection } from "../lib/disable-text-selection";
 import getBoundingRect from "../lib/get-bounding-rect";
 import getClientRects from "../lib/get-client-rects";
 import groupHighlightsByPage from "../lib/group-highlights-by-page";
@@ -49,6 +42,10 @@ import { HighlightLayer } from "./HighlightLayer";
 import { MouseSelection } from "./MouseSelection";
 import { TipContainer } from "./TipContainer";
 
+// Due to breaking changes in PDF.js 4.0.189. See issue #17228
+const { EventBus, PDFLinkService, PDFViewer } = await import("pdfjs-dist/web/pdf_viewer.mjs");
+
+
 const SCROLL_MARGIN = 10;
 const SELECTION_DELAY = 250; // Debounce wait time in milliseconds for a selection changing to be registered
 const DEFAULT_SCALE_VALUE = "auto";
@@ -59,6 +56,10 @@ const findOrCreateHighlightLayer = (textLayer: HTMLElement) => {
     textLayer,
     "PdfHighlighter__highlight-layer",
   );
+};
+
+const disableTextSelection = (viewer: InstanceType<typeof PDFViewer>, flag: boolean) => {
+  viewer.viewer?.classList.toggle("PdfHighlighter--disable-selection", flag);
 };
 
 /**
@@ -201,15 +202,15 @@ export const PdfHighlighter = ({
   const isEditInProgressRef = useRef(false);
   const updateTipPositionRef = useRef(() => {});
 
-  const eventBusRef = useRef<EventBus>(new EventBus());
-  const linkServiceRef = useRef<PDFLinkService>(
+  const eventBusRef = useRef<InstanceType<typeof EventBus>>(new EventBus());
+  const linkServiceRef = useRef<InstanceType<typeof PDFLinkService>>(
     new PDFLinkService({
       eventBus: eventBusRef.current,
       externalLinkTarget: 2,
     }),
   );
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
-  const viewerRef = useRef<PDFViewer | null>(null);
+  const viewerRef = useRef<InstanceType<typeof PDFViewer> | null>(null);
 
   // Initialise PDF Viewer
   useLayoutEffect(() => {
@@ -221,12 +222,9 @@ export const PdfHighlighter = ({
         new PDFViewer({
           container: containerNodeRef.current!,
           eventBus: eventBusRef.current,
-          // @ts-ignore enhanceTextSelection is deprecated but this is the last version to support it. See: https://github.com/DanielArnould/react-pdf-highlighter-extended/issues/3
-          enhanceTextSelection: true,
           textLayerMode: 2,
           removePageBorders: true,
           linkService: linkServiceRef.current,
-          l10n: NullL10n, // No localisation
         });
 
       viewerRef.current.setDocument(pdfDocument);
@@ -400,7 +398,7 @@ export const PdfHighlighter = ({
 
         // textLayer.div for version >=3.0 and textLayer.textLayerDiv otherwise.
         const highlightLayer = findOrCreateHighlightLayer(
-          textLayer.textLayerDiv,
+          textLayer.div,
         );
 
         if (highlightLayer) {
@@ -408,7 +406,7 @@ export const PdfHighlighter = ({
           highlightBindingsRef.current[pageNumber] = {
             reactRoot,
             container: highlightLayer,
-            textLayer: textLayer.textLayerDiv, // textLayer.div for version >=3.0 and textLayer.textLayerDiv otherwise.
+            textLayer: textLayer.div, // textLayer.div for version >=3.0 and textLayer.textLayerDiv otherwise.
           };
 
           renderHighlightLayer(

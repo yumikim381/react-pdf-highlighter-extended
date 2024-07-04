@@ -30,14 +30,14 @@
   "scripts": {
     "start": "npm run dev",
     "dev": "(cd ./example && vite)",
-    "build": "npm run clean && npm run build:esm && npm run build:copy-styles && npm run build:example && npm run build:docs",
+    "build": "npm run clean && npm i && npm run build:esm && npm run build:copy-styles && npm run build:example && npm run build:docs",
     "build:esm": "tsc",
     "build:copy-styles": "cp -r ./src/style ./dist/esm && cp -r ./src/style ./dist/cjs",
     "build:example": "(cd ./example && tsc && vite build && mkdir \"../public/\" && cp -r example-app ../public/)",
     "build:docs": "npx typedoc",
     "format": "prettier --write './**/*.{js,ts,tsx}'",
     "format:check": "prettier --check './**/*.{js,ts,tsx}'",
-    "clean": "rm -rf dist public"
+    "clean": "rm -rf dist public node_modules package-lock.json"
   },
   "peerDependencies": {
     "react": "^18.2.0",

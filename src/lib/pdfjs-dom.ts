@@ -76,12 +76,13 @@ export const findOrCreateContainerLayer = (
   className: string,
 ) => {
   const doc = getDocument(container);
-  let layer = container?.querySelector(`.${className}`);
+  let layer = container.querySelector(`.${className}`);
 
-  if (!layer) {
+  // To ensure predictable zIndexing, wait until the pdfjs element has children.
+  if (!layer && container.children.length) {
     layer = doc.createElement("div");
     layer.className = className;
-    container?.appendChild(layer);
+    container.appendChild(layer);
   }
 
   return layer;

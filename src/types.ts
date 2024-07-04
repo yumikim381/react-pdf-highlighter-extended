@@ -25,7 +25,7 @@ export type LTWHP = LTWH & {
 
 /**
  * "scaled" means that data structure stores (0, 1) coordinates.
- *  for clarity reasons I decided not to store actual (0, 1) coordinates, but
+ *  for clarity reasons I decided not to store actual (0, 1) coordinates but
  *  provide width and height, so user can compute ratio himself if needed
  *
  * @category Type

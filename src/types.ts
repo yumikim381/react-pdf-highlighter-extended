@@ -89,8 +89,8 @@ export type Content = {
  */
 export interface Highlight {
   id: string;
-  content: Content;
   position: ScaledPosition;
+  content?: Content;
 }
 
 /**

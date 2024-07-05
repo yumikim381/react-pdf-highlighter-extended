@@ -71,7 +71,7 @@ const App = () => {
 
   const handleContextMenu = (
     event: MouseEvent<HTMLDivElement>,
-    highlight: ViewportHighlight,
+    highlight: ViewportHighlight<CommentedHighlight>,
   ) => {
     event.preventDefault();
 

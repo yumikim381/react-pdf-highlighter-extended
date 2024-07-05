@@ -312,10 +312,12 @@ export const PdfHighlighter = ({
 
     selectionRef.current = {
       content,
+      type: "text",
       position: scaledPosition,
       makeGhostHighlight: () => {
         ghostHighlightRef.current = {
           content: content,
+          type: "text",
           position: scaledPosition,
         };
 
@@ -473,8 +475,6 @@ export const PdfHighlighter = ({
       pageNumber - 1,
     ).viewport;
 
-    console.log(pageViewport);
-
     viewerRef.current!.scrollPageIntoView({
       pageNumber,
       destArray: [
@@ -562,10 +562,12 @@ export const PdfHighlighter = ({
             ) => {
               selectionRef.current = {
                 content: { image },
+                type: "area",
                 position: scaledPosition,
                 makeGhostHighlight: () => {
                   ghostHighlightRef.current = {
                     position: scaledPosition,
+                    type: "area",
                     content: { image },
                   };
                   onCreateGhostHighlight &&

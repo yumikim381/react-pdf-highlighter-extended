@@ -42,6 +42,7 @@ const App = () => {
   const [pdfScaleValue, setPdfScaleValue] = useState<number | undefined>(
     undefined,
   );
+  const [highlightPen, setHighlightPen] = useState<boolean>(false);
 
   // Refs for PdfHighlighter utilities
   const highlighterUtilsRef = useRef<PdfHighlighterUtils>();
@@ -168,7 +169,7 @@ const App = () => {
           flexGrow: 1,
         }}
       >
-        <Toolbar setPdfScaleValue={(value) => setPdfScaleValue(value)} />
+        <Toolbar setPdfScaleValue={(value) => setPdfScaleValue(value)} toggleHighlightPen={() => setHighlightPen(!highlightPen)} />
         <PdfLoader document={url}>
           {(pdfDocument) => (
             <PdfHighlighter
@@ -179,7 +180,9 @@ const App = () => {
                 highlighterUtilsRef.current = _pdfHighlighterUtils;
               }}
               pdfScaleValue={pdfScaleValue}
-              selectionTip={<ExpandableTip addHighlight={addHighlight} />}
+              textSelectionColor={highlightPen ? "rgba(255, 226, 143, 1)" : undefined}
+              onSelection={highlightPen ? (selection) => addHighlight(selection.makeGhostHighlight(), "") : undefined}
+              selectionTip={highlightPen ? undefined : <ExpandableTip addHighlight={addHighlight} />}
               highlights={highlights}
               style={{
                 height: "calc(100% - 41px)",

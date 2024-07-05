@@ -4,10 +4,12 @@ import "./style/Toolbar.css";
 
 interface ToolbarProps {
   setPdfScaleValue: (value: number) => void;
+  toggleHighlightPen: () => void;
 }
 
-const Toolbar = ({ setPdfScaleValue }: ToolbarProps) => {
+const Toolbar = ({ setPdfScaleValue, toggleHighlightPen }: ToolbarProps) => {
   const [zoom, setZoom] = useState<number | null>(null);
+  const [isHighlightPen, setIsHighlightPen] = useState<boolean>(false);
 
   const zoomIn = () => {
     if (zoom) {
@@ -36,10 +38,14 @@ const Toolbar = ({ setPdfScaleValue }: ToolbarProps) => {
   return (
     <div className="Toolbar">
       <div className="ZoomControls">
-        <button onClick={zoomIn}>+</button>
-        <button onClick={zoomOut}>-</button>
+        <button title="Zoom in" onClick={zoomIn}>+</button>
+        <button title="Zoom out" onClick={zoomOut}>-</button>
         {zoom ? `${(zoom * 100).toFixed(0)}%` : "Auto"}
       </div>
+      <button title="Highlight" className={`HighlightButton ${isHighlightPen ? 'active' : ''}`} onClick={() => {
+        toggleHighlightPen();
+        setIsHighlightPen(!isHighlightPen);
+      }}>Toggle Highlights</button>
     </div>
   );
 };

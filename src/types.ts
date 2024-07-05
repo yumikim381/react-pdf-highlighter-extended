@@ -71,8 +71,6 @@ export type ScaledPosition = {
   usePdfCoordinates?: boolean;
 };
 
-
-
 /**
  * The content of a highlight
  *

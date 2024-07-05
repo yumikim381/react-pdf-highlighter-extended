@@ -260,7 +260,6 @@ export const PdfHighlighter = ({
 
     eventBusRef.current.on("textlayerrendered", renderHighlightLayers);
     eventBusRef.current.on("pagesinit", handleScaleValue);
-    doc.addEventListener("selectionchange", debouncedHandleSelectionChange);
     doc.addEventListener("keydown", handleKeyDown);
 
     renderHighlightLayers();
@@ -268,10 +267,6 @@ export const PdfHighlighter = ({
     return () => {
       eventBusRef.current.off("pagesinit", handleScaleValue);
       eventBusRef.current.off("textlayerrendered", renderHighlightLayers);
-      doc.removeEventListener(
-        "selectionchange",
-        debouncedHandleSelectionChange,
-      );
       doc.removeEventListener("keydown", handleKeyDown);
       resizeObserverRef.current?.disconnect();
     };
@@ -284,7 +279,7 @@ export const PdfHighlighter = ({
     renderHighlightLayers();
   };
 
-  const debouncedHandleSelectionChange = debounce(() => {
+  const handleMouseUp: PointerEventHandler = () => {
     const container = containerNodeRef.current;
     const selection = getWindow(container).getSelection();
 
@@ -337,7 +332,7 @@ export const PdfHighlighter = ({
 
     selectionTip &&
       setTip({ position: viewportPosition, content: selectionTip });
-  }, SELECTION_DELAY);
+  };
 
   const handleMouseDown: PointerEventHandler = (event) => {
     if (
@@ -530,6 +525,7 @@ export const PdfHighlighter = ({
         ref={containerNodeRef}
         className="PdfHighlighter"
         onPointerDown={handleMouseDown}
+        onPointerUp={handleMouseUp}
         style={style}
       >
         <div className="pdfViewer" />

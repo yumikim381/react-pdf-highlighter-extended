@@ -18,7 +18,7 @@ interface HighlightContainerProps {
   ) => void;
   onContextMenu?: (
     event: MouseEvent<HTMLDivElement>,
-    highlight: ViewportHighlight,
+    highlight: ViewportHighlight<CommentedHighlight>,
   ) => void;
 }
 
@@ -36,11 +36,7 @@ const HighlightContainer = ({
 
   const { toggleEditInProgress } = usePdfHighlighterContext();
 
-  const isTextHighlight = !Boolean(
-    highlight.content && highlight.content.image,
-  );
-
-  const component = isTextHighlight ? (
+  const component = highlight.type === "text" ? (
     <TextHighlight
       isScrolledTo={isScrolledTo}
       highlight={highlight}

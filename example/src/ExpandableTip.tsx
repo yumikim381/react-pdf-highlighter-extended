@@ -46,6 +46,7 @@ const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
             addHighlight(
               {
                 content: selectionRef.current!.content,
+                type: selectionRef.current!.type,
                 position: selectionRef.current!.position,
               },
               input,

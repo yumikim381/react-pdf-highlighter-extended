@@ -71,6 +71,8 @@ export type ScaledPosition = {
   usePdfCoordinates?: boolean;
 };
 
+
+
 /**
  * The content of a highlight
  *
@@ -82,6 +84,14 @@ export type Content = {
 };
 
 /**
+ * What type the highlight is. This is the ideal way to determine whether to
+ * render it in an AreaHighlight or TextHighlight.
+ *
+ * @category Type
+ */
+export type HighlightType = "text" | "area";
+
+/**
  * This represents a selected (text/mouse) area that has been turned into a
  * highlight. If you are storing highlights, they should be stored as this type.
  *
@@ -89,7 +99,17 @@ export type Content = {
  */
 export interface Highlight {
   id: string;
-  content: Content;
+  /**
+   * This property is planned to be non-optional in future.
+   */
+  type?: HighlightType;
+  /**
+   * @deprecated If you want your highlight to store content after being a
+   * GhostHighlight, you should create your own interface extended off this. If
+   * you are currently using this property to determine what kind of highlight
+   * to render, please use {@link type}.
+   */
+  content?: Content
   position: ScaledPosition;
 }
 
@@ -99,7 +119,9 @@ export interface Highlight {
  *
  * @category Type
  */
-export type GhostHighlight = Omit<Highlight, "id">;
+export interface GhostHighlight extends Required<Omit<Highlight, "id">> {
+  content: Content;
+}
 
 /**
  * This represents a rendered highlight, with its position defined by the page

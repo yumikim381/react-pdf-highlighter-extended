@@ -42,8 +42,17 @@ import { HighlightLayer } from "./HighlightLayer";
 import { MouseSelection } from "./MouseSelection";
 import { TipContainer } from "./TipContainer";
 
-// Due to breaking changes in PDF.js 4.0.189. See issue #17228
-const { EventBus, PDFLinkService, PDFViewer } = await import("pdfjs-dist/web/pdf_viewer.mjs");
+import type { EventBus as TEventBus, PDFLinkService as TPDFLinkService, PDFViewer as TPDFViewer } from "pdfjs-dist/web/pdf_viewer.mjs";
+
+let EventBus: typeof TEventBus, PDFLinkService: typeof TPDFLinkService, PDFViewer: typeof TPDFViewer;
+
+(async () => {
+  // Due to breaking changes in PDF.js 4.0.189. See issue #17228
+  const pdfjs = await import("pdfjs-dist/web/pdf_viewer.mjs");
+  EventBus = pdfjs.EventBus;
+  PDFLinkService = pdfjs.PDFLinkService;
+  PDFViewer = pdfjs.PDFViewer;
+})();
 
 
 const SCROLL_MARGIN = 10;
@@ -200,7 +209,7 @@ export const PdfHighlighter = ({
   const scrolledToHighlightIdRef = useRef<string | null>(null);
   const isAreaSelectionInProgressRef = useRef(false);
   const isEditInProgressRef = useRef(false);
-  const updateTipPositionRef = useRef(() => {});
+  const updateTipPositionRef = useRef(() => { });
 
   const eventBusRef = useRef<InstanceType<typeof EventBus>>(new EventBus());
   const linkServiceRef = useRef<InstanceType<typeof PDFLinkService>>(
@@ -480,7 +489,7 @@ export const PdfHighlighter = ({
         ...pageViewport.convertToPdfPoint(
           0, // Default x coord
           scaledToViewport(boundingRect, pageViewport, usePdfCoordinates).top -
-            SCROLL_MARGIN,
+          SCROLL_MARGIN,
         ),
         0, // Default z coord
       ],

@@ -473,6 +473,8 @@ export const PdfHighlighter = ({
       pageNumber - 1,
     ).viewport;
 
+    console.log(pageViewport);
+
     viewerRef.current!.scrollPageIntoView({
       pageNumber,
       destArray: [

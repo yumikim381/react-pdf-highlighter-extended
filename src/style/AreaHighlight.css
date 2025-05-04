@@ -2,7 +2,11 @@
   cursor: pointer;
   position: absolute;
   background: rgba(255, 226, 143, 1);
-  transition: background 0.3s;
+  transition: background 0.2s ease;
+}
+
+.AreaHighlight:hover .AreaHighlight__part {
+  background: rgb(255, 206, 107);
 }
 
 .AreaHighlight--scrolledTo .AreaHighlight__part {

@@ -1,7 +1,7 @@
 {
   "name": "@yumkim/react-pdf-highlighter-extended",
   "type": "module",
-  "version": "8.2.3",
+  "version": "8.2.6",
   "description": "Set of modern React components for PDF highlighting",
   "author": "Daniel Arnould <daniel.s.arnould@gmail.com>",
   "license": "MIT",

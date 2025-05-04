@@ -1,7 +1,22 @@
 import React, { ReactNode, useEffect, useRef, useState } from "react";
+// import { version as pdfjsVersion } from "pdfjs-dist";
+import * as pdfjs from "pdfjs-dist";
 
-import { GlobalWorkerOptions, OnProgressParameters, getDocument, type PDFDocumentLoadingTask, type PDFDocumentProxy } from "pdfjs-dist";
-import { DocumentInitParameters, TypedArray } from "pdfjs-dist/types/src/display/api";
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+).toString();
+
+import {
+  OnProgressParameters,
+  getDocument,
+  type PDFDocumentLoadingTask,
+  type PDFDocumentProxy,
+} from "pdfjs-dist";
+import {
+  DocumentInitParameters,
+  TypedArray,
+} from "pdfjs-dist/types/src/display/api";
 
 const DEFAULT_BEFORE_LOAD = (progress: OnProgressParameters) => (
   <div style={{ color: "black" }}>
@@ -17,8 +32,11 @@ const DEFAULT_ON_ERROR = (error: Error) => {
   throw new Error(`Error loading PDF document: ${error.message}!`);
 };
 
-const DEFAULT_WORKER_SRC =
-  "https://unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs";
+// const pdfjsVersion = "4.8.69"; // HARD_CODED CAUSE react-pdf requires it
+// const DEFAULT_WORKER_SRC = `https://unpkg.com/pdfjs-dist@${pdfjsVersion}/build/pdf.worker.min.js`;
+
+// const DEFAULT_WORKER_SRC =
+//   "https://unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs";
 
 /**
  * The props type for {@link PdfLoader}.
@@ -64,12 +82,6 @@ export interface PdfLoaderProps {
    * @returns - Component to be rendered in space of the PDF document.
    */
   onError?(error: Error): void;
-
-  /**
-   * NOTE: This will be applied to all PdfLoader instances.
-   * If you want to only apply a source to this instance, use the document parameters.
-   */
-  workerSrc?: string;
 }
 
 /**
@@ -83,7 +95,6 @@ export const PdfLoader = ({
   errorMessage = DEFAULT_ERROR_MESSAGE,
   children,
   onError = DEFAULT_ON_ERROR,
-  workerSrc = DEFAULT_WORKER_SRC,
 }: PdfLoaderProps) => {
   const pdfLoadingTaskRef = useRef<PDFDocumentLoadingTask | null>(null);
   const pdfDocumentRef = useRef<PDFDocumentProxy | null>(null);
@@ -94,7 +105,7 @@ export const PdfLoader = ({
 
   // Intitialise document
   useEffect(() => {
-    GlobalWorkerOptions.workerSrc = workerSrc;
+    // GlobalWorkerOptions.workerSrc = workerUrl;
     pdfLoadingTaskRef.current = getDocument(document);
     pdfLoadingTaskRef.current.onProgress = (progress: OnProgressParameters) => {
       setLoadingProgress(progress.loaded > progress.total ? null : progress);
@@ -128,6 +139,6 @@ export const PdfLoader = ({
   return error
     ? errorMessage(error)
     : loadingProgress
-      ? beforeLoad(loadingProgress)
-      : pdfDocumentRef.current && children(pdfDocumentRef.current);
+    ? beforeLoad(loadingProgress)
+    : pdfDocumentRef.current && children(pdfDocumentRef.current);
 };
